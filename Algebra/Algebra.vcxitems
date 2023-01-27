@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{477b7882-6ac6-40e4-a464-ef498ce6c04a}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexDefinitions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexFunctions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.Algorithm.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.Complex.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalDefinitions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalFunctions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.StandardDefinitions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.StandardFunctions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorDenseDynamic.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorDenseFixed.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorFunctions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.Utils.cppm" />
+  </ItemGroup>
+</Project>

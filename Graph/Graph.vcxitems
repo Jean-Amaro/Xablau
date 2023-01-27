@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{9d153626-6abd-4b6f-92d3-1ebdfd406ebc}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.GraphConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Node.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.NodeConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Edge.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.BinaryTree.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.BinaryTreeNode.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.FundamentalConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Digraph.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Graph.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.NaryTree.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.NaryTreeNode.cppm" />
+  </ItemGroup>
+</Project>

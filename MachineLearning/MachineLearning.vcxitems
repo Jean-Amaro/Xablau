@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{9ce5e8d0-0a17-41d9-ab21-0fc4d41545ae}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.MachineLearning.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.MachineLearning.BoundaryDescriptorClassifier.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.MachineLearning.Eigen.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.MachineLearning.Eigen.h" />
+  </ItemGroup>
+</Project>

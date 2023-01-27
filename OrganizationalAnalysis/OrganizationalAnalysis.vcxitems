@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{3154841c-70a1-435f-9d43-a5991e55390a}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.OrganizationalAnalysis.Processor.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.OrganizationalAnalysis.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.OrganizationalAnalysis.FundamentalDefinitions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.OrganizationalAnalysis.Reader.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.OrganizationalAnalysis.Writer.cppm" />
+  </ItemGroup>
+</Project>

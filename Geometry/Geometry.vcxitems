@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{60a0e12f-0771-476b-8669-0420645e2ef7}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Algorithm.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.EuclideanTriangle.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.EuclideanTriangleConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.ForwardDeclarations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.FundamentalConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.FundamentalConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.FundamentalFunctions.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Hyperplane.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.HyperplaneConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Hypersphere.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.HypersphereConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Line.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Polytope.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Segment.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Vector.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.VectorConfigurations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.Vertex.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.VoxelSpace.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Geometry.VoxelSpaceConfigurations.cppm" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Spheres">
+      <UniqueIdentifier>{88a929cb-c828-429c-a240-1f4cbe47370d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icosahedron1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Icosahedron2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Icosahedron3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Icosahedron0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin0.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin1.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin2.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin3.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Icosahedron5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars5.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Icosahedron4.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Rusin4.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="HEALPix4.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Deserno4.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="Kogan4.off">
+      <Filter>Spheres</Filter>
+    </None>
+    <None Include="SaffKuijlaars4.off">
+      <Filter>Spheres</Filter>
+    </None>
+  </ItemGroup>
+</Project>

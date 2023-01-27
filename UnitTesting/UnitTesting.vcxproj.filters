@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Algebra">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{df55289c-b07a-4cb2-abbc-1498e148979a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graph">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{e9368993-ba13-4a0d-a863-8b1e08e0c5bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Color">
+      <UniqueIdentifier>{d81cdcaa-7f8e-4058-b5bb-3a42afa3396d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ComputerGraphics">
+      <UniqueIdentifier>{a57ac23e-e98c-4f9f-b2b2-c77b8bad4def}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Algebra.Complex.cppm">
+      <Filter>Algebra</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Algebra.TensorDenseDynamic.cppm">
+      <Filter>Algebra</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Algebra.TensorDenseFixed.cppm">
+      <Filter>Algebra</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Hyperplane.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Line.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Segment.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Vector.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Vertex.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.BinaryTree.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.BinaryTreeNode.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.Digraph.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.Graph.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.NaryTree.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Graph.NaryTreeNode.cppm">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.EuclideanTriangle.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Hypersphere.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.IO.FileStream.cppm">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.RGB.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.CIELab.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.HSV.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.HSL.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.Oklab.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Color.XYZ.cppm">
+      <Filter>Color</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.ComputerGraphics.Object3D.cppm">
+      <Filter>ComputerGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Geometry.Algorithm.cppm">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

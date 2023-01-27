@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{49dd8960-037e-486f-ab78-9e7fc7a5a12e}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.CIELab.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.CIEStandardIlluminants.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.Companding.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.HSL.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.HSV.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.Oklab.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.RGB.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.RGBWorkingSpaces.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.ForwardDeclarations.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.Utils.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Color.XYZ.cppm" />
+  </ItemGroup>
+</Project>

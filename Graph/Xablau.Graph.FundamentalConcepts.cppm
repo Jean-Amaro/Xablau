@@ -39,6 +39,28 @@ export import xablau.algebra;
 
 namespace xablau::graph::concepts
 {
+	export template < typename Node >
+	concept node =
+		std::same_as < decltype(Node::value), typename Node::value_type > &&
+		std::is_object < typename Node::value_type > ::value &&
+
+		requires ()
+		{
+			{ Node { std::declval < const typename Node::value_type & > () } } -> std::same_as < Node >;
+			{ Node { std::declval < typename Node::value_type && > () } } -> std::same_as < Node >;
+		};
+
+	export template < typename Edge >
+	concept edge =
+		std::regular < Edge > &&
+		std::same_as < decltype(Edge::weight), typename Edge::weight_type > &&
+		xablau::algebra::concepts::basic_assignable_arithmetic < typename Edge::weight_type > &&
+
+		requires ()
+		{
+			{ Edge { typename Edge::weight_type{} } } noexcept -> std::same_as < Edge >;
+		};
+
 	namespace internals
 	{
 		template < typename Class, typename EdgeType >
@@ -244,17 +266,6 @@ namespace xablau::graph::concepts
 	export template < typename Type >
 	concept nary_tree_node_container =
 		internals::is_specialization_nary_tree_node_container_value < Type, graph::nary_tree_node_container > ::value;
-
-	export template < typename Node >
-	concept node =
-		std::same_as < decltype(Node::value), typename Node::value_type > &&
-		std::is_object < typename Node::value_type > ::value &&
-
-		requires ()
-		{
-			{ Node { std::declval < const typename Node::value_type & > () } } -> std::same_as < Node >;
-			{ Node { std::declval < typename Node::value_type && > () } } -> std::same_as < Node >;
-		};
 
 	export template < typename Node >
 	concept binary_node =
@@ -521,17 +532,6 @@ namespace xablau::graph::concepts
 
 	export template < typename Type >
 	concept graph_container_type = internals::is_specialization_graph_container_type_value < Type, graph::graph_container_type > ::value;
-
-	export template < typename Edge >
-	concept edge =
-		std::regular < Edge > &&
-		std::same_as < decltype(Edge::weight), typename Edge::weight_type > &&
-		xablau::algebra::concepts::basic_assignable_arithmetic < typename Edge::weight_type > &&
-
-		requires ()
-		{
-			{ Edge { typename Edge::weight_type{} } } noexcept -> std::same_as < Edge >;
-		};
 
 	template < typename NodeType, typename ContainerType >
 	concept graph_requirements =

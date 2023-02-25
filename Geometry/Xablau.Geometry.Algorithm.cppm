@@ -1590,7 +1590,7 @@ namespace xablau::geometry::algorithm
 
 	// https://link.springer.com/chapter/10.1007/978-3-540-39658-1_57
 	// Shamelessly adapted from: https://github.com/hbf/miniball
-	export template < typename Range >
+	export template < bool RandomizeVertices, typename Range >
 	requires (
 		std::ranges::random_access_range < Range > &&
 		std::ranges::sized_range < Range > &&
@@ -1620,14 +1620,11 @@ namespace xablau::geometry::algorithm
 				return result;
 			}
 
-			// BUG: Investigate why the order of vertices impacts on the result and remove this "gambiarra".
-			const auto shuffleCount = std::min(vertices.size(), size_t{5});
-			std::random_device randomDevice;
-			std::default_random_engine engine(randomDevice());
-			RadiusType smallestRadius = std::numeric_limits < RadiusType > ::max();
-
-			for (size_t i = 0; i < shuffleCount; i++)
+			if constexpr (RandomizeVertices)
 			{
+				// BUG: Investigate why the order of vertices impacts so much on the result and remove this "gambiarra".
+				std::random_device randomDevice;
+				std::default_random_engine engine(randomDevice());
 				auto _vertices = vertices;
 
 				std::ranges::shuffle(_vertices, engine);
@@ -1637,12 +1634,19 @@ namespace xablau::geometry::algorithm
 					std::ranges::range_value_t < Range > ::dimensionality(),
 					Range > seb(_vertices);
 
-				if (smallestRadius > seb.radius())
-				{
-					smallestRadius = seb.radius();
-					result.radius = seb.radius();
-					result.center = seb.center();
-				}
+				result.radius = seb.radius();
+				result.center = seb.center();
+			}
+
+			else
+			{
+				internals::Fischer_Gartner_Kutz_smallest_enclosing_ball <
+					typename std::ranges::range_value_t < Range > ::value_type,
+					std::ranges::range_value_t < Range > ::dimensionality(),
+					Range > seb(vertices);
+
+				result.radius = seb.radius();
+				result.center = seb.center();
 			}
 		}
 

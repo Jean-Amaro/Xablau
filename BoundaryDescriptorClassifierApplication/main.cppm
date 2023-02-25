@@ -58,8 +58,9 @@ std::pair <
 void read_inputs(
 	const char *baseDirectory,
 	const std::filesystem::path &output,
-	xablau::machine_learning::boundary_descriptor_classifier < Type > &descriptor_classifier,
+	xablau::machine_learning::boundary_descriptor_classifier < Type > &descriptorClassifier,
 	const size_t neighborRadiusLimit,
+	const bool generateReducedObject,
 	const size_t unitsInTheLastPlace)
 {
 	const std::filesystem::path dataset{baseDirectory};
@@ -84,12 +85,20 @@ void read_inputs(
 
 		object.erase_orphan_vertices();
 
-		const auto reducedObjects =
-			descriptor_classifier.add_category(object, neighborRadiusLimit, unitsInTheLastPlace).split_groups_into_objects();
-
-		for (const auto &reducedObject : reducedObjects)
+		if (generateReducedObject)
 		{
-			reducedObject.write_Wavefront_format < true > (output);
+			const auto reducedObjects =
+				descriptorClassifier.insert_samples < true > (object, neighborRadiusLimit, unitsInTheLastPlace).split_groups_into_objects();
+
+			for (const auto &reducedObject : reducedObjects)
+			{
+				reducedObject.write_Wavefront_format < true > (output);
+			}
+		}
+
+		else
+		{
+			descriptorClassifier.insert_samples < false > (object, neighborRadiusLimit, unitsInTheLastPlace);
 		}
 
 		std::cout << "\n";
@@ -520,6 +529,7 @@ void validate(
 	const std::filesystem::path &outputResults,
 	const std::filesystem::path &outputSuccessRate,
 	const char separator,
+	const bool generateReducedObject,
 	const size_t unitsInTheLastPlace)
 {
 	std::vector < std::string > categoryNames;
@@ -551,12 +561,24 @@ void validate(
 
 		object.erase_orphan_vertices();
 
-		const auto [results, reducedObjects] = descriptorClassifier.evaluate(object, neighborRadiusLimit, unitsInTheLastPlace);
-		const auto splitedReducedObjects = reducedObjects.split_groups_into_objects();
+		std::vector < xablau::machine_learning::boundary_descriptor_classifier < Type > ::result_type > results;
 
-		for (const auto &reducedObject : splitedReducedObjects)
+		if (generateReducedObject)
 		{
-			reducedObject.write_Wavefront_format < true > (output);
+			auto [_results, reducedObjects] = descriptorClassifier.evaluate < true > (object, neighborRadiusLimit, unitsInTheLastPlace);
+			const auto splitedReducedObjects = reducedObjects.split_groups_into_objects();
+
+			for (const auto &reducedObject : splitedReducedObjects)
+			{
+				reducedObject.write_Wavefront_format < true > (output);
+			}
+
+			results = std::move(_results);
+		}
+
+		else
+		{
+			results = descriptorClassifier.evaluate < false > (object, neighborRadiusLimit, unitsInTheLastPlace);
 		}
 
 		for (size_t i = 0; i < results.size(); i++)
@@ -586,11 +608,13 @@ void validate(
 
 int main(int argc, char **argv)
 {
-	if (argc < 7)
+	if (argc < 8)
 	{
 		return -1;
 	}
+
 	constexpr auto unitsInTheLastPlace = static_cast < size_t > (Type{0.0001} / std::numeric_limits < Type > ::epsilon());
+	const bool generateReducedObject = argv[7][0] == '1' ? true : false;
 	const std::string outputPathString(argv[6]);
 	const std::filesystem::path spherePath{argv[2]};
 	const std::filesystem::path outputPath{outputPathString};
@@ -610,10 +634,15 @@ int main(int argc, char **argv)
 	std::filesystem::remove_all(outputPath);
 
 	if (!std::filesystem::create_directory(outputPath) ||
-		!std::filesystem::create_directory(outputTraining) ||
-		!std::filesystem::create_directory(outputEvaluation) ||
 		!std::filesystem::create_directory(outputResults) ||
 		!std::filesystem::create_directory(outputSuccessRate))
+	{
+		return -2;
+	}
+
+	if (generateReducedObject && (
+		!std::filesystem::create_directory(outputTraining) ||
+		!std::filesystem::create_directory(outputEvaluation)))
 	{
 		return -2;
 	}
@@ -625,6 +654,7 @@ int main(int argc, char **argv)
 		outputTraining,
 		descriptorClassifier,
 		std::stoll(argv[3]),
+		generateReducedObject,
 		unitsInTheLastPlace);
 
 	validate(
@@ -636,7 +666,21 @@ int main(int argc, char **argv)
 		outputResults,
 		outputSuccessRate,
 		separator,
+		generateReducedObject,
 		unitsInTheLastPlace);
+
+	xablau::io::fstream < char > inferno(
+		spherePath.string() + ".txt",
+		std::ios_base::out | std::ios_base::trunc);
+
+	inferno <<
+		"It took " <<
+		std::chrono::duration_cast < std::chrono::milliseconds > (descriptorClassifier.timer_samples_insertion()).count() <<
+		" milliseconds to add every sample.\n" <<
+
+		"It took " <<
+		std::chrono::duration_cast < std::chrono::milliseconds > (descriptorClassifier.timer_evaluation()).count() <<
+		" milliseconds to evaluate every test case.\n";
 
 	return 0;
 }

@@ -836,23 +836,23 @@ namespace xablau::unit_testing
 	TYPED_TEST_P(GeometryAlgorithmTest, BoundingHypersphereFischerGartnerKutz)
 	{
 		const auto result0 =
-			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(
+			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < false > (
 				this->verticesOnHypersphere < 0 > ());
 
 		const auto result1 =
-			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(
+			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < false > (
 				this->verticesOnHypersphere < 1 > ());
 
 		const auto result2 =
-			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(
+			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < false > (
 				this->verticesOnHypersphere < 2 > ());
 
 		const auto result3 =
-			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(
+			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < false > (
 				this->verticesOnHypersphere < 3 > ());
 
 		const auto result4 =
-			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(
+			xablau::geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < false > (
 				this->verticesOnHypersphere < 4 > ());
 
 		xablau::geometry::hypersphere <

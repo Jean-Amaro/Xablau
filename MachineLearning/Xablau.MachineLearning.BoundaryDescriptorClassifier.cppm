@@ -31,6 +31,7 @@ module;
 export module xablau.machine_learning:boundary_descriptor_classifier;
 
 export import <array>;
+export import <chrono>;
 export import <cmath>;
 export import <mutex>;
 export import <ranges>;
@@ -46,20 +47,7 @@ export namespace xablau::machine_learning
 	template < std::floating_point Type >
 	class boundary_descriptor_classifier final
 	{
-	private:
-		using matrix_type =
-			xablau::algebra::tensor_dense_dynamic <
-				Type,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > >;
-
-		struct labeled_eigenvalues_type
-		{
-			std::string sample_name;
-			std::vector < Type > outer_eigenvalues;
-			std::vector < Type > complete_eigenvalues;
-		};
-
+	public:
 		struct labeled_sample_distance_type
 		{
 			std::string sample_name;
@@ -82,6 +70,20 @@ export namespace xablau::machine_learning
 			std::map < Type, std::string > average_complete_eigenvalue_matches_by_value;
 		};
 
+	private:
+		using matrix_type =
+			xablau::algebra::tensor_dense_dynamic <
+				Type,
+				xablau::algebra::tensor_rank < 2 >,
+				xablau::algebra::tensor_contiguity < true > >;
+
+		struct labeled_eigenvalues_type
+		{
+			std::string sample_name;
+			std::vector < Type > outer_eigenvalues;
+			std::vector < Type > complete_eigenvalues;
+		};
+
 		using vector_of_labeled_eigenvalues = std::vector < labeled_eigenvalues_type >;
 
 		std::string _sphere_algorithm_name;
@@ -96,6 +98,9 @@ export namespace xablau::machine_learning
 		matrix_type _connections_distance_matrix{};
 
 		std::map < std::string, vector_of_labeled_eigenvalues > _eigenvalues{};
+
+		std::chrono::nanoseconds _timer_samples_insertion{};
+		mutable std::chrono::nanoseconds _timer_evaluation{};
 
 		template <
 			typename VerticesType,
@@ -698,7 +703,8 @@ export namespace xablau::machine_learning
 		}
 
 	public:
-		computer_graphics::object_3d < Type > add_category(
+		template < bool GenerateReducedObject >
+		auto insert_samples(
 			const computer_graphics::object_3d < Type > &object,
 			const size_t neighborRadiusLimit = 1,
 			const size_t unitsInTheLastPlace = 1)
@@ -708,6 +714,8 @@ export namespace xablau::machine_learning
 				throw std::invalid_argument(""); // TODO: Create message.
 			}
 
+			const auto startTime = std::chrono::steady_clock::now();
+
 			auto &categoryEigenvalues =
 				this->_eigenvalues.emplace(object.name(), vector_of_labeled_eigenvalues()).first->second;
 
@@ -716,9 +724,6 @@ export namespace xablau::machine_learning
 			categoryEigenvalues.resize(categoryEigenvalues.size() + object.group_count());
 
 			const auto beginIterator = categoryEigenvalues.begin() + beginIndex;
-
-			std::mutex mutex;
-			computer_graphics::object_3d < Type > reducedObject(object.name());
 			std::vector < size_t > indices(object.group_count());
 
 			std::generate(indices.begin(), indices.end(),
@@ -727,11 +732,20 @@ export namespace xablau::machine_learning
 					return n++;
 				});
 
-			for (size_t i = 0; i < object.group_count(); i++)
+			computer_graphics::object_3d < Type > reducedObject;
+
+			if constexpr (GenerateReducedObject)
 			{
-				reducedObject.insert_group(object.group_name(i) + "_outer");
-				reducedObject.insert_group(object.group_name(i) + "_inner");
+				reducedObject.name(object.name());
+
+				for (size_t i = 0; i < object.group_count(); i++)
+				{
+					reducedObject.insert_group(object.group_name(i) + "_outer");
+					reducedObject.insert_group(object.group_name(i) + "_inner");
+				}
 			}
+
+			std::mutex mutex;
 
 			std::for_each(
 				std::execution::par,
@@ -740,9 +754,7 @@ export namespace xablau::machine_learning
 				[&] (const size_t i) -> void
 				{
 					const auto &vertices = object.group(i);
-					const auto boundingSphere = geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(vertices);
-					std::unique_lock < std::mutex > lock(mutex, std::defer_lock);
-
+					const auto boundingSphere = geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < true > (vertices);
 					auto sphere = this->_sphere;
 
 					geometry::algorithm::scale_by(
@@ -761,11 +773,6 @@ export namespace xablau::machine_learning
 							object.faces(i),
 							unitsInTheLastPlace);
 
-					lock.lock();
-					reducedObject.insert_vertices < false > (2 * i, sphere);
-					reducedObject.insert_vertices < false > ((2 * i) + 1, sphere);
-					lock.unlock();
-
 					const auto intersections =
 						boundary_descriptor_classifier::calculate_intersections(
 							sphere,
@@ -775,15 +782,19 @@ export namespace xablau::machine_learning
 							i,
 							unitsInTheLastPlace);
 
-					lock.lock();
+					if constexpr (GenerateReducedObject)
+					{
+						std::scoped_lock < std::mutex > lock(mutex);
 
-					this->reduce_object(
-						this->_sphere.size(),
-						intersections,
-						reducedObject,
-						i);
+						reducedObject.insert_vertices < false > (2 * i, sphere);
+						reducedObject.insert_vertices < false > ((2 * i) + 1, sphere);
 
-					lock.unlock();
+						this->reduce_object(
+							this->_sphere.size(),
+							intersections,
+							reducedObject,
+							i);
+					}
 
 					auto eigenvalues =
 						this->calculate_eigenvalues(
@@ -802,9 +813,16 @@ export namespace xablau::machine_learning
 						};
 				});
 
-			return reducedObject;
+			this->_timer_samples_insertion +=
+				std::chrono::duration_cast < std::chrono::nanoseconds> (std::chrono::steady_clock::now() - startTime);
+
+			if constexpr (GenerateReducedObject)
+			{
+				return reducedObject;
+			}
 		}
 
+		template < bool GenerateReducedObject >
 		auto evaluate(
 			const computer_graphics::object_3d < Type > &object,
 			const size_t neighborRadiusLimit = 1,
@@ -815,8 +833,8 @@ export namespace xablau::machine_learning
 				throw std::invalid_argument(""); // TODO: Create message.
 			}
 
-			std::mutex mutex;
-			computer_graphics::object_3d < Type > reducedObject(object.name());
+			const auto startTime = std::chrono::steady_clock::now();
+
 			std::vector < size_t > indices(object.group_count());
 			std::vector < result_type > results(object.group_count());
 
@@ -826,11 +844,20 @@ export namespace xablau::machine_learning
 					return n++;
 				});
 
-			for (size_t i = 0; i < object.group_count(); i++)
+			computer_graphics::object_3d < Type > reducedObject;
+
+			if constexpr (GenerateReducedObject)
 			{
-				reducedObject.insert_group(object.group_name(i) + "_outer");
-				reducedObject.insert_group(object.group_name(i) + "_inner");
+				reducedObject.name(object.name());
+
+				for (size_t i = 0; i < object.group_count(); i++)
+				{
+					reducedObject.insert_group(object.group_name(i) + "_outer");
+					reducedObject.insert_group(object.group_name(i) + "_inner");
+				}
 			}
+
+			std::mutex mutex;
 
 			std::for_each(
 				std::execution::par,
@@ -839,9 +866,7 @@ export namespace xablau::machine_learning
 				[&] (const size_t i) -> void
 				{
 					const auto &vertices = object.group(i);
-					const auto boundingSphere = geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere(vertices);
-					std::unique_lock < std::mutex > lock(mutex, std::defer_lock);
-
+					const auto boundingSphere = geometry::algorithm::Fischer_Gartner_Kutz_bounding_hypersphere < true > (vertices);
 					auto sphere = this->_sphere;
 
 					geometry::algorithm::scale_by(
@@ -860,11 +885,6 @@ export namespace xablau::machine_learning
 							object.faces(i),
 							unitsInTheLastPlace);
 
-					lock.lock();
-					reducedObject.insert_vertices < false > (2 * i, sphere);
-					reducedObject.insert_vertices < false > ((2 * i) + 1, sphere);
-					lock.unlock();
-
 					const auto intersections =
 						boundary_descriptor_classifier::calculate_intersections(
 							sphere,
@@ -874,15 +894,19 @@ export namespace xablau::machine_learning
 							i,
 							unitsInTheLastPlace);
 
-					lock.lock();
+					if constexpr (GenerateReducedObject)
+					{
+						std::scoped_lock < std::mutex > lock(mutex);
 
-					this->reduce_object(
-						this->_sphere.size(),
-						intersections,
-						reducedObject,
-						i);
+						reducedObject.insert_vertices < false > (2 * i, sphere);
+						reducedObject.insert_vertices < false > ((2 * i) + 1, sphere);
 
-					lock.unlock();
+						this->reduce_object(
+							this->_sphere.size(),
+							intersections,
+							reducedObject,
+							i);
+					}
 
 					results[i].full_result =
 						this->evaluate(
@@ -896,7 +920,18 @@ export namespace xablau::machine_learning
 					boundary_descriptor_classifier::generate_results(results[i]);
 				});
 
-			return std::make_pair(results, reducedObject);
+			this->_timer_evaluation +=
+				std::chrono::duration_cast < std::chrono::nanoseconds > (std::chrono::steady_clock::now() - startTime);
+
+			if constexpr (GenerateReducedObject)
+			{
+				return std::make_pair(results, reducedObject);
+			}
+
+			else
+			{
+				return results;
+			}
 		}
 
 		size_t category_count() const
@@ -907,6 +942,16 @@ export namespace xablau::machine_learning
 		const auto &eigenvalues()
 		{
 			return this->_eigenvalues;
+		}
+
+		std::chrono::nanoseconds timer_samples_insertion() const
+		{
+			return this->_timer_samples_insertion;
+		}
+
+		std::chrono::nanoseconds timer_evaluation() const
+		{
+			return this->_timer_evaluation;
 		}
 
 		boundary_descriptor_classifier(

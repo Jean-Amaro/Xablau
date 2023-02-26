@@ -352,12 +352,12 @@ export namespace xablau::graph
 
 					if constexpr (digraph::can_have_multiple_edges())
 					{
-						currentDistance += std::min_element(neighbor.second.cbegin(), neighbor.second.cend())->weight;
+						currentDistance += std::min_element(neighbor.second.cbegin(), neighbor.second.cend())->weight();
 					}
 
 					else
 					{
-						currentDistance += neighbor.second.weight;
+						currentDistance += neighbor.second.weight();
 					}
 
 					const auto search = std::find_if(distances.begin(), distances.end(), searchFunction);
@@ -823,12 +823,12 @@ export namespace xablau::graph
 					if constexpr (digraph::can_have_multiple_edges())
 					{
 						distanceMatrix(lineIndex1, lineIndex2) =
-							std::min_element(node2.second.cbegin(), node2.second.cend())->weight;
+							std::min_element(node2.second.cbegin(), node2.second.cend())->weight();
 					}
 
 					else
 					{
-						distanceMatrix(lineIndex1, lineIndex2) = node2.second.weight;
+						distanceMatrix(lineIndex1, lineIndex2) = node2.second.weight();
 					}
 
 					nextNode(lineIndex1, lineIndex2) = node2.first;
@@ -1296,13 +1296,13 @@ export namespace xablau::graph
 
 							for (const auto &edge : node2.second)
 							{
-								value += edge.weight;
+								value += edge.weight();
 							}
 						}
 
 						else
 						{
-							adjacencyMatrix(lineIndex1, lineIndex2) = node2.second.weight;
+							adjacencyMatrix(lineIndex1, lineIndex2) = node2.second.weight();
 						}
 					}
 				});
@@ -1902,9 +1902,9 @@ export namespace xablau::graph
 			insert(
 				const NodeType &node1,
 				const NodeType &node2,
-				const EdgeType &edge = EdgeType{})
+				const EdgeType &edge = EdgeType{edge_weight_type{1}})
 		{
-			const auto &weight = edge.weight;
+			const auto weight = edge.weight();
 
 			if (weight == edge_weight_type{})
 			{
@@ -1984,7 +1984,7 @@ export namespace xablau::graph
 							std::accumulate(edge.cbegin(), edge.cend(), edge_weight_type{},
 								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
 								{
-									return edge1.weight + edge2.weight;
+									return edge1.weight() + edge2.weight();
 								});
 
 						this->_weight_sum -= _weight;
@@ -1994,9 +1994,9 @@ export namespace xablau::graph
 
 					else
 					{
-						this->_weight_sum -= edge.weight;
+						this->_weight_sum -= edge.weight();
 						--(this->_edge_count);
-						this->_degrees.at(transposedNode) -= edge.weight;
+						this->_degrees.at(transposedNode) -= edge.weight();
 					}
 
 					--(this->_unique_edge_count);
@@ -2014,7 +2014,7 @@ export namespace xablau::graph
 							std::accumulate(edge.cbegin(), edge.cend(), edge_weight_type{},
 								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
 								{
-									return edge1.weight + edge2.weight;
+									return edge1.weight() + edge2.weight();
 								});
 
 						this->_weight_sum -= _weight;
@@ -2023,7 +2023,7 @@ export namespace xablau::graph
 
 					else
 					{
-						this->_weight_sum -= edge.weight;
+						this->_weight_sum -= edge.weight();
 						--(this->_edge_count);
 					}
 
@@ -2063,7 +2063,7 @@ export namespace xablau::graph
 							std::accumulate(_edges.cbegin(), _edges.cend(), edge_weight_type{},
 								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
 								{
-									return edge1.weight + edge2.weight;
+									return edge1.weight() + edge2.weight();
 								});
 
 						this->_edge_count -= _edges.size();
@@ -2071,7 +2071,7 @@ export namespace xablau::graph
 
 					else
 					{
-						weight = iterator2->second.weight;
+						weight = iterator2->second.weight();
 
 						--(this->_edge_count);
 					}
@@ -2168,13 +2168,13 @@ export namespace xablau::graph
 							std::accumulate(_edges.cbegin(), _edges.cend(), edge_weight_type{},
 								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
 								{
-									return edge1.weight + edge2.weight;
+									return edge1.weight() + edge2.weight();
 								});
 					}
 
 					else
 					{
-						return iterator2->second.weight;
+						return iterator2->second.weight();
 					}
 				}
 			}

@@ -36,10 +36,21 @@ export namespace xablau::graph
 	template < std::floating_point Type >
 	class edge final
 	{
+	private:
+		Type _weight{1};
+
 	public:
 		using weight_type = Type;
 
-		Type weight{1};
+		Type weight() const noexcept
+		{
+			return this->_weight;
+		}
+
+		void weight(const Type weight)
+		{
+			this->_weight = weight;
+		}
 
 		[[nodiscard]] constexpr auto operator<=>(const edge &) const = default;
 
@@ -49,7 +60,7 @@ export namespace xablau::graph
 
 		friend std::ostream &operator<<(std::ostream &stream, const edge &edge)
 		{
-			stream << edge.weight;
+			stream << edge._weight;
 
 			return stream;
 		}
@@ -57,7 +68,7 @@ export namespace xablau::graph
 		constexpr edge() noexcept = default;
 
 		constexpr edge(Type weight) noexcept :
-			weight(weight)
+			_weight(weight)
 		{
 		}
 

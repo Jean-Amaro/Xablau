@@ -53,12 +53,21 @@ namespace xablau::graph::concepts
 	export template < typename Edge >
 	concept edge =
 		std::regular < Edge > &&
-		std::same_as < decltype(Edge::weight), typename Edge::weight_type > &&
 		xablau::algebra::concepts::basic_assignable_arithmetic < typename Edge::weight_type > &&
 
 		requires ()
 		{
-			{ Edge { typename Edge::weight_type{} } } noexcept -> std::same_as < Edge >;
+			{ Edge { typename Edge::weight_type{} } } -> std::same_as < Edge >;
+		} &&
+
+		requires (Edge mutable_edge)
+		{
+			{ mutable_edge.weight(typename Edge::weight_type{}) } -> std::same_as < void >;
+		} &&
+
+		requires (const Edge const_edge)
+		{
+			{ const_edge.weight() } noexcept -> std::same_as < typename Edge::weight_type >;
 		};
 
 	namespace internals

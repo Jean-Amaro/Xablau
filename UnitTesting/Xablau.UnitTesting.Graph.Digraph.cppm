@@ -148,7 +148,7 @@ namespace xablau::unit_testing
 						digraph.insert(
 							valueI,
 							valueJ,
-							Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+							Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 						static_cast < float > (j + 1));
 				}
 
@@ -164,7 +164,7 @@ namespace xablau::unit_testing
 							digraph.insert(
 								valueI,
 								valueJ,
-								Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+								Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 							static_cast < float > (j + 1));
 					}
 				}
@@ -195,7 +195,7 @@ namespace xablau::unit_testing
 						digraph.insert(
 							valueI,
 							valueJ,
-							Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+							Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 						static_cast < float > (j + 1));
 				}
 
@@ -211,7 +211,7 @@ namespace xablau::unit_testing
 							digraph.insert(
 								valueI,
 								valueJ,
-								Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+								Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 							static_cast < float > (j + 1));
 					}
 				}
@@ -232,13 +232,13 @@ namespace xablau::unit_testing
 					digraph.insert(
 						valueI,
 						valueJ,
-						Types::edge_type(float{1})).value().get().weight, float{1});
+						Types::edge_type(float{1})).value().get().weight(), float{1});
 
 				EXPECT_EQ(
 					digraph.insert(
 						valueK,
 						valueI,
-						Types::edge_type(float{1})).value().get().weight, float{1});
+						Types::edge_type(float{1})).value().get().weight(), float{1});
 			}
 		}
 
@@ -257,7 +257,7 @@ namespace xablau::unit_testing
 						digraph.insert(
 							GraphDiraphTest::createValue(index1),
 							GraphDiraphTest::createValue(index2),
-							Types::edge_type(float{1})).value().get().weight,
+							Types::edge_type(float{1})).value().get().weight(),
 						float{1});
 				}
 
@@ -274,7 +274,7 @@ namespace xablau::unit_testing
 						digraph.insert(
 							GraphDiraphTest::createValue(value1),
 							GraphDiraphTest::createValue(value2),
-							Types::edge_type(float{1})).value().get().weight,
+							Types::edge_type(float{1})).value().get().weight(),
 						float{1});
 				};
 

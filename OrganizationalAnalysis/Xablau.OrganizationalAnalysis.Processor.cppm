@@ -93,7 +93,7 @@ export namespace xablau::organizational_analysis
 						activitiesMatrix(
 							activityKeyToIndexMap.at(identification1),
 							activityKeyToIndexMap.at(identification2)) =
-								edges.value().get().at(identification2).weight;
+								edges.value().get().at(identification2).weight();
 					}
 				}
 			}

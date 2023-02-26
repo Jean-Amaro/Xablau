@@ -151,7 +151,7 @@ namespace xablau::unit_testing
 							graph.insert(
 								valueI,
 								valueJ,
-								Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+								Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 							static_cast < float > (j + 1));
 					}
 
@@ -161,7 +161,7 @@ namespace xablau::unit_testing
 							graph.insert(
 								valueI,
 								valueJ,
-								Types::edge_type(static_cast < float > (j + 1))).value().get().weight,
+								Types::edge_type(static_cast < float > (j + 1))).value().get().weight(),
 							static_cast < float > (std::max(i, j) + 1));
 					}
 				}
@@ -181,7 +181,7 @@ namespace xablau::unit_testing
 					graph.insert(
 						valueI,
 						valueJ,
-						Types::edge_type(float{1})).value().get().weight, float{1});
+						Types::edge_type(float{1})).value().get().weight(), float{1});
 			}
 		}
 
@@ -200,7 +200,7 @@ namespace xablau::unit_testing
 						graph.insert(
 							GraphGraphTest::createValue(index1),
 							GraphGraphTest::createValue(index2),
-							Types::edge_type(float{1})).value().get().weight,
+							Types::edge_type(float{1})).value().get().weight(),
 						float{1});
 				}
 

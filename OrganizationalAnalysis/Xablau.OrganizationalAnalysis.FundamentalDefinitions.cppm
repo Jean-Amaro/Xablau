@@ -63,29 +63,33 @@ export namespace xablau::organizational_analysis
 	template < typename CharType, typename Traits >
 	struct agents
 	{
+		using string_type = std::basic_string < CharType, Traits >;
+
 		struct description
 		{
-			std::basic_string < CharType, Traits > group{};
-			std::basic_string < CharType, Traits > role{};
+			string_type group{};
+			string_type role{};
 		};
 
-		std::map < std::basic_string < CharType, Traits >, agents::description > descriptions{};
+		std::map < string_type, agents::description > descriptions{};
 	};
 
 	template < typename CharType, typename Traits >
 	struct activities
 	{
+		using string_type = std::basic_string < CharType, Traits >;
+
 		struct description
 		{
-			std::basic_string < CharType, Traits > name{};
-			std::basic_string < CharType, Traits > group{};
-			std::set < std::basic_string < CharType, Traits > > agents_in_charge{};
+			string_type name{};
+			string_type group{};
+			std::set < string_type > agents_in_charge{};
 		};
 
-		std::map < std::basic_string < CharType, Traits >, activities::description > descriptions{};
+		std::map < string_type, activities::description > descriptions{};
 
 		xablau::graph::digraph <
-			xablau::graph::node < std::basic_string < CharType, Traits > >,
+			xablau::graph::node < string_type >,
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
 			xablau::graph::edge < float > > dependencies{};
 	};
@@ -93,19 +97,19 @@ export namespace xablau::organizational_analysis
 	template < typename CharType, typename Traits >
 	struct components
 	{
+		using string_type = std::basic_string < CharType, Traits >;
+
 		struct description
 		{
-			std::basic_string < CharType, Traits > name{};
-			std::basic_string < CharType, Traits > group{};
-			std::set < std::basic_string < CharType, Traits > > agents_in_charge{};
+			string_type name{};
+			string_type group{};
+			std::set < string_type > agents_in_charge{};
 		};
 
-		std::map <
-			std::basic_string < CharType, Traits >,
-			components::description > descriptions{};
+		std::map < string_type, components::description > descriptions{};
 
 		xablau::graph::digraph <
-			xablau::graph::node < std::basic_string < CharType, Traits > >,
+			xablau::graph::node < string_type >,
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
 			xablau::graph::edge < float > > interactions{};
 	};
@@ -113,10 +117,8 @@ export namespace xablau::organizational_analysis
 	template < typename CharType, typename Traits >
 	struct affiliations
 	{
-		std::map <
-			std::basic_string < CharType, Traits >,
-			std::map <
-				std::basic_string < CharType, Traits >,
-				float > > responsabilities{};
+		using string_type = std::basic_string < CharType, Traits >;
+
+		std::map < string_type, std::map < string_type, float > > responsabilities{};
 	};
 }

@@ -126,8 +126,8 @@ int main(int argc, char** argv)
 				}
 			}
 
-			processor.attribute_agent_in_charge_for_component(minimumRelationDegree);
-			const auto productsWithoutAgentsInCharge = processor.validate_agent_in_charge_for_component();
+			processor.attribute_agents_in_charge_for_components(minimumRelationDegree);
+			const auto productsWithoutAgentsInCharge = processor.validate_agents_in_charge_for_components();
 
 			if (productsWithoutAgentsInCharge.size() != 0)
 			{
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 
 		if (std::atoi(argv[5]) == 0)
 		{
-			processor.align_architecture_process_between_component_and_organization(
+			processor.align_architecture_process_between_components_and_organization(
 				minimumRelationDegree,
 				reportWithoutRedundanciesOutput,
 				reportWithRedundanciesOutput);
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
 
 		else
 		{
-			processor.align_architecture_process_between_activity_and_organization(
+			processor.align_architecture_process_between_activities_and_organization(
 				minimumRelationDegree,
 				reportWithoutRedundanciesOutput,
 				reportWithRedundanciesOutput);

@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 
 		CharType separator{argv[24][0]};
 
-		xablau::organizational_analysis::processor < CharType, Traits > processor{};
+		xablau::organizational_analysis::processor < true, CharType, Traits > processor{};
 
 		xablau::io::fstream < CharType > agentsInput(argv[1], std::ios_base::in);
 		xablau::io::fstream < CharType > activitiesInput(argv[2], std::ios_base::in);

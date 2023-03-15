@@ -94,7 +94,7 @@ export namespace xablau::organizational_analysis
 			xablau::graph::edge < float > > dependencies{};
 	};
 
-	template < typename CharType, typename Traits >
+	template < bool InterfacesAreReciprocal, typename CharType, typename Traits >
 	struct components
 	{
 		using string_type = std::basic_string < CharType, Traits >;
@@ -108,10 +108,16 @@ export namespace xablau::organizational_analysis
 
 		std::map < string_type, components::description > descriptions{};
 
-		xablau::graph::digraph <
-			xablau::graph::node < string_type >,
-			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
-			xablau::graph::edge < float > > interactions{};
+		typename std::conditional <
+			InterfacesAreReciprocal,
+			xablau::graph::graph <
+				xablau::graph::node < string_type >,
+				xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
+				xablau::graph::edge < float > >,
+			xablau::graph::digraph <
+				xablau::graph::node < string_type >,
+				xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
+				xablau::graph::edge < float > > > ::type interactions{};
 	};
 
 	template < typename CharType, typename Traits >

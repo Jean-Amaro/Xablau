@@ -158,11 +158,11 @@ export namespace xablau::organizational_analysis::writer
 		return output;
 	}
 
-	template < typename CharType, typename Traits >
+	template < bool InterfacesAreReciprocal, typename CharType, typename Traits >
 	requires (std::same_as < CharType, char > || std::same_as < CharType, wchar_t >)
 	std::basic_ostream < CharType, Traits > &write_components(
 		std::basic_ostream < CharType, Traits > &output,
-		const organizational_analysis::components < CharType, Traits > &components,
+		const organizational_analysis::components < InterfacesAreReciprocal, CharType, Traits > &components,
 		const CharType separator)
 	{
 		using offset_type = typename std::basic_ostream < CharType, Traits > ::off_type;
@@ -231,13 +231,13 @@ export namespace xablau::organizational_analysis::writer
 		return output;
 	}
 
-	template < typename CharType, typename Traits >
+	template < bool InterfacesAreReciprocal, typename CharType, typename Traits >
 	requires (std::same_as < CharType, char > || std::same_as < CharType, wchar_t >)
 	std::basic_ostream < CharType, Traits > &write_affiliations(
 		std::basic_ostream < CharType, Traits > &output,
 		const organizational_analysis::activities < CharType, Traits > &activities,
 		const organizational_analysis::affiliations < CharType, Traits > &affiliations,
-		const organizational_analysis::components < CharType, Traits > &components,
+		const organizational_analysis::components < InterfacesAreReciprocal, CharType, Traits > &components,
 		const CharType separator)
 	{
 		if constexpr (std::same_as < CharType, char >)

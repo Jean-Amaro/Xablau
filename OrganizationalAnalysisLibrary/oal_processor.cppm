@@ -17,12 +17,12 @@ extern "C"
 	{
 		return
 			reinterpret_cast < uintptr_t > (
-				new xablau::organizational_analysis::processor < char, std::char_traits < char > > ());
+				new xablau::organizational_analysis::processor < true, char, std::char_traits < char > > ());
 	}
 
 	_declspec(dllexport) void destroy(uintptr_t address)
 	{
-		delete reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+		delete reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 	}
 
 	_declspec(dllexport) const char *insert_or_assign_agent(
@@ -32,7 +32,7 @@ extern "C"
 		const char *role)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -55,7 +55,7 @@ extern "C"
 		const char *agent)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -80,7 +80,7 @@ extern "C"
 		const char *group)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -103,7 +103,7 @@ extern "C"
 		const char *activity)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -127,7 +127,7 @@ extern "C"
 		const char *activity)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -151,7 +151,7 @@ extern "C"
 		const char *activity)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -175,7 +175,7 @@ extern "C"
 		const char *dependency)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -199,7 +199,7 @@ extern "C"
 		const char *dependency)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -224,7 +224,7 @@ extern "C"
 		const char *group)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -247,7 +247,7 @@ extern "C"
 		const char *component)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -271,7 +271,7 @@ extern "C"
 		const char *component2)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -295,7 +295,7 @@ extern "C"
 		const char *component2)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -320,7 +320,7 @@ extern "C"
 		const float rating)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -344,7 +344,7 @@ extern "C"
 		const char *component)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -365,7 +365,7 @@ extern "C"
 	_declspec(dllexport) void clear(uintptr_t address)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		processor->clear();
 	}
@@ -376,7 +376,7 @@ extern "C"
 		InsertStringIntoPosition1 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -409,7 +409,7 @@ extern "C"
 		InsertPairOfStringAndSizeT inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -437,7 +437,7 @@ extern "C"
 		InsertStringInContainer inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -465,7 +465,7 @@ extern "C"
 		float minimumRelationDegree)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -488,7 +488,7 @@ extern "C"
 		float minimumRelationDegree)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -511,7 +511,7 @@ extern "C"
 		float minimumRelationDegree)
 	{
 		auto processor =
-			reinterpret_cast < xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -535,7 +535,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -569,7 +569,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -603,7 +603,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -637,7 +637,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -671,7 +671,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{
@@ -705,7 +705,7 @@ extern "C"
 		InsertFloatIntoPosition2 inserter)
 	{
 		auto processor =
-			reinterpret_cast < const xablau::organizational_analysis::processor < char, std::char_traits < char > > * > (address);
+			reinterpret_cast < const xablau::organizational_analysis::processor < true, char, std::char_traits < char > > * > (address);
 
 		try
 		{

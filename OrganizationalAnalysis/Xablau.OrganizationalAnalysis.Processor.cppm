@@ -46,7 +46,10 @@ export import xablau.graph;
 
 export namespace xablau::organizational_analysis
 {
-	template < typename CharType, typename Traits >
+	template <
+		bool ComponentsInterfacesAreReciprocal,
+		typename CharType,
+		typename Traits = std::char_traits < CharType > >
 	class processor final
 	{
 	private:
@@ -54,7 +57,7 @@ export namespace xablau::organizational_analysis
 
 		using agents_type = organizational_analysis::agents < CharType, Traits >;
 		using activities_type = organizational_analysis::activities < CharType, Traits >;
-		using components_type = organizational_analysis::components < CharType, Traits >;
+		using components_type = organizational_analysis::components < ComponentsInterfacesAreReciprocal, CharType, Traits >;
 		using affiliations_type = organizational_analysis::affiliations < CharType, Traits >;
 		using node_type = xablau::graph::node < string_type >;
 

@@ -452,11 +452,11 @@ export namespace xablau::organizational_analysis::reader
 		return input;
 	}
 
-	template < typename CharType, typename Traits >
+	template < bool InterfacesAreReciprocal, typename CharType, typename Traits >
 	requires (std::same_as < CharType, char > || std::same_as < CharType, wchar_t >)
 	std::basic_istream < CharType, Traits > &read_components(
 		std::basic_istream < CharType, Traits > &input,
-		organizational_analysis::components < CharType, Traits > &components,
+		organizational_analysis::components < InterfacesAreReciprocal, CharType, Traits > &components,
 		std::basic_ostream < CharType, Traits > &errorOutput = internals::default_error_output < CharType > (),
 		const std::locale &locale = std::locale(""))
 	{
@@ -519,7 +519,7 @@ export namespace xablau::organizational_analysis::reader
 					components.descriptions.insert(
 						std::make_pair(
 							component,
-							organizational_analysis::components < CharType, Traits > ::description())).first;
+							organizational_analysis::components < InterfacesAreReciprocal, CharType, Traits > ::description())).first;
 
 				iterator->second.name = std::move(name);
 				iterator->second.group = group;
@@ -552,13 +552,13 @@ export namespace xablau::organizational_analysis::reader
 		return input;
 	}
 
-	template < typename CharType, typename Traits >
+	template < bool InterfacesAreReciprocal, typename CharType, typename Traits >
 	requires (std::same_as < CharType, char > || std::same_as < CharType, wchar_t >)
 	std::basic_istream < CharType, Traits > &read_affiliations(
 		std::basic_istream < CharType, Traits > &input,
 		organizational_analysis::affiliations < CharType, Traits > &affiliations,
 		const organizational_analysis::activities < CharType, Traits > &activities,
-		const organizational_analysis::components < CharType, Traits > &components,
+		const organizational_analysis::components < InterfacesAreReciprocal, CharType, Traits > &components,
 		std::basic_ostream < CharType, Traits > &errorOutput = internals::default_error_output < CharType > (),
 		const std::locale &locale = std::locale(""))
 	{

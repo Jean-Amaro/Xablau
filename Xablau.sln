@@ -21,15 +21,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Testing", "Testing\Testing.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComputerGraphics", "ComputerGraphics\ComputerGraphics.vcxitems", "{605FFBDA-28F3-49F3-85BD-B2B065F19FE2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrganizationalAnalysis", "OrganizationalAnalysis\OrganizationalAnalysis.vcxitems", "{3154841C-70A1-435F-9D43-A5991E55390A}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrganizationalAnalysisApplication", "OrganizationalAnalysisApplication\OrganizationalAnalysisApplication.vcxproj", "{41C358B2-EA04-492A-8B0B-4475A2106010}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoundaryDescriptorClassifierApplication", "BoundaryDescriptorClassifierApplication\BoundaryDescriptorClassifierApplication.vcxproj", "{66E6B8AD-CDC9-4474-83D9-DCB726257238}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrganizationalAnalysisLibrary", "OrganizationalAnalysisLibrary\OrganizationalAnalysisLibrary.vcxproj", "{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrganizationalAnalysisCSharpWrapper", "OrganizationalAnalysisCSharpWrapper\OrganizationalAnalysisCSharpWrapper.csproj", "{07E63306-B794-411D-94CD-3D7079A7BE3E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,26 +57,6 @@ Global
 		{0FA96DC2-850E-4E6C-9702-A37284C53343}.Release|x64.Build.0 = Release|x64
 		{0FA96DC2-850E-4E6C-9702-A37284C53343}.Release|x86.ActiveCfg = Release|Win32
 		{0FA96DC2-850E-4E6C-9702-A37284C53343}.Release|x86.Build.0 = Release|Win32
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|Any CPU.Build.0 = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|ARM.ActiveCfg = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|ARM.Build.0 = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|ARM64.ActiveCfg = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|ARM64.Build.0 = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|x64.ActiveCfg = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|x64.Build.0 = Debug|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|x86.ActiveCfg = Debug|Win32
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Debug|x86.Build.0 = Debug|Win32
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|Any CPU.ActiveCfg = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|Any CPU.Build.0 = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|ARM.ActiveCfg = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|ARM.Build.0 = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|ARM64.ActiveCfg = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|ARM64.Build.0 = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|x64.ActiveCfg = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|x64.Build.0 = Release|x64
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|x86.ActiveCfg = Release|Win32
-		{41C358B2-EA04-492A-8B0B-4475A2106010}.Release|x86.Build.0 = Release|Win32
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Debug|Any CPU.Build.0 = Debug|x64
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Debug|ARM.ActiveCfg = Debug|x64
@@ -105,46 +77,6 @@ Global
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Release|x64.Build.0 = Release|x64
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Release|x86.ActiveCfg = Release|Win32
 		{66E6B8AD-CDC9-4474-83D9-DCB726257238}.Release|x86.Build.0 = Release|Win32
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|Any CPU.Build.0 = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|ARM.ActiveCfg = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|ARM.Build.0 = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|ARM64.ActiveCfg = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|ARM64.Build.0 = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|x64.ActiveCfg = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|x64.Build.0 = Debug|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|x86.ActiveCfg = Debug|Win32
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Debug|x86.Build.0 = Debug|Win32
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|Any CPU.ActiveCfg = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|Any CPU.Build.0 = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|ARM.ActiveCfg = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|ARM.Build.0 = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|ARM64.ActiveCfg = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|ARM64.Build.0 = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|x64.ActiveCfg = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|x64.Build.0 = Release|x64
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|x86.ActiveCfg = Release|Win32
-		{DBA345F3-4A48-4DC8-B134-5BE5E30ACF9B}.Release|x86.Build.0 = Release|Win32
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|ARM.Build.0 = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|x64.Build.0 = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Debug|x86.Build.0 = Debug|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|ARM.ActiveCfg = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|ARM.Build.0 = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|ARM64.Build.0 = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|x64.ActiveCfg = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|x64.Build.0 = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|x86.ActiveCfg = Release|Any CPU
-		{07E63306-B794-411D-94CD-3D7079A7BE3E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -160,11 +92,6 @@ Global
 		Graph\Graph.vcxitems*{0fa96dc2-850e-4e6c-9702-a37284c53343}*SharedItemsImports = 4
 		IO\IO.vcxitems*{0fa96dc2-850e-4e6c-9702-a37284c53343}*SharedItemsImports = 4
 		Testing\Testing.vcxitems*{0fa96dc2-850e-4e6c-9702-a37284c53343}*SharedItemsImports = 4
-		OrganizationalAnalysis\OrganizationalAnalysis.vcxitems*{3154841c-70a1-435f-9d43-a5991e55390a}*SharedItemsImports = 9
-		Algebra\Algebra.vcxitems*{41c358b2-ea04-492a-8b0b-4475a2106010}*SharedItemsImports = 4
-		Graph\Graph.vcxitems*{41c358b2-ea04-492a-8b0b-4475a2106010}*SharedItemsImports = 4
-		IO\IO.vcxitems*{41c358b2-ea04-492a-8b0b-4475a2106010}*SharedItemsImports = 4
-		OrganizationalAnalysis\OrganizationalAnalysis.vcxitems*{41c358b2-ea04-492a-8b0b-4475a2106010}*SharedItemsImports = 4
 		Algebra\Algebra.vcxitems*{477b7882-6ac6-40e4-a464-ef498ce6c04a}*SharedItemsImports = 9
 		Color\Color.vcxitems*{49dd8960-037e-486f-ab78-9e7fc7a5a12e}*SharedItemsImports = 9
 		ComputerGraphics\ComputerGraphics.vcxitems*{605ffbda-28f3-49f3-85bd-b2b065f19fe2}*SharedItemsImports = 9
@@ -179,9 +106,5 @@ Global
 		Testing\Testing.vcxitems*{7f0ad336-2885-4f15-a668-92f7c4bbc514}*SharedItemsImports = 9
 		MachineLearning\MachineLearning.vcxitems*{9ce5e8d0-0a17-41d9-ab21-0fc4d41545ae}*SharedItemsImports = 9
 		Graph\Graph.vcxitems*{9d153626-6abd-4b6f-92d3-1ebdfd406ebc}*SharedItemsImports = 9
-		Algebra\Algebra.vcxitems*{dba345f3-4a48-4dc8-b134-5be5e30acf9b}*SharedItemsImports = 4
-		Graph\Graph.vcxitems*{dba345f3-4a48-4dc8-b134-5be5e30acf9b}*SharedItemsImports = 4
-		IO\IO.vcxitems*{dba345f3-4a48-4dc8-b134-5be5e30acf9b}*SharedItemsImports = 4
-		OrganizationalAnalysis\OrganizationalAnalysis.vcxitems*{dba345f3-4a48-4dc8-b134-5be5e30acf9b}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

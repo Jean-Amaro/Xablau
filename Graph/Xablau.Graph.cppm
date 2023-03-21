@@ -26,6 +26,7 @@
 
 export module xablau.graph;
 
+export import :algorithm;
 export import :binary_tree;
 export import :binary_tree_node;
 export import :digraph;

@@ -25,6 +25,7 @@
 // SOFTWARE.
 
 export module xablau.algebra:algorithm;
+
 export import <cmath>;
 
 export namespace xablau::algebra::algorithm

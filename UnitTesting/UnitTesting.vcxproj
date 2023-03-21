@@ -31,6 +31,7 @@
     <ClCompile Include="Xablau.UnitTesting.Color.XYZ.cppm" />
     <ClCompile Include="Xablau.UnitTesting.ComputerGraphics.Object3D.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Geometry.Algorithm.cppm" />
+    <ClCompile Include="Xablau.UnitTesting.Graph.Algorithm.cppm" />
     <ClCompile Include="Xablau.UnitTesting.IO.FileStream.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Geometry.EuclideanTriangle.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Geometry.Hyperplane.cppm" />

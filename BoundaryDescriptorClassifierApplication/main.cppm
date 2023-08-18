@@ -669,11 +669,11 @@ int main(int argc, char **argv)
 		generateReducedObject,
 		unitsInTheLastPlace);
 
-	xablau::io::fstream < char > inferno(
+	xablau::io::fstream < char > timers(
 		spherePath.string() + ".txt",
 		std::ios_base::out | std::ios_base::trunc);
 
-	inferno <<
+	timers <<
 		"It took " <<
 		std::chrono::duration_cast < std::chrono::milliseconds > (descriptorClassifier.timer_samples_insertion()).count() <<
 		" milliseconds to add every sample.\n" <<

@@ -218,18 +218,4 @@
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ItemGroup>
-    <ClCompile Update="D:\OneDrive\Xablau\OrganizationalAnalysis\Xablau.OrganizationalAnalysis.Exporter.cppm">
-      <FileType>Document</FileType>
-    </ClCompile>
-    <ClCompile Update="D:\OneDrive\Xablau\OrganizationalAnalysis\Xablau.OrganizationalAnalysis.Processor.cppm">
-      <FileType>Document</FileType>
-    </ClCompile>
-    <ClCompile Update="D:\OneDrive\Xablau\OrganizationalAnalysis\Xablau.OrganizationalAnalysis.Reader.cppm">
-      <FileType>Document</FileType>
-    </ClCompile>
-    <ClCompile Update="D:\OneDrive\Xablau\OrganizationalAnalysis\Xablau.OrganizationalAnalysis.Writer.cppm">
-      <FileType>Document</FileType>
-    </ClCompile>
-  </ItemGroup>
 </Project>

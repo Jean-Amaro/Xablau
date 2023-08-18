@@ -1146,7 +1146,7 @@ namespace xablau::unit_testing
 					typename TypeParam::value_type{1}
 				})};
 
-		constexpr auto &vertexOnDiagonalZ = vertexOnLineZ;
+		constexpr auto vertexOnDiagonalZ = vertexOnLineZ;
 
 		constexpr xablau::geometry::line < typename TypeParam::value_type, xablau::geometry::spatial_dimension < 3 > > lineOrigin{
 			xablau::geometry::make_vertex(std::to_array(

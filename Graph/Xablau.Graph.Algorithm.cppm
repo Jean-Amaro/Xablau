@@ -31,7 +31,7 @@ export import <concepts>;
 export import <functional>;
 export import <limits>;
 export import <optional>;
-export import <queue>;
+export import <set>;
 
 export import xablau.algebra;
 
@@ -39,7 +39,10 @@ namespace xablau::graph::algorithm
 {
 	namespace internals
 	{
-		template < std::floating_point DistanceType, size_t Rank >
+		template < std::floating_point DistanceType, size_t Rank, typename ComparisonType >
+		class A_star_cell;
+
+		template < std::floating_point DistanceType, size_t Rank, typename ComparisonType >
 		class A_star_cell
 		{
 		public:
@@ -49,19 +52,10 @@ namespace xablau::graph::algorithm
 			DistanceType current_cost = std::numeric_limits < DistanceType > ::max();
 			DistanceType predicted_total_cost = std::numeric_limits < DistanceType > ::max();
 			std::optional < std::reference_wrapper < const A_star_cell > > previous = std::nullopt;
+			std::optional < typename std::multiset < std::reference_wrapper < A_star_cell >, ComparisonType > ::iterator > position_on_queue = std::nullopt;
 
 			constexpr bool operator<(const A_star_cell &cell) const
 			{
-				if (this->visited && !cell.visited)
-				{
-					return false;
-				}
-
-				if (!this->visited && cell.visited)
-				{
-					return true;
-				}
-
 				return this->predicted_total_cost < cell.predicted_total_cost;
 			}
 		};
@@ -225,8 +219,15 @@ namespace xablau::graph::algorithm
 
 						if (neighborCell.current_cost > cost)
 						{
+							typename QueueType::node_type node{};
+
 							neighborCell.current_cost = cost;
 							neighborCell.previous = originCell;
+
+							if (neighborCell.inserted)
+							{
+								node = queue.extract(neighborCell.position_on_queue.value());
+							}
 
 							if constexpr (MoveDiagonally)
 							{
@@ -236,8 +237,12 @@ namespace xablau::graph::algorithm
 
 							else
 							{
-								neighborCell.predicted_total_cost =
-									cost + Manhattan_distance_function < DistanceType > (destination, neighborAbsolutePosition);
+								neighborCell.predicted_total_cost = cost + DistanceType{1};
+							}
+
+							if (neighborCell.inserted)
+							{
+								neighborCell.position_on_queue = queue.insert(std::move(node));
 							}
 						}
 
@@ -245,8 +250,7 @@ namespace xablau::graph::algorithm
 						{
 							neighborCell.inserted = true;
 							neighborCell.position = neighborAbsolutePosition;
-
-							queue.push_back(neighborCell);
+							neighborCell.position_on_queue = queue.insert(neighborCell);
 						}
 					}
 				}
@@ -324,7 +328,11 @@ namespace xablau::graph::algorithm
 			typename MazeTensorType,
 			typename SearchTensorType,
 			typename QueueType >
-		std::pair < bool, std::optional < std::reference_wrapper < const A_star_cell < DistanceType, Rank > > > > run_A_star(
+		std::pair <
+			bool,
+			std::optional <
+				std::reference_wrapper <
+					const internals::A_star_cell < DistanceType, Rank, typename QueueType::key_compare > > > > run_A_star(
 			const MazeTensorType &mazeTensor,
 			SearchTensorType &searchTensor,
 			QueueType &queue,
@@ -340,14 +348,18 @@ namespace xablau::graph::algorithm
 					return static_cast < DistanceType > (value);
 				};
 
+			std::reference_wrapper <
+				internals::A_star_cell <
+					DistanceType,
+					MazeTensorType::rank(),
+					typename QueueType::key_compare > > currentCell = searchTensor(currentPosition);
+
 			while (true)
 			{
-				auto &currentCell = searchTensor(currentPosition);
-
 				if (currentPosition == destination)
 				{
 					return
-						std::pair < bool, std::optional < std::reference_wrapper < const A_star_cell < DistanceType, Rank > > > > (
+						std::pair < bool, std::optional < std::reference_wrapper < const A_star_cell < DistanceType, Rank, typename QueueType::key_compare > > > > (
 							true,
 							currentCell);
 				}
@@ -363,19 +375,16 @@ namespace xablau::graph::algorithm
 					destination,
 					blocked);
 
-				currentCell.visited = true;
+				currentCell.get().visited = true;
 
-				constexpr auto optRefLocalAStarCellComparison =
-					[] < typename AStarCell > (const AStarCell &cell1, const AStarCell &cell2) -> bool
-					{
-						return cell1.value().get() < cell2.value().get();
-					};
-
-				std::sort(queue.rbegin(), queue.rend(), optRefLocalAStarCellComparison);
-
-				if (!queue.empty() && !queue.back().value().get().visited)
+				if (!queue.empty())
 				{
-					currentPosition = queue.back().value().get().position;
+					currentCell = *(queue.begin());
+
+					currentPosition = currentCell.get().position;
+					currentCell.get().position_on_queue = std::nullopt;
+
+					queue.erase(queue.begin());
 				}
 
 				else
@@ -385,7 +394,7 @@ namespace xablau::graph::algorithm
 			}
 
 			return
-				std::pair < bool, std::optional < std::reference_wrapper < const A_star_cell < DistanceType, Rank > > > > (
+				std::pair < bool, std::optional < std::reference_wrapper < const A_star_cell < DistanceType, Rank, typename QueueType::key_compare > > > > (
 					false,
 					std::nullopt);
 		}
@@ -440,7 +449,13 @@ namespace xablau::graph::algorithm
 			}
 		}
 
-		using LocalAStarCell = internals::A_star_cell < DistanceType, MazeTensorType::rank() >;
+		constexpr auto refLocalAStarCellComparison =
+			[] < typename AStarCell > (const AStarCell &cell1, const AStarCell &cell2) -> bool
+			{
+				return cell1.get() < cell2.get();
+			};
+
+		using LocalAStarCell = internals::A_star_cell < DistanceType, MazeTensorType::rank(), decltype(refLocalAStarCellComparison) >;
 
 		auto searchTensor = internals::create_search_tensor < MazeTensorType, LocalAStarCell > ();
 
@@ -467,9 +482,7 @@ namespace xablau::graph::algorithm
 
 		startCell.position = destination;
 
-		std::vector < std::optional < std::reference_wrapper < const LocalAStarCell > > > queue{};
-
-		queue.push_back(startCell);
+		std::multiset < std::reference_wrapper < LocalAStarCell >, decltype(refLocalAStarCellComparison) > queue(refLocalAStarCellComparison);
 
 		auto [pathFound, currentCell] =
 			internals::run_A_star < MoveDiagonally, DistanceType, MazeTensorType::rank() > (

@@ -277,30 +277,28 @@ export namespace xablau::algebra
 
 		template < size_t DimensionalityIndex >
 		requires (DimensionalityIndex < tensor_dense_dynamic::_rank)
-		[[nodiscard]] static constexpr size_t offset_for_contiguous_indexing(
-			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities) noexcept
+		[[nodiscard]] constexpr size_t offset_for_contiguous_indexing() const noexcept
 		{
-			size_t offset{1};
-			constexpr size_t dimensionalityOrder = tensor_dense_dynamic::_dimensionality_mapping[DimensionalityIndex];
-
-			for (size_t i = 0; i < tensor_dense_dynamic::_rank; i++)
+			if constexpr (tensor_dense_dynamic::_rank == 0)
 			{
-				if (dimensionalityOrder < tensor_dense_dynamic::_dimensionality_mapping[i])
-				{
-					offset *= dimensionalities[i];
-				}
+				return size_t{1};
 			}
 
-			return offset;
-		}
+			else
+			{
+				size_t offset{1};
+				constexpr size_t dimensionalityOrder = tensor_dense_dynamic::_dimensionality_mapping[DimensionalityIndex];
 
-		template < size_t DimensionalityIndex >
-		requires (DimensionalityIndex < tensor_dense_dynamic::_rank)
-		[[nodiscard]] static constexpr size_t offset_for_contiguous_indexing(
-			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities) noexcept
-		requires (tensor_dense_dynamic::_rank == 0)
-		{
-			return size_t{1};
+				for (size_t i = 0; i < tensor_dense_dynamic::_rank; i++)
+				{
+					if (dimensionalityOrder < tensor_dense_dynamic::_dimensionality_mapping[i])
+					{
+						offset *= this->_dimensionalities[i];
+					}
+				}
+
+				return offset;
+			}
 		}
 
 		template < size_t TupleIndex, size_t TupleLimit, typename TupleDataType >
@@ -308,10 +306,9 @@ export namespace xablau::algebra
 			TupleIndex <= TupleLimit &&
 			TupleIndex <= std::tuple_size < TupleDataType > ::value &&
 			TupleLimit <= std::tuple_size < TupleDataType > ::value)
-		[[nodiscard]] static constexpr size_t offset_for_contiguous_indexing(
+		[[nodiscard]] constexpr size_t offset_for_contiguous_indexing(
 			const size_t currentIndex,
-			const TupleDataType &tuple,
-			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities)
+			const TupleDataType &tuple) const
 		{
 			if constexpr (TupleIndex == TupleLimit)
 			{
@@ -320,13 +317,12 @@ export namespace xablau::algebra
 
 			else
 			{
-				const size_t offset = tensor_dense_dynamic::offset_for_contiguous_indexing < TupleIndex > (dimensionalities);
-				
+				const size_t offset = this->template offset_for_contiguous_indexing < TupleIndex > ();
+
 				return
-					tensor_dense_dynamic::template offset_for_contiguous_indexing < TupleIndex + 1, TupleLimit > (
+					this->template offset_for_contiguous_indexing < TupleIndex + 1, TupleLimit > (
 						currentIndex + static_cast < size_t > (std::get < TupleIndex > (tuple)) * offset,
-						tuple,
-						dimensionalities);
+						tuple);
 			}
 		}
 
@@ -335,8 +331,7 @@ export namespace xablau::algebra
 			auto begin,
 			const auto &tuple) const
 		{
-			const auto offset =
-				tensor_dense_dynamic::template offset_for_contiguous_indexing < TupleIndex, TupleLimit > (0, tuple, this->_dimensionalities);
+			const auto offset = this->template offset_for_contiguous_indexing < TupleIndex, TupleLimit > (0, tuple);
 
 			auto _begin = begin + offset;
 
@@ -851,7 +846,7 @@ export namespace xablau::algebra
 
 		template < size_t TupleIndex >
 		requires (TupleIndex < tensor_dense_dynamic::_rank)
-		static constexpr void kernel_for_contiguous_tensor(
+		constexpr void kernel_for_contiguous_tensor(
 			auto iteratorData,
 			auto iteratorKernelData,
 			const auto &kernel,
@@ -875,8 +870,8 @@ export namespace xablau::algebra
 				kernelIndex = offset - center;
 			}
 
-			const auto offsetData = tensor_dense_dynamic::offset_for_contiguous_indexing < TupleIndex > (dimensionalities);
-			const auto offsetKernel = kernel.offset_for_contiguous_indexing < TupleIndex > (kernel._dimensionalities);
+			const auto offsetData = this->offset_for_contiguous_indexing < TupleIndex > ();
+			const auto offsetKernel = kernel.offset_for_contiguous_indexing < TupleIndex > ();
 
 			iteratorData += dataIndex * offsetData;
 			iteratorKernelData += kernelIndex * offsetKernel;
@@ -885,7 +880,7 @@ export namespace xablau::algebra
 			{
 				if constexpr (TupleIndex + 1 < tensor_dense_dynamic::_rank)
 				{
-					tensor_dense_dynamic::kernel_for_contiguous_tensor < TupleIndex + 1 > (
+					this->kernel_for_contiguous_tensor < TupleIndex + 1 > (
 						iteratorData,
 						iteratorKernelData,
 						kernel,
@@ -912,7 +907,7 @@ export namespace xablau::algebra
 		}
 
 		template < bool DynamicKernel >
-		static constexpr void kernel(
+		constexpr void kernel(
 			auto &data,
 			auto &kernel,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities,
@@ -931,7 +926,7 @@ export namespace xablau::algebra
 
 			if constexpr (tensor_dense_dynamic::_contiguous)
 			{
-				tensor_dense_dynamic::template kernel_for_contiguous_tensor < 0 > (
+				this->template kernel_for_contiguous_tensor < 0 > (
 					data.begin(),
 					kernel._data.begin(),
 					kernel,

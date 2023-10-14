@@ -89,6 +89,24 @@ export namespace xablau::graph
 			ContainerType::type() == graph_container_type_value::multi_ordered ||
 			ContainerType::type() == graph_container_type_value::multi_unordered;
 
+		static constexpr bool _equal_nodes(const NodeType &node1, const NodeType &node2)
+		{
+			if constexpr (graph::_ordered)
+			{
+				return !(node1 < node2) && !(node2 < node1);
+			}
+
+			else
+			{
+				return node1 == node2;
+			}
+		}
+
+		static constexpr bool _different_nodes(const NodeType &node1, const NodeType &node2)
+		{
+			return graph::_different_nodes(node1, node2);
+		}
+
 	public:
 		[[nodiscard]] static consteval bool can_have_multiple_edges() noexcept
 		{
@@ -183,8 +201,8 @@ export namespace xablau::graph
 				const std::pair < NodeType, NodeType > &pair2) const
 			{
 				return
-					pair1.first == pair2.first && pair1.second == pair2.second ||
-					pair1.first == pair2.second && pair1.second == pair2.first;
+					graph::_equal_nodes(pair1.first, pair2.first) && graph::_equal_nodes(pair1.second, pair2.second) ||
+					graph::_equal_nodes(pair1.first, pair2.second) && graph::_equal_nodes(pair1.second, pair2.first);
 			}
 		};
 
@@ -276,7 +294,7 @@ export namespace xablau::graph
 			const auto searchFunction =
 				[&searchIndex] (const std::pair < NodeType, edge_weight_type > &pair) -> bool
 				{
-					return pair.first == searchIndex;
+					return graph::_equal_nodes(pair.first, searchIndex);
 				};
 
 			for (const auto &item : this->_graph)
@@ -470,7 +488,7 @@ export namespace xablau::graph
 
 				if constexpr (Mode == Dijkstra_modes::single_path)
 				{
-					if (bestNode.first == destiny)
+					if (graph::_equal_nodes(bestNode.first, destiny))
 					{
 						smallestDistance.value().get() = bestNode.second;
 
@@ -629,7 +647,7 @@ export namespace xablau::graph
 				{
 					visitedNodes.insert(previousAndCurrentNodes.second);
 
-					if (previousAndCurrentNodes.first != previousAndCurrentNodes.second)
+					if (graph::_different_nodes(previousAndCurrentNodes.first, previousAndCurrentNodes.second))
 					{
 						if constexpr (graph::unordered())
 						{
@@ -658,9 +676,9 @@ export namespace xablau::graph
 			NodeType currentNode = destiny;
 			std::queue < NodeType > queue;
 
-			while (currentNode != origin)
+			while (graph::_different_nodes(currentNode, origin))
 			{
-				if (currentNode == target)
+				if (graph::_equal_nodes(currentNode, target))
 				{
 					return
 						static_cast < edge_weight_type > (previous.at(currentNode).first) /
@@ -989,12 +1007,12 @@ export namespace xablau::graph
 						j != edges.cend();
 						j = ++i, ++j)
 					{
-						if (i->first == item.first)
+						if (graph::_equal_nodes(i->first, item.first))
 						{
 							continue;
 						}
 
-						if (j->first == item.first)
+						if (graph::_equal_nodes(j->first, item.first))
 						{
 							++j;
 						}
@@ -1113,12 +1131,12 @@ export namespace xablau::graph
 				{
 					size_type localTriangleCount{};
 
-					if (i->first == iterator->first)
+					if (graph::_equal_nodes(i->first, iterator->first))
 					{
 						continue;
 					}
 
-					if (j->first == iterator->first)
+					if (graph::_equal_nodes(j->first, iterator->first))
 					{
 						++j;
 					}
@@ -1264,8 +1282,8 @@ export namespace xablau::graph
 				{
 					const auto &node2 = iterator2->first;
 
-					if (node != node1 &&
-						node != node2 &&
+					if (graph::_different_nodes(node, node1) &&
+						graph::_different_nodes(node, node2) &&
 						iterator1->second.contains(node1) &&
 						iterator1->second.contains(node2) &&
 						iterator1->second.contains(node))
@@ -1303,8 +1321,8 @@ export namespace xablau::graph
 
 					for (const auto &[target, edges] : this->_graph)
 					{
-						if (target != node1 &&
-							target != node2 &&
+						if (graph::_different_nodes(target, node1) &&
+							graph::_different_nodes(target, node2) &&
 							iterator1->second.contains(node1) &&
 							iterator1->second.contains(node2) &&
 							iterator1->second.contains(target))
@@ -1611,7 +1629,7 @@ export namespace xablau::graph
 				}
 			}
 
-			if (origin == destiny)
+			if (graph::_equal_nodes(origin, destiny))
 			{
 				if constexpr (CreatePath)
 				{

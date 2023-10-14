@@ -212,7 +212,7 @@ namespace xablau::graph::concepts
 			requires ()
 			{
 				{ std::hash < ValueType > {}(ValueType{}) } -> std::unsigned_integral;
-				{ std::equal_to < ValueType > {}(ValueType{}, ValueType {}) } -> std::convertible_to < bool >;
+				{ std::equal_to < ValueType > {}(ValueType{}, ValueType{}) } -> std::convertible_to < bool >;
 			};
 
 		template < typename Graph >

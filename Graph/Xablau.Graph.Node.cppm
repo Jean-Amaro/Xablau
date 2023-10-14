@@ -41,7 +41,35 @@ export namespace xablau::graph
 
 		Type value{};
 
-		[[nodiscard]] constexpr auto operator<=>(const node &) const = default;
+		[[nodiscard]] constexpr bool operator<(const node &other) const
+		{
+			return this->value < other.value;
+		}
+
+		[[nodiscard]] constexpr bool operator<=(const node &other) const
+		{
+			return this->value <= other.value;
+		}
+
+		[[nodiscard]] constexpr bool operator>(const node &other) const
+		{
+			return this->value > other.value;
+		}
+
+		[[nodiscard]] constexpr bool operator>=(const node &other) const
+		{
+			return this->value >= other.value;
+		}
+
+		[[nodiscard]] constexpr bool operator==(const node &other) const
+		{
+			return this->value == other.value;
+		}
+
+		[[nodiscard]] constexpr bool operator!=(const node &other) const
+		{
+			return this->value != other.value;
+		}
 
 		constexpr node &operator=(const node &)
 			noexcept(std::is_nothrow_copy_assignable < Type > ::value) = default;

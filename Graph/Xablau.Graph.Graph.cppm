@@ -104,7 +104,7 @@ export namespace xablau::graph
 
 		static constexpr bool _different_nodes(const NodeType &node1, const NodeType &node2)
 		{
-			return graph::_different_nodes(node1, node2);
+			return !graph::_equal_nodes(node1, node2);
 		}
 
 	public:

@@ -852,7 +852,7 @@ export namespace xablau::algebra
 			const auto &kernel,
 			const auto &tuple,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &kernelSize,
-			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities)
+			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities) const
 		{
 			size_t dataIndex{};
 			size_t kernelIndex{};
@@ -912,7 +912,7 @@ export namespace xablau::algebra
 			auto &kernel,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities,
 			const auto &tuple,
-			const std::array < size_t, tensor_dense_dynamic::_rank > &kernelSize)
+			const std::array < size_t, tensor_dense_dynamic::_rank > &kernelSize) const
 		{
 			if constexpr (DynamicKernel)
 			{
@@ -948,32 +948,32 @@ export namespace xablau::algebra
 
 		template < bool DynamicKernel, typename ... DimensionalityTypes >
 		requires (std::convertible_to < DimensionalityTypes, size_t > && ...)
-		static constexpr void kernel(
+		constexpr void kernel(
 			auto &data,
 			auto &kernel,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &kernelSize,
-			DimensionalityTypes && ... args)
+			DimensionalityTypes && ... args) const
 		{
 			const auto kernelCenter = std::forward_as_tuple(args...);
 
-			tensor_dense_dynamic::kernel < DynamicKernel > (data, kernel, dimensionalities, kernelCenter, kernelSize);
+			this->kernel < DynamicKernel > (data, kernel, dimensionalities, kernelCenter, kernelSize);
 		}
 
 		template <
 			bool DynamicKernel,
 			typename ... KernelCenterCoordinatesAndKernelSize,
 			size_t ... DimensionalityIndices >
-		static constexpr void kernel(
+		constexpr void kernel(
 			auto &data,
 			auto &kernel,
 			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities,
 			std::tuple < KernelCenterCoordinatesAndKernelSize... > kernelCenterCoordinatesAndKernelSize,
-			std::index_sequence < DimensionalityIndices... >)
+			std::index_sequence < DimensionalityIndices... >) const
 		{
 			constexpr auto kernelSize = sizeof...(KernelCenterCoordinatesAndKernelSize) - 1;
 
-			tensor_dense_dynamic::kernel < DynamicKernel > (
+			this->kernel < DynamicKernel > (
 				data,
 				kernel,
 				dimensionalities,
@@ -1299,7 +1299,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < false > (
+			this->kernel < false > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1324,7 +1324,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < false > (
+			this->kernel < false > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1350,7 +1350,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < true > (
+			this->kernel < true > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1376,7 +1376,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < true > (
+			this->kernel < true > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1401,7 +1401,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < false > (
+			this->kernel < false > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1426,7 +1426,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < false > (
+			this->kernel < false > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1448,7 +1448,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < true > (
+			this->kernel < true > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,
@@ -1470,7 +1470,7 @@ export namespace xablau::algebra
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
-			tensor_dense_dynamic::kernel < true > (
+			this->kernel < true > (
 				this->_data,
 				_kernel,
 				this->_dimensionalities,

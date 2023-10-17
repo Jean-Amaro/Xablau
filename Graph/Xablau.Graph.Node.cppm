@@ -28,7 +28,9 @@ export module xablau.graph:node;
 export import :node_configurations;
 
 export import <compare>;
+export import <functional>;
 export import <type_traits>;
+export import <utility>;
 
 export namespace xablau::graph
 {

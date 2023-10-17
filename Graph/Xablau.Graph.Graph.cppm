@@ -30,6 +30,7 @@ export import :nary_tree;
 
 export import <execution>;
 export import <iostream>;
+export import <limits>;
 export import <map>;
 export import <mutex>;
 export import <queue>;
@@ -1710,6 +1711,104 @@ export namespace xablau::graph
 						MatrixType::fixed_dimensionalities,
 						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
 						MatrixType::memory_order_indices > > ();
+		}
+
+		// Adapted from https://www.geeksforgeeks.org/traveling-salesman-problem-tsp-implementation/
+		[[nodiscard]] auto traveling_salesman_problem(const NodeType &start) const
+		requires (std::totally_ordered < edge_weight_type > && graph::cannot_have_multiple_edges())
+		{
+			const auto iterator = this->_graph.find(start);
+
+			if (iterator == this->_graph.cend())
+			{
+				return
+					std::make_pair(
+						std::vector < std::reference_wrapper < const NodeType > > (),
+						edge_weight_type{});
+			}
+
+			if (this->node_count() == size_type{1})
+			{
+				return
+					std::make_pair(
+						std::vector < std::reference_wrapper < const NodeType > > (1, iterator->first),
+						edge_weight_type{});
+			}
+
+			std::reference_wrapper < const NodeType > thisStart = iterator->first;
+			std::vector < std::reference_wrapper < const NodeType > > nodes;
+
+			constexpr auto comparison =
+				[] (const std::reference_wrapper < const NodeType > &node1,
+					const std::reference_wrapper < const NodeType > &node2) -> bool
+				{
+					return std::less < const NodeType * > {}(std::addressof(node1.get()), std::addressof(node2.get()));
+				};
+
+			nodes.reserve(this->node_count());
+
+			for (const auto &[node, _] : this->_graph)
+			{
+				if (graph::_different_nodes(thisStart, node))
+				{
+					nodes.emplace_back(node);
+				}
+			}
+
+			std::ranges::sort(nodes, comparison);
+
+			nodes.insert(nodes.begin(), thisStart);
+
+			bool foundSolution = false;
+			std::vector < std::reference_wrapper < const NodeType > > bestPath;
+			edge_weight_type minimumWeight = std::numeric_limits < edge_weight_type > ::max();
+
+			do
+			{
+				bool validPath = true;
+				edge_weight_type currentPathweight{};
+
+				for (auto previous = nodes.begin(), next = ++(nodes.begin()); next != nodes.end(); ++previous, ++next)
+				{
+					if (auto connection = this->edges(previous->get(), next->get());
+						connection.has_value())
+					{
+						currentPathweight += connection.value().get().weight();
+					}
+
+					else
+					{
+						validPath = false;
+
+						break;
+					}
+				}
+
+				if (validPath)
+				{
+					foundSolution = true;
+
+					if (currentPathweight <= minimumWeight)
+					{
+						minimumWeight = currentPathweight;
+						bestPath = nodes;
+					}
+				}
+
+			} while (std::next_permutation(nodes.begin() + 1, nodes.end(), comparison));
+
+			if (foundSolution)
+			{
+				return std::make_pair(std::move(bestPath), minimumWeight);
+			}
+
+			else
+			{
+				return
+					std::make_pair(
+						std::vector < std::reference_wrapper < const NodeType > > (),
+						edge_weight_type{});
+			}
 		}
 
 		template < concepts::nary_tree TreeType, tree_generation_modes TreeGenerationMode >

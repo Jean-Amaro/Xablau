@@ -41,7 +41,7 @@ import xablau.testing;
 namespace xablau::unit_testing
 {
 	template < typename NodeType, typename MapContainerType, typename EdgeType >
-	struct GraphDiraphTypeDefinitions
+	struct GraphDigraphTypeDefinitions
 	{
 		using value_type = typename NodeType::value_type;
 		using node_type = NodeType;
@@ -49,7 +49,7 @@ namespace xablau::unit_testing
 		using edge_type = EdgeType;
 	};
 
-	class GraphDiraphCustomType
+	class GraphDigraphCustomType
 	{
 	private:
 		std::vector < size_t > data;
@@ -57,34 +57,34 @@ namespace xablau::unit_testing
 	public:
 		explicit operator size_t() const { return this->data.back(); }
 
-		auto operator<=>(const GraphDiraphCustomType &) const = default;
+		auto operator<=>(const GraphDigraphCustomType &) const = default;
 
-		GraphDiraphCustomType &operator=(const GraphDiraphCustomType &) = default;
+		GraphDigraphCustomType &operator=(const GraphDigraphCustomType &) = default;
 
-		GraphDiraphCustomType &operator=(GraphDiraphCustomType &&) noexcept = default;
+		GraphDigraphCustomType &operator=(GraphDigraphCustomType &&) noexcept = default;
 
-		GraphDiraphCustomType()
+		GraphDigraphCustomType()
 		{
 			this->data.push_back(0);
 		}
 
-		GraphDiraphCustomType(const size_t data)
+		GraphDigraphCustomType(const size_t data)
 		{
 			this->data.push_back(data);
 		}
 
-		GraphDiraphCustomType(const GraphDiraphCustomType &) = default;
+		GraphDigraphCustomType(const GraphDigraphCustomType &) = default;
 
-		GraphDiraphCustomType(GraphDiraphCustomType &&) noexcept = default;
+		GraphDigraphCustomType(GraphDigraphCustomType &&) noexcept = default;
 	};
 }
 
 namespace std
 {
 	template <>
-	struct hash < xablau::unit_testing::GraphDiraphCustomType >
+	struct hash < xablau::unit_testing::GraphDigraphCustomType >
 	{
-		size_t operator()(const xablau::unit_testing::GraphDiraphCustomType &data) const noexcept
+		size_t operator()(const xablau::unit_testing::GraphDigraphCustomType &data) const noexcept
 		{
 			return std::hash < size_t > {}(static_cast < size_t > (data));
 		}
@@ -94,7 +94,7 @@ namespace std
 namespace xablau::unit_testing
 {
 	template < typename Types >
-	class GraphDiraphTest : public ::testing::Test
+	class GraphDigraphTest : public ::testing::Test
 	{
 	public:
 		static auto createValue(const size_t value)
@@ -128,7 +128,7 @@ namespace xablau::unit_testing
 		{
 			for (size_t i = 0; i < 10; i++)
 			{
-				const auto valueI = GraphDiraphTest::createValue(i);
+				const auto valueI = GraphDigraphTest::createValue(i);
 
 				if (digraph.contains(valueI))
 				{
@@ -142,7 +142,7 @@ namespace xablau::unit_testing
 
 				for (size_t j = i; j < 10; j++)
 				{
-					const auto valueJ = GraphDiraphTest::createValue(j);
+					const auto valueJ = GraphDigraphTest::createValue(j);
 
 					EXPECT_EQ(
 						digraph.insert(
@@ -158,7 +158,7 @@ namespace xablau::unit_testing
 				{
 					for (size_t j = i; j < 10; j++)
 					{
-						const auto valueJ = GraphDiraphTest::createValue(j);
+						const auto valueJ = GraphDigraphTest::createValue(j);
 
 						EXPECT_EQ(
 							digraph.insert(
@@ -175,7 +175,7 @@ namespace xablau::unit_testing
 		{
 			for (size_t i = 0; i < 10; i++)
 			{
-				const auto valueI = GraphDiraphTest::createValue(i);
+				const auto valueI = GraphDigraphTest::createValue(i);
 
 				if (digraph.contains(valueI))
 				{
@@ -189,7 +189,7 @@ namespace xablau::unit_testing
 
 				for (size_t j = 0; j < 10; j++)
 				{
-					const auto valueJ = GraphDiraphTest::createValue(j);
+					const auto valueJ = GraphDigraphTest::createValue(j);
 
 					EXPECT_EQ(
 						digraph.insert(
@@ -205,7 +205,7 @@ namespace xablau::unit_testing
 				{
 					for (size_t j = 0; j < 10; j++)
 					{
-						const auto valueJ = GraphDiraphTest::createValue(j);
+						const auto valueJ = GraphDigraphTest::createValue(j);
 
 						EXPECT_EQ(
 							digraph.insert(
@@ -220,13 +220,13 @@ namespace xablau::unit_testing
 
 		static void completeDigraphWithExtraLevels(auto &digraph)
 		{
-			GraphDiraphTest::completeDigraph(digraph);
+			GraphDigraphTest::completeDigraph(digraph);
 
 			for (size_t i = 0; i < 10; i++)
 			{
-				const auto valueI = GraphDiraphTest::createValue(i);
-				const auto valueJ = GraphDiraphTest::createValue(i + 10);
-				const auto valueK = GraphDiraphTest::createValue(i + 20);
+				const auto valueI = GraphDigraphTest::createValue(i);
+				const auto valueJ = GraphDigraphTest::createValue(i + 10);
+				const auto valueK = GraphDigraphTest::createValue(i + 20);
 
 				EXPECT_EQ(
 					digraph.insert(
@@ -255,8 +255,8 @@ namespace xablau::unit_testing
 
 					EXPECT_EQ(
 						digraph.insert(
-							GraphDiraphTest::createValue(index1),
-							GraphDiraphTest::createValue(index2),
+							GraphDigraphTest::createValue(index1),
+							GraphDigraphTest::createValue(index2),
 							Types::edge_type(float{1})).value().get().weight(),
 						float{1});
 				}
@@ -272,8 +272,8 @@ namespace xablau::unit_testing
 				{
 					EXPECT_EQ(
 						digraph.insert(
-							GraphDiraphTest::createValue(value1),
-							GraphDiraphTest::createValue(value2),
+							GraphDigraphTest::createValue(value1),
+							GraphDigraphTest::createValue(value2),
 							Types::edge_type(float{1})).value().get().weight(),
 						float{1});
 				};
@@ -295,13 +295,13 @@ namespace xablau::unit_testing
 			insertConnection(8, 8);
 			insertConnection(9, 8);
 
-			digraph.insert(GraphDiraphTest::createValue(10));
+			digraph.insert(GraphDigraphTest::createValue(10));
 		}
 	};
 
-	TYPED_TEST_SUITE_P(GraphDiraphTest);
+	TYPED_TEST_SUITE_P(GraphDigraphTest);
 
-	TYPED_TEST_P(GraphDiraphTest, MultipleEdges)
+	TYPED_TEST_P(GraphDigraphTest, MultipleEdges)
 	{
 		using graph_type =
 			typename xablau::graph::digraph <
@@ -342,7 +342,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Insertion)
+	TYPED_TEST_P(GraphDigraphTest, Insertion)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -411,7 +411,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Deletion)
+	TYPED_TEST_P(GraphDigraphTest, Deletion)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -466,7 +466,7 @@ namespace xablau::unit_testing
 		EXPECT_EQ(digraph.unique_edge_count(), 0);
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Degree)
+	TYPED_TEST_P(GraphDigraphTest, Degree)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -512,7 +512,7 @@ namespace xablau::unit_testing
 		EXPECT_EQ(digraph.volume(), degreeSum);
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, StatisticalMoment)
+	TYPED_TEST_P(GraphDigraphTest, StatisticalMoment)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -540,7 +540,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, ShannonEntropy)
+	TYPED_TEST_P(GraphDigraphTest, ShannonEntropy)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -552,7 +552,7 @@ namespace xablau::unit_testing
 		EXPECT_EQ(digraph.Shannon_entropy(), float{3.32192826});
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, AdjacencyMatrix)
+	TYPED_TEST_P(GraphDigraphTest, AdjacencyMatrix)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -599,7 +599,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, LaplacianMatrix)
+	TYPED_TEST_P(GraphDigraphTest, LaplacianMatrix)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -660,7 +660,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, TarjanStronglyConnectedComponents)
+	TYPED_TEST_P(GraphDigraphTest, TarjanStronglyConnectedComponents)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -717,7 +717,7 @@ namespace xablau::unit_testing
 		EXPECT_EQ(connectedComponents.at(this->createValue(size_t{10})), group7);
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, FloydWarshall)
+	TYPED_TEST_P(GraphDigraphTest, FloydWarshall)
 	{
 		xablau::graph::digraph <
 			typename TypeParam::node_type,
@@ -776,7 +776,149 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, TreeBFS)
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemFewNodes)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			const auto firstNode = this->createValue(0);
+			const auto secondNode = this->createValue(1);
+
+			auto result = digraph.traveling_salesman_problem(firstNode);
+
+			EXPECT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float{});
+
+			digraph.insert(firstNode);
+
+			result = digraph.traveling_salesman_problem(firstNode);
+
+			ASSERT_EQ(result.first.size(), 1);
+			EXPECT_EQ(result.first.begin()->get(), firstNode);
+			EXPECT_EQ(result.second, float{});
+
+			digraph.insert(firstNode, secondNode);
+
+			result = digraph.traveling_salesman_problem(firstNode);
+
+			ASSERT_EQ(result.first.size(), 2);
+			EXPECT_EQ(result.first.begin()->get(), firstNode);
+			EXPECT_EQ((result.first.begin() + 1)->get(), secondNode);
+			EXPECT_EQ(result.second, float{1});
+
+			result = digraph.traveling_salesman_problem(secondNode);
+
+			EXPECT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float {});
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemDisjoint)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			digraph.insert(this->createValue(0), this->createValue(1));
+			digraph.insert(this->createValue(1), this->createValue(2));
+			digraph.insert(this->createValue(2), this->createValue(0));
+			digraph.insert(this->createValue(3));
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				auto result = digraph.traveling_salesman_problem(this->createValue(i));
+
+				EXPECT_EQ(result.first.size(), 0);
+				EXPECT_EQ(result.second, float{});
+			}
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemRegular)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			const float value1{1.17557f};
+			const float value2{1.90211f};
+
+			const auto node1 = this->createValue(0);
+			const auto node2 = this->createValue(1);
+			const auto node3 = this->createValue(2);
+			const auto node4 = this->createValue(3);
+			const auto node5 = this->createValue(4);
+
+			digraph.insert(node1, node2, value1);
+			digraph.insert(node2, node3, value1);
+			digraph.insert(node3, node4, value1);
+			digraph.insert(node4, node5, value1);
+			digraph.insert(node5, node4, value1);
+
+			digraph.insert(node3, node1, value2);
+			digraph.insert(node4, node2, value2);
+
+			std::vector < std::vector < typename TypeParam::node_type > > paths =
+				{
+					{ node1, node2, node3, node4, node5 },
+					{},
+					{},
+					{},
+					{ node5, node4, node2, node3, node1 }
+				};
+
+			std::vector < float > distances =
+				{
+					float{4} * value1,
+					float{},
+					float{},
+					float{},
+					float{2} * value1 + float{2} * value2
+				};
+
+			constexpr auto comparison =
+				[] (const std::vector < std::reference_wrapper < const typename TypeParam::node_type > > &calculated,
+					const std::vector < typename TypeParam::node_type > &result) -> bool
+				{
+					for (size_t i = 0; i < result.size(); i++)
+					{
+						if (calculated[i].get() != result[i])
+						{
+							return false;
+						}
+					}
+
+					return true;
+				};
+
+			for (size_t i = 0; i < 5; i++)
+			{
+				auto result = digraph.traveling_salesman_problem(this->createValue(i));
+
+				ASSERT_EQ(result.first.size(), paths[i].size());
+
+				EXPECT_TRUE(comparison(result.first, paths[i]));
+			}
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TreeBFS)
 	{
 		using NaryNode =
 			xablau::graph::nary_tree_node <
@@ -832,7 +974,7 @@ namespace xablau::unit_testing
 					const auto &grandchild = child.get().children().back().value().get();
 
 					EXPECT_EQ(grandchild.children().size(), 0);
-					EXPECT_GE(grandchild.value, this->createValue(10));
+					EXPECT_GE(grandchild.value, this->createValue(10).value);
 				}
 
 				else if (child.get().children().size() != 0)
@@ -843,7 +985,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, TreeDFS)
+	TYPED_TEST_P(GraphDigraphTest, TreeDFS)
 	{
 		using NaryNode =
 			xablau::graph::nary_tree_node <
@@ -915,7 +1057,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, TreeDijkstra)
+	TYPED_TEST_P(GraphDigraphTest, TreeDijkstra)
 	{
 		using NaryNode =
 			xablau::graph::nary_tree_node <
@@ -971,7 +1113,7 @@ namespace xablau::unit_testing
 					const auto &grandchild = child.get().children().back().value().get();
 
 					EXPECT_EQ(grandchild.children().size(), 0);
-					EXPECT_GE(grandchild.value, this->createValue(10));
+					EXPECT_GE(grandchild.value, this->createValue(10).value);
 				}
 
 				else if (child.get().children().size() != 0)
@@ -982,7 +1124,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Connectivity)
+	TYPED_TEST_P(GraphDigraphTest, Connectivity)
 	{
 		using DigraphType =
 			xablau::graph::digraph <
@@ -1019,7 +1161,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Nodes)
+	TYPED_TEST_P(GraphDigraphTest, Nodes)
 	{
 		using DigraphType =
 			xablau::graph::digraph <
@@ -1097,7 +1239,7 @@ namespace xablau::unit_testing
 		}
 	}
 
-	TYPED_TEST_P(GraphDiraphTest, Concepts)
+	TYPED_TEST_P(GraphDigraphTest, Concepts)
 	{
 		using digraph_type =
 			typename xablau::graph::digraph <
@@ -1135,7 +1277,7 @@ namespace xablau::unit_testing
 	}
 
 	REGISTER_TYPED_TEST_SUITE_P(
-		GraphDiraphTest,
+		GraphDigraphTest,
 		MultipleEdges,
 		Insertion,
 		Deletion,
@@ -1146,6 +1288,9 @@ namespace xablau::unit_testing
 		LaplacianMatrix,
 		TarjanStronglyConnectedComponents,
 		FloydWarshall,
+		TravelingSalesmanProblemFewNodes,
+		TravelingSalesmanProblemDisjoint,
+		TravelingSalesmanProblemRegular,
 		TreeBFS,
 		TreeDFS,
 		TreeDijkstra,
@@ -1153,32 +1298,32 @@ namespace xablau::unit_testing
 		Nodes,
 		Concepts);
 
-	using GraphDiraphTestNodeTypes =
+	using GraphDigraphTestNodeTypes =
 		std::tuple <
 			xablau::graph::node < size_t >,
 			xablau::graph::node < std::string >,
-			xablau::graph::node < GraphDiraphCustomType > >;
+			xablau::graph::node < GraphDigraphCustomType > >;
 
-	using GraphDiraphTestMapContainerTypes =
+	using GraphDigraphTestMapContainerTypes =
 		std::tuple <
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::ordered >,
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::unordered >,
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::multi_ordered >,
 			xablau::graph::graph_container_type < xablau::graph::graph_container_type_value::multi_unordered > >;
 
-	using GraphDiraphTestEdgeTypes =
+	using GraphDigraphTestEdgeTypes =
 		std::tuple < xablau::graph::edge < float > >;
 
-	using GraphDiraphTestGroup =
+	using GraphDigraphTestGroup =
 		xablau::testing::test_bundler <
-			GraphDiraphTestNodeTypes,
-			GraphDiraphTestMapContainerTypes,
-			GraphDiraphTestEdgeTypes > ::template test_group < GraphDiraphTypeDefinitions >;
+			GraphDigraphTestNodeTypes,
+			GraphDigraphTestMapContainerTypes,
+			GraphDigraphTestEdgeTypes > ::template test_group < GraphDigraphTypeDefinitions >;
 
-	using GraphDiraphTypes = xablau::testing::tuple_transformation < ::testing::Types, GraphDiraphTestGroup > ::types;
+	using GraphDigraphTypes = xablau::testing::tuple_transformation < ::testing::Types, GraphDigraphTestGroup > ::types;
 
 	INSTANTIATE_TYPED_TEST_SUITE_P(
 		Xablau,
-		GraphDiraphTest,
-		GraphDiraphTypes);
+		GraphDigraphTest,
+		GraphDigraphTypes);
 }

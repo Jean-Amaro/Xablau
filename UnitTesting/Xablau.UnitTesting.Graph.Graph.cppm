@@ -677,6 +677,149 @@ namespace xablau::unit_testing
 		}
 	}
 
+	TYPED_TEST_P(GraphGraphTest, TravelingSalesmanProblemFewNodes)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::graph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > graph;
+
+			const auto firstNode = this->createValue(0);
+			const auto secondNode = this->createValue(1);
+
+			auto result = graph.traveling_salesman_problem(firstNode);
+
+			EXPECT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float{});
+
+			graph.insert(firstNode);
+
+			result = graph.traveling_salesman_problem(firstNode);
+
+			ASSERT_EQ(result.first.size(), 1);
+			EXPECT_EQ(result.first.begin()->get(), firstNode);
+			EXPECT_EQ(result.second, float{});
+
+			graph.insert(firstNode, secondNode);
+
+			result = graph.traveling_salesman_problem(firstNode);
+
+			ASSERT_EQ(result.first.size(), 2);
+			EXPECT_EQ(result.first.begin()->get(), firstNode);
+			EXPECT_EQ((result.first.begin() + 1)->get(), secondNode);
+			EXPECT_EQ(result.second, float{1});
+
+			result = graph.traveling_salesman_problem(secondNode);
+
+			ASSERT_EQ(result.first.size(), 2);
+			EXPECT_EQ(result.first.begin()->get(), secondNode);
+			EXPECT_EQ((result.first.begin() + 1)->get(), firstNode);
+			EXPECT_EQ(result.second, float{1});
+		}
+	}
+
+	TYPED_TEST_P(GraphGraphTest, TravelingSalesmanProblemDisjoint)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::graph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > graph;
+
+			graph.insert(this->createValue(0), this->createValue(1));
+			graph.insert(this->createValue(1), this->createValue(2));
+			graph.insert(this->createValue(2), this->createValue(0));
+			graph.insert(this->createValue(3));
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				auto result = graph.traveling_salesman_problem(this->createValue(i));
+
+				EXPECT_EQ(result.first.size(), 0);
+				EXPECT_EQ(result.second, float{});
+			}
+		}
+	}
+
+	TYPED_TEST_P(GraphGraphTest, TravelingSalesmanProblemRegular)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::graph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > graph;
+
+			const float value1{1.17557f};
+			const float value2{1.90211f};
+
+			const auto node1 = this->createValue(0);
+			const auto node2 = this->createValue(1);
+			const auto node3 = this->createValue(2);
+			const auto node4 = this->createValue(3);
+			const auto node5 = this->createValue(4);
+
+			graph.insert(node1, node2, value1);
+			graph.insert(node2, node3, value1);
+			graph.insert(node3, node4, value1);
+			graph.insert(node4, node5, value1);
+
+			graph.insert(node1, node3, value2);
+			graph.insert(node2, node4, value2);
+
+			std::vector < std::vector < typename TypeParam::node_type > > paths =
+				{
+					{ node1, node2, node3, node4, node5 },
+					{ node2, node1, node3, node4, node5 },
+					{ node3, node1, node2, node4, node5 },
+					{},
+					{ node5, node4, node3, node2, node1 }
+				};
+
+			std::vector < float > distances =
+				{
+					float{4} * value1,
+					float{3} * value1 + value2,
+					float{2} * value1 + float{2} * value2,
+					float{},
+					float{4} * value1
+				};
+
+			constexpr auto comparison =
+				[] (const std::vector < std::reference_wrapper < const typename TypeParam::node_type > > &calculated,
+					const std::vector < typename TypeParam::node_type > &result) -> bool
+				{
+					for (size_t i = 0; i < result.size(); i++)
+					{
+						if (calculated[i].get() != result[i])
+						{
+							return false;
+						}
+					}
+
+					return true;
+				};
+
+			for (size_t i = 0; i < 5; i++)
+			{
+				auto result = graph.traveling_salesman_problem(this->createValue(i));
+
+				ASSERT_EQ(result.first.size(), paths[i].size());
+
+				EXPECT_TRUE(comparison(result.first, paths[i]));
+			}
+		}
+	}
+
 	TYPED_TEST_P(GraphGraphTest, TreeBFS)
 	{
 		using NaryNode =
@@ -733,7 +876,7 @@ namespace xablau::unit_testing
 					const auto &grandchild = child.get().children().back().value().get();
 
 					EXPECT_EQ(grandchild.children().size(), 0);
-					EXPECT_GE(grandchild.value, this->createValue(10));
+					EXPECT_GE(grandchild.value, this->createValue(10).value);
 				}
 
 				else if (child.get().children().size() != 0)
@@ -880,7 +1023,7 @@ namespace xablau::unit_testing
 							const auto &grandchild = child.get().children().back().value().get();
 
 							EXPECT_EQ(grandchild.children().size(), 0);
-							EXPECT_GE(grandchild.value, this->createValue(10));
+							EXPECT_GE(grandchild.value, this->createValue(10).value);
 						}
 
 						else if (child.get().children().size() != 0)
@@ -922,7 +1065,7 @@ namespace xablau::unit_testing
 								const auto &grandchild = child.get().valid_children().back().get();
 
 								EXPECT_EQ(grandchild.valid_children().size(), 0);
-								EXPECT_GE(grandchild.value, this->createValue(10));
+								EXPECT_GE(grandchild.value, this->createValue(10).value);
 							}
 
 							else if (child.get().valid_children().size() != 0)
@@ -1031,6 +1174,9 @@ namespace xablau::unit_testing
 		AdjacencyMatrix,
 		LaplacianMatrix,
 		FloydWarshall,
+		TravelingSalesmanProblemFewNodes,
+		TravelingSalesmanProblemDisjoint,
+		TravelingSalesmanProblemRegular,
 		TreeBFS,
 		TreeDFS,
 		TreeDijkstra,

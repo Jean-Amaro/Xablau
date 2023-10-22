@@ -29,12 +29,14 @@ export module xablau.io:fstream;
 export import <array>;
 export import <chrono>;
 export import <concepts>;
+export import <cstring>;
 export import <deque>;
 export import <filesystem>;
 export import <forward_list>;
 export import <fstream>;
 export import <functional>;
 export import <ios>;
+export import <list>;
 export import <map>;
 export import <queue>;
 export import <set>;
@@ -849,7 +851,7 @@ export namespace xablau::io
 		}
 
 		explicit fstream(
-			const typename std::filesystem::path::value_type *filename,
+			const wchar_t *filename,
 			std::ios_base::openmode openMode = std::ios_base::in | std::ios_base::out) :
 
 			std::basic_fstream < CharType, Traits > (filename, openMode),

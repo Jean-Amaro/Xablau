@@ -43,6 +43,16 @@ export namespace xablau::graph
 
 		Type value{};
 
+		[[nodiscard]] constexpr explicit operator Type &()
+		{
+			return this->value;
+		}
+
+		[[nodiscard]] constexpr explicit operator const Type &() const
+		{
+			return this->value;
+		}
+
 		[[nodiscard]] constexpr bool operator<(const node &other) const
 		{
 			return this->value < other.value;
@@ -82,17 +92,17 @@ export namespace xablau::graph
 		constexpr node()
 			noexcept(std::is_nothrow_default_constructible < Type > ::value) = default;
 
-		constexpr node(const Type &data)
+		constexpr node(const Type &value)
 			noexcept(std::is_nothrow_copy_constructible < Type > ::value) :
 
-			value(data)
+			value(value)
 		{
 		}
 
-		constexpr node(Type &&data)
+		constexpr node(Type &&value)
 			noexcept(std::is_nothrow_move_constructible < Type > ::value) :
 
-			value(std::move(data))
+			value(std::move(value))
 		{
 		}
 

@@ -1070,17 +1070,9 @@ export namespace xablau::graph
 			return tripletCount;
 		}
 
-		[[nodiscard]]
-			std::vector <
-				std::pair <
-					std::reference_wrapper < const NodeType >,
-					std::reference_wrapper < const NodeType > > >
-			triangle_neighbors(const NodeType &node) const
+		[[nodiscard]] std::vector < std::pair < NodeType, NodeType > > triangle_neighbors(const NodeType &node) const
 		{
-			std::vector <
-				std::pair <
-					std::reference_wrapper < const NodeType >,
-					std::reference_wrapper < const NodeType > > > result;
+			std::vector < std::pair < NodeType, NodeType > > result;
 
 			const auto iterator = this->_graph.find(node);
 
@@ -1723,7 +1715,7 @@ export namespace xablau::graph
 			{
 				return
 					std::make_pair(
-						std::vector < std::reference_wrapper < const NodeType > > (),
+						std::vector < NodeType > (),
 						edge_weight_type{});
 			}
 
@@ -1731,7 +1723,7 @@ export namespace xablau::graph
 			{
 				return
 					std::make_pair(
-						std::vector < std::reference_wrapper < const NodeType > > (1, iterator->first),
+						std::vector < NodeType > (1, iterator->first),
 						edge_weight_type{});
 			}
 
@@ -1770,7 +1762,7 @@ export namespace xablau::graph
 
 				for (auto previous = nodes.begin(), next = ++(nodes.begin()); next != nodes.end(); ++previous, ++next)
 				{
-					if (auto connection = this->edges(previous->get(), next->get());
+					if (const auto connection = this->edges(previous->get(), next->get());
 						connection.has_value())
 					{
 						currentPathweight += connection.value().get().weight();
@@ -1799,14 +1791,218 @@ export namespace xablau::graph
 
 			if (foundSolution)
 			{
-				return std::make_pair(std::move(bestPath), minimumWeight);
+				std::vector < NodeType > result;
+
+				result.reserve(bestPath.size());
+
+				for (const auto &node : bestPath)
+				{
+					result.push_back(node.get());
+				}
+
+				return std::make_pair(std::move(result), minimumWeight);
 			}
 
 			else
 			{
 				return
 					std::make_pair(
-						std::vector < std::reference_wrapper < const NodeType > > (),
+						std::vector < NodeType > (),
+						edge_weight_type{});
+			}
+		}
+
+		template < concepts::digraph DependencyType >
+		requires (std::same_as < typename graph::node_type, typename DependencyType::node_type >)
+		[[nodiscard]] auto traveling_salesman_problem(const NodeType &start, const DependencyType &dependency) const
+		requires (std::totally_ordered < edge_weight_type > && graph::cannot_have_multiple_edges())
+		{
+			if (this->node_count() != dependency.node_count())
+			{
+				throw std::runtime_error(""); // TODO: Create message.
+			}
+
+			if (this->node_count() != dependency.node_count())
+			{
+				throw std::runtime_error(""); // TODO: Create message.
+			}
+
+			for (const auto &[node, _] : this->_graph)
+			{
+				if (!dependency.contains(node))
+				{
+					throw std::runtime_error(""); // TODO: Create message.
+				}
+			}
+
+			const auto iterator = this->_graph.find(start);
+
+			if (iterator == this->_graph.cend())
+			{
+				return
+					std::make_pair(
+						std::vector < NodeType > (),
+						edge_weight_type{});
+			}
+
+			if (this->node_count() == size_type{1})
+			{
+				return
+					std::make_pair(
+						std::vector < NodeType > (1, iterator->first),
+						edge_weight_type{});
+			}
+
+			std::vector < std::tuple < size_type, std::reference_wrapper < const NodeType > > > nodes;
+			std::vector <
+				std::pair <
+					typename decltype(nodes)::difference_type,
+					typename decltype(nodes)::difference_type > > groups;
+
+			constexpr auto priorityAndNodeComparison =
+				[] (const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node1,
+					const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node2) -> bool
+				{
+					return
+						std::get < 0 > (node1) < std::get < 0 > (node2) ||
+
+						std::get < 0 > (node1) == std::get < 0 > (node2) &&
+						std::less < const NodeType * > {}(
+							std::addressof(std::get < 1 > (node1).get()),
+							std::addressof(std::get < 1 > (node2).get()));
+				};
+
+			auto dependencyCopy = dependency;
+
+			nodes.reserve(this->node_count());
+			groups.reserve(this->node_count());
+
+			for (size_type priority{}, accumulator{}; !dependencyCopy.empty();)
+			{
+				const auto sinkNodes = dependencyCopy.sink_nodes();
+				const auto sinkNodeCount = std::distance(sinkNodes.cbegin(), sinkNodes.cend());
+
+				if (sinkNodeCount == 0)
+				{
+					throw std::runtime_error(""); // TODO: Create message.s
+				}
+
+				groups.emplace_back(
+					static_cast < typename decltype(nodes)::difference_type > (accumulator),
+					static_cast < typename decltype(nodes)::difference_type > (accumulator + sinkNodeCount));
+
+				for (const auto &sinkNode : sinkNodes)
+				{
+					nodes.emplace_back(priority, this->_graph.find(sinkNode)->first);
+					dependencyCopy.erase(sinkNode);
+				}
+
+				accumulator += static_cast < size_type > (sinkNodeCount);
+
+				priority++;
+			}
+
+			std::ranges::sort(nodes, priorityAndNodeComparison);
+
+			if (groups[0].second - groups[0].first != 1 ||
+				graph::_different_nodes(std::get < 1 > (*(nodes.cbegin() + groups[0].first)).get(), iterator->first))
+			{
+				return
+					std::make_pair(
+						std::vector < NodeType > (),
+						edge_weight_type{});
+			}
+
+			bool foundSolution = false;
+			decltype(nodes) bestPath;
+			edge_weight_type minimumWeight = std::numeric_limits < edge_weight_type > ::max();
+			const auto permuteNodes =
+				[&groups, &nodes] () -> bool
+				{
+					constexpr auto nodeComparison =
+						[] (const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node1,
+							const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node2) -> bool
+						{
+							return
+								std::less < const NodeType * > {}(
+									std::addressof(std::get < 1 > (node1).get()),
+									std::addressof(std::get < 1 > (node2).get()));
+						};
+
+					for (auto iterator = groups.crbegin(); iterator != groups.crend(); ++iterator)
+					{
+						if (std::next_permutation(nodes.begin() + iterator->first, nodes.begin() + iterator->second, nodeComparison))
+						{
+							return true;
+						}
+					}
+
+					return false;
+				};
+
+			do
+			{
+				bool validPath = true;
+				edge_weight_type currentPathweight{};
+				dependencyCopy = dependency;
+
+				for (auto previous = nodes.begin(), next = ++(nodes.begin()); next != nodes.end(); ++previous, ++next)
+				{
+					const auto connection = this->edges(std::get < 1 > (*previous).get(), std::get < 1 > (*next).get());
+					const auto sinkNodes = dependencyCopy.sink_nodes();
+					const auto searchFunction =
+						[&previous] (const NodeType &sinkNode) -> bool
+						{
+							return graph::_equal_nodes(std::get < 1 > (*previous).get(), sinkNode);
+						};
+
+					if (connection.has_value() && std::find_if(sinkNodes.cbegin(), sinkNodes.cend(), searchFunction) != sinkNodes.cend())
+					{
+						currentPathweight += connection.value().get().weight();
+					}
+
+					else
+					{
+						validPath = false;
+
+						break;
+					}
+
+					dependencyCopy.erase(std::get < 1 > (*previous).get());
+				}
+
+				if (validPath)
+				{
+					foundSolution = true;
+
+					if (currentPathweight <= minimumWeight)
+					{
+						minimumWeight = currentPathweight;
+						bestPath = nodes;
+					}
+				}
+
+			} while (permuteNodes());
+
+			if (foundSolution)
+			{
+				std::vector < NodeType > result;
+
+				result.reserve(bestPath.size());
+
+				for (const auto &[_, node] : bestPath)
+				{
+					result.push_back(node.get());
+				}
+
+				return std::make_pair(std::move(result), minimumWeight);
+			}
+
+			else
+			{
+				return
+					std::make_pair(
+						std::vector < NodeType > (),
 						edge_weight_type{});
 			}
 		}
@@ -1938,7 +2134,7 @@ export namespace xablau::graph
 				return node_weight_container{};
 			}
 
-			size_t counter{};
+			size_type counter{};
 			graph_node_to_matrix_index_map graphNodeToMatrixIndex{};
 			matrix_index_to_graph_node_map matrixIndexToGraphNode{};
 
@@ -1976,11 +2172,11 @@ export namespace xablau::graph
 					}
 				});
 
-			size_t indexGreatestAbsoluteEigenvalue{};
+			size_type indexGreatestAbsoluteEigenvalue{};
 			edge_weight_type greatestAbsoluteEigenvalue{};
 			const auto [eigenvalues, eigenvectors] = matrix.eigen_Hermitian < true, false > ();
 
-			for (size_t i = 0; i < eigenvalues.rows(); i++)
+			for (size_type i = 0; i < eigenvalues.rows(); i++)
 			{
 				const auto &eigenvalue = eigenvalues(i, 0);
 
@@ -1998,7 +2194,7 @@ export namespace xablau::graph
 				centrality.reserve(this->node_count());
 			}
 
-			for (size_t i = 0; i < matrixSize; i++)
+			for (size_type i = 0; i < matrixSize; i++)
 			{
 				centrality[matrixIndexToGraphNode.at(i)] =
 					xablau::algebra::functions::abs < edge_weight_type > ::invoke(eigenvectors(i, indexGreatestAbsoluteEigenvalue));

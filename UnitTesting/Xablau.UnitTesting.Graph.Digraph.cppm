@@ -800,7 +800,7 @@ namespace xablau::unit_testing
 			result = digraph.traveling_salesman_problem(firstNode);
 
 			ASSERT_EQ(result.first.size(), 1);
-			EXPECT_EQ(result.first.begin()->get(), firstNode);
+			EXPECT_EQ(*(result.first.begin()), firstNode);
 			EXPECT_EQ(result.second, float{});
 
 			digraph.insert(firstNode, secondNode);
@@ -808,8 +808,8 @@ namespace xablau::unit_testing
 			result = digraph.traveling_salesman_problem(firstNode);
 
 			ASSERT_EQ(result.first.size(), 2);
-			EXPECT_EQ(result.first.begin()->get(), firstNode);
-			EXPECT_EQ((result.first.begin() + 1)->get(), secondNode);
+			EXPECT_EQ(*(result.first.begin()), firstNode);
+			EXPECT_EQ(*(result.first.begin() + 1), secondNode);
 			EXPECT_EQ(result.second, float{1});
 
 			result = digraph.traveling_salesman_problem(secondNode);
@@ -893,12 +893,12 @@ namespace xablau::unit_testing
 				};
 
 			constexpr auto comparison =
-				[] (const std::vector < std::reference_wrapper < const typename TypeParam::node_type > > &calculated,
+				[] (const std::vector < typename TypeParam::node_type > &calculated,
 					const std::vector < typename TypeParam::node_type > &result) -> bool
 				{
 					for (size_t i = 0; i < result.size(); i++)
 					{
-						if (calculated[i].get() != result[i])
+						if (calculated[i] != result[i])
 						{
 							return false;
 						}
@@ -915,6 +915,136 @@ namespace xablau::unit_testing
 
 				EXPECT_TRUE(comparison(result.first, paths[i]));
 			}
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemWithDependenciesFewNodes)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > dependencies;
+
+			const auto firstNode = this->createValue(0);
+			const auto secondNode = this->createValue(1);
+
+			auto result = digraph.traveling_salesman_problem(firstNode, dependencies);
+
+			EXPECT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float{});
+
+			digraph.insert(firstNode);
+			dependencies.insert(firstNode);
+
+			result = digraph.traveling_salesman_problem(firstNode, dependencies);
+
+			ASSERT_EQ(result.first.size(), 1);
+			EXPECT_EQ(*(result.first.begin()), firstNode);
+			EXPECT_EQ(result.second, float{});
+
+			digraph.insert(firstNode, secondNode);
+			dependencies.insert(firstNode, secondNode);
+
+			result = digraph.traveling_salesman_problem(firstNode, dependencies);
+
+			ASSERT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float{});
+
+			result = digraph.traveling_salesman_problem(secondNode, dependencies);
+
+			ASSERT_EQ(result.first.size(), 0);
+			EXPECT_EQ(result.second, float {});
+
+			digraph.insert(secondNode, firstNode);
+
+			result = digraph.traveling_salesman_problem(secondNode, dependencies);
+
+			ASSERT_EQ(result.first.size(), 2);
+			EXPECT_EQ(*(result.first.begin()), secondNode);
+			EXPECT_EQ(*(result.first.begin() + 1), firstNode);
+			EXPECT_EQ(result.second, float{1});
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemWithDependenciesDisjoint)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > dependencies;
+
+			digraph.insert(this->createValue(0), this->createValue(1));
+			digraph.insert(this->createValue(1), this->createValue(2));
+			digraph.insert(this->createValue(2), this->createValue(0));
+			digraph.insert(this->createValue(3));
+
+			dependencies.insert(this->createValue(0));
+			dependencies.insert(this->createValue(1));
+			dependencies.insert(this->createValue(2));
+			dependencies.insert(this->createValue(3));
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				auto result = digraph.traveling_salesman_problem(this->createValue(i), dependencies);
+
+				EXPECT_EQ(result.first.size(), 0);
+				EXPECT_EQ(result.second, float{});
+			}
+		}
+	}
+
+	TYPED_TEST_P(GraphDigraphTest, TravelingSalesmanProblemWithDependenciesRegular)
+	{
+		if constexpr (
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::ordered ||
+			TypeParam::graph_container_type::type() == xablau::graph::graph_container_type_value::unordered)
+		{
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > digraph;
+
+			xablau::graph::digraph <
+				typename TypeParam::node_type,
+				typename TypeParam::graph_container_type,
+				typename TypeParam::edge_type > dependencies;
+
+			this->completeDigraph(digraph);
+			std::vector < typename TypeParam::node_type > nodes;
+
+			for (size_t i = 0; i < digraph.node_count() - 1; i++)
+			{
+				dependencies.insert(this->createValue(i), this->createValue((i + 1) % digraph.node_count()));
+				nodes.push_back(this->createValue(i));
+			}
+
+			nodes.push_back(this->createValue(digraph.node_count() - 1));
+
+			std::ranges::reverse(nodes);
+
+			auto result = digraph.traveling_salesman_problem(this->createValue(digraph.node_count() - 1), dependencies);
+
+			EXPECT_EQ(result.first.size(), 10);
+			EXPECT_EQ(result.first, nodes);
+			EXPECT_EQ(result.second, float{45});
 		}
 	}
 
@@ -1291,6 +1421,9 @@ namespace xablau::unit_testing
 		TravelingSalesmanProblemFewNodes,
 		TravelingSalesmanProblemDisjoint,
 		TravelingSalesmanProblemRegular,
+		TravelingSalesmanProblemWithDependenciesFewNodes,
+		TravelingSalesmanProblemWithDependenciesDisjoint,
+		TravelingSalesmanProblemWithDependenciesRegular,
 		TreeBFS,
 		TreeDFS,
 		TreeDijkstra,

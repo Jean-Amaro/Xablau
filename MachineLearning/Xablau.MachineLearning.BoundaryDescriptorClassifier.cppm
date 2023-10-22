@@ -457,8 +457,8 @@ export namespace xablau::machine_learning
 
 				for (const auto &[neighbor1, neighbor2] : triangleNeighbors)
 				{
-					const auto indexNeighbor1 = neighbor1.get().value;
-					const auto indexNeighbor2 = neighbor2.get().value;
+					const auto indexNeighbor1 = neighbor1.value;
+					const auto indexNeighbor2 = neighbor2.value;
 
 					if (intersections[indexNeighbor1].has_value() && !checkedVertices[indexNeighbor1] &&
 						intersections[indexNeighbor2].has_value() && !checkedVertices[indexNeighbor2])

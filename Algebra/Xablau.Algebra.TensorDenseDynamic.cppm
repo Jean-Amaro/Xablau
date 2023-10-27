@@ -1513,11 +1513,13 @@ export namespace xablau::algebra
 		}
 
 		[[nodiscard]] constexpr size_t rows() const
+		requires (tensor_dense_dynamic::_rank == 2)
 		{
 			return this->_dimensionalities[0];
 		}
 
 		[[nodiscard]] constexpr size_t columns() const
+		requires (tensor_dense_dynamic::_rank == 2)
 		{
 			return this->_dimensionalities[1];
 		}

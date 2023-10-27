@@ -1247,11 +1247,13 @@ export namespace xablau::algebra
 		}
 
 		[[nodiscard]] static consteval size_t rows()
+		requires (tensor_dense_fixed::_rank == 2)
 		{
 			return tensor_dense_fixed::_dimensionalities[0];
 		}
 
 		[[nodiscard]] static consteval size_t columns()
+		requires (tensor_dense_fixed::_rank == 2)
 		{
 			return tensor_dense_fixed::_dimensionalities[1];
 		}

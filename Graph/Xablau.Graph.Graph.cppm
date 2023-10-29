@@ -2316,11 +2316,13 @@ export namespace xablau::graph
 			this->insert(node1);
 			this->insert(node2);
 
+			const auto &_node2 = this->_graph.find(node2)->first;
+
 			if constexpr (graph::can_have_multiple_edges())
 			{
 				std::optional < std::reference_wrapper < const EdgeType > > insertedEdge;
 
-				auto _edge = this->_graph.at(node1).insert(std::make_pair(node2, std::vector < EdgeType > ()));
+				auto _edge = this->_graph.at(node1).insert(std::make_pair(_node2, std::vector < EdgeType > ()));
 
 				_edge.first->second.push_back(edge);
 
@@ -2329,14 +2331,14 @@ export namespace xablau::graph
 					++(this->_unique_edge_count);
 				}
 
-				if (this->_graph.find(node1) == this->_graph.find(node2))
+				if (this->_graph.find(node1) == this->_graph.find(_node2))
 				{
 					insertedEdge = _edge.first->second.back();
 				}
 
 				else
 				{
-					auto transposedEdge = this->_graph.at(node2).insert(std::make_pair(node1, std::vector < EdgeType > ()));
+					auto transposedEdge = this->_graph.at(_node2).insert(std::make_pair(node1, std::vector < EdgeType > ()));
 
 					transposedEdge.first->second.push_back(edge);
 
@@ -2344,7 +2346,7 @@ export namespace xablau::graph
 				}
 
 				this->_degrees.at(node1) += weight;
-				this->_degrees.at(node2) += weight;
+				this->_degrees.at(_node2) += weight;
 
 				++(this->_edge_count);
 
@@ -2355,17 +2357,17 @@ export namespace xablau::graph
 
 			else
 			{
-				const auto _edge = this->_graph.at(node1).insert(std::make_pair(node2, edge));
+				const auto _edge = this->_graph.at(node1).insert(std::make_pair(_node2, edge));
 
 				if (!_edge.second)
 				{
 					return _edge.first->second;
 				}
 
-				const auto &insertedEdge = this->_graph.at(node2).insert(std::make_pair(node1, edge)).first->second;
+				const auto &insertedEdge = this->_graph.at(_node2).insert(std::make_pair(node1, edge)).first->second;
 
 				this->_degrees.at(node1) += weight;
-				this->_degrees.at(node2) += weight;
+				this->_degrees.at(_node2) += weight;
 
 				++(this->_edge_count);
 				++(this->_unique_edge_count);

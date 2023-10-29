@@ -2235,9 +2235,11 @@ export namespace xablau::graph
 			this->insert(node1);
 			this->insert(node2);
 
+			const auto &_node2 = this->_digraph.find(node2)->first;
+
 			if constexpr (digraph::can_have_multiple_edges())
 			{
-				auto _edge = this->_digraph.at(node1).insert(std::make_pair(node2, std::vector < EdgeType > ()));
+				auto _edge = this->_digraph.at(node1).insert(std::make_pair(_node2, std::vector < EdgeType > ()));
 
 				_edge.first->second.push_back(edge);
 
@@ -2248,7 +2250,7 @@ export namespace xablau::graph
 
 				const auto &insertedEdge = _edge.first->second.back();
 
-				this->_transposed_digraph.at(node2).insert(node1);
+				this->_transposed_digraph.at(_node2).insert(node1);
 
 				this->_degrees.at(node1) += weight;
 
@@ -2261,7 +2263,7 @@ export namespace xablau::graph
 
 			else
 			{
-				const auto _edge = this->_digraph.at(node1).insert(std::make_pair(node2, edge));
+				const auto _edge = this->_digraph.at(node1).insert(std::make_pair(_node2, edge));
 
 				if (!_edge.second)
 				{
@@ -2270,7 +2272,7 @@ export namespace xablau::graph
 
 				const auto &insertedEdge = _edge.first->second;
 
-				this->_transposed_digraph.at(node2).insert(node1);
+				this->_transposed_digraph.at(_node2).insert(node1);
 
 				this->_degrees.at(node1) += weight;
 

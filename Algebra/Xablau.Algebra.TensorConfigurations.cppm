@@ -27,6 +27,7 @@
 export module xablau.algebra:tensor_configurations;
 
 export import <array>;
+export import <cstddef>;
 export import <tuple>;
 export import <utility>;
 

@@ -31,6 +31,7 @@ export import :RGB_working_spaces;
 export import :utils;
 
 export import <algorithm>;
+export import <cstdint>;
 export import <format>;
 export import <functional>;
 export import <numbers>;

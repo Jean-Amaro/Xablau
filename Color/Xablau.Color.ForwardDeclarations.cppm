@@ -26,6 +26,7 @@
 
 export module xablau.color:forward_declarations;
 
+export import <cstddef>;
 export import <concepts>;
 export import <limits>;
 

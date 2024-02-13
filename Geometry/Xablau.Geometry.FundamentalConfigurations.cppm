@@ -26,6 +26,7 @@
 
 export module xablau.geometry:fundamental_configurations;
 
+export import <cstddef>;
 export import <type_traits>;
 
 namespace xablau::geometry

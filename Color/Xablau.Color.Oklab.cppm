@@ -29,6 +29,7 @@ export import :forward_declarations;
 export import :utils;
 
 export import <algorithm>;
+export import <cmath>;
 export import <format>;
 export import <numeric>;
 export import <stdexcept>;
@@ -210,7 +211,7 @@ export namespace xablau::color
 				const CIELab < Type > color1{ _this.L, _this.a, _this.b };
 				const CIELab < Type > color2{ _color.L, _color.a, _color.b };
 
-				return color1.distance_to < boundaries_check::do_not_check > (color2);
+				return color1.template distance_to < boundaries_check::do_not_check > (color2);
 			}
 
 			else
@@ -218,7 +219,7 @@ export namespace xablau::color
 				const CIELab < Type > color1{ this->L, this->a, this->b };
 				const CIELab < Type > color2{ this->L, this->a, this->b };
 
-				return color1.distance_to < boundaries_check::do_not_check > (color2);
+				return color1.template distance_to < boundaries_check::do_not_check > (color2);
 			}
 		}
 

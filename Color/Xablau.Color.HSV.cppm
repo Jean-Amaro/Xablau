@@ -29,6 +29,7 @@ export import :forward_declarations;
 export import :utils;
 
 export import <algorithm>;
+export import <cmath>;
 export import <format>;
 export import <numbers>;
 export import <stdexcept>;

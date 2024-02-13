@@ -34,8 +34,8 @@ export import <array>;
 export import <complex>;
 export import <concepts>;
 export import <ranges>;
-export import <type_traits>;
 export import <tuple>;
+export import <type_traits>;
 
 namespace xablau::algebra::concepts
 {

@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,13 +24,7 @@ export module xablau.geometry:fundamental_concepts;
 export import :fundamental_configurations;
 export import :vector_configurations;
 
-export import <concepts>;
-export import <functional>;
-export import <iterator>;
-export import <memory>;
-export import <optional>;
-export import <ranges>;
-export import <vector>;
+export import std;
 
 export import xablau.algebra;
 import :voxel_space_configurations;
@@ -70,4 +60,10 @@ namespace xablau::geometry::concepts
 	export template < typename Type >
 	concept voxel_space_container_type =
 		internals::is_specialization_voxel_space_container_type_value < Type, geometry::voxel_space_container_type > ::value;
+
+	template < typename SpatialDimension, typename ElementDimension >
+	concept valid_space_element_relation =
+		internals::is_specialization_size_t < SpatialDimension, geometry::spatial_dimension > ::value &&
+		internals::is_specialization_size_t < ElementDimension, geometry::spatial_dimension > ::value &&
+		(SpatialDimension::dimensionality() >= ElementDimension::dimensionality());
 }

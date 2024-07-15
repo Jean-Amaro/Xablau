@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +26,7 @@ export import :forward_declarations;
 export import :RGB_working_spaces;
 export import :utils;
 
-export import <algorithm>;
-export import <cstdint>;
-export import <format>;
-export import <functional>;
-export import <numbers>;
-export import <numeric>;
-export import <optional>;
-export import <stdexcept>;
+export import std;
 
 export namespace xablau::color
 {
@@ -127,7 +116,7 @@ export namespace xablau::color
 		template < std::floating_point DistanceType >
 		[[nodiscard]] static DistanceType distance_to(const RGB &color1, const RGB &color2)
 		{
-			constexpr auto maxValue = std::rotl(uintmax_t{1}, BitsPerChannel) - 1;
+			constexpr auto maxValue = std::rotl(std::uintmax_t{1}, BitsPerChannel) - 1;
 
 			const auto maxDiagonalValue = static_cast < DistanceType > (maxValue) * std::sqrt(DistanceType{3});
 

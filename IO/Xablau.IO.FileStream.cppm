@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,25 +22,7 @@
 
 export module xablau.io:fstream;
 
-export import <array>;
-export import <chrono>;
-export import <concepts>;
-export import <cstring>;
-export import <deque>;
-export import <filesystem>;
-export import <forward_list>;
-export import <fstream>;
-export import <functional>;
-export import <ios>;
-export import <list>;
-export import <map>;
-export import <queue>;
-export import <set>;
-export import <stack>;
-export import <string_view>;
-export import <unordered_map>;
-export import <unordered_set>;
-export import <vector>;
+export import std;
 
 export namespace xablau::io
 {

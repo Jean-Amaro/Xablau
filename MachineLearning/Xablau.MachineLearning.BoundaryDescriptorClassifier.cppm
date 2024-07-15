@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +26,7 @@ module;
 
 export module xablau.machine_learning:boundary_descriptor_classifier;
 
-export import <array>;
-export import <chrono>;
-export import <cmath>;
-export import <mutex>;
-export import <ranges>;
-export import <vector>;
+export import std;
 
 export import xablau.algebra;
 export import xablau.computer_graphics;
@@ -91,7 +82,7 @@ export namespace xablau::machine_learning
 		std::vector < geometry::vertex < Type, geometry::spatial_dimension < 3 > > > _sphere{};
 
 		graph::graph <
-			graph::node < size_t >,
+			size_t,
 			graph::graph_container_type < graph::graph_container_type_value::ordered >,
 			graph::edge < Type > > _connections{};
 
@@ -453,12 +444,12 @@ export namespace xablau::machine_learning
 					continue;
 				}
 
-				const auto triangleNeighbors = this->_connections.triangle_neighbors(i);
+				const auto triangleNeighbors = this->_connections.triangle_neighbors < true > (i);
 
 				for (const auto &[neighbor1, neighbor2] : triangleNeighbors)
 				{
-					const auto indexNeighbor1 = neighbor1.value;
-					const auto indexNeighbor2 = neighbor2.value;
+					const auto indexNeighbor1 = neighbor1;
+					const auto indexNeighbor2 = neighbor2;
 
 					if (intersections[indexNeighbor1].has_value() && !checkedVertices[indexNeighbor1] &&
 						intersections[indexNeighbor2].has_value() && !checkedVertices[indexNeighbor2])
@@ -1005,7 +996,7 @@ export namespace xablau::machine_learning
 			}
 
 			std::tie(this->_connections_distance_matrix, std::ignore, std::ignore, std::ignore) =
-				this->_connections.template Floyd_Warshall < matrix_type > ();
+				this->_connections.template Floyd_Warshall < matrix_type, true > ();
 		}
 
 		boundary_descriptor_classifier &operator=(const boundary_descriptor_classifier &) = default;

@@ -15,8 +15,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Algorithm.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.GraphCommonFunctions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.GraphConfigurations.cppm" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Node.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.NodeRef.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.NodeConfigurations.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Graph.Edge.cppm" />

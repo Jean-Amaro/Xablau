@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +23,7 @@
 export module xablau.graph:binary_tree;
 export import :fundamental_concepts;
 
-export import <set>;
-export import <stdexcept>;
+export import std;
 
 export namespace xablau::graph
 {
@@ -99,7 +94,12 @@ export namespace xablau::graph
 			using reference = binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const pre_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const pre_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -235,27 +235,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -265,7 +265,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr in_order_iterator convert_to_in_order() const noexcept
+			[[nodiscard]] constexpr in_order_iterator convert_to_in_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -275,7 +275,7 @@ export namespace xablau::graph
 				return in_order_iterator{};
 			}
 
-			constexpr post_order_iterator convert_to_post_order() const noexcept
+			[[nodiscard]] constexpr post_order_iterator convert_to_post_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -321,7 +321,12 @@ export namespace xablau::graph
 			using reference = const binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const const_pre_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const const_pre_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -336,7 +341,7 @@ export namespace xablau::graph
 				return false;
 			}
 
-			constexpr bool operator==(const pre_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr bool operator==(const pre_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -480,27 +485,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -510,7 +515,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr const_in_order_iterator convert_to_in_order() const noexcept
+			[[nodiscard]] constexpr const_in_order_iterator convert_to_in_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -520,7 +525,7 @@ export namespace xablau::graph
 				return const_in_order_iterator{};
 			}
 
-			constexpr const_post_order_iterator convert_to_post_order() const noexcept
+			[[nodiscard]] constexpr const_post_order_iterator convert_to_post_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -572,7 +577,12 @@ export namespace xablau::graph
 			using reference = binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const in_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const in_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -694,27 +704,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -724,7 +734,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr pre_order_iterator convert_to_pre_order() const noexcept
+			[[nodiscard]] constexpr pre_order_iterator convert_to_pre_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -734,7 +744,7 @@ export namespace xablau::graph
 				return pre_order_iterator{};
 			}
 
-			constexpr post_order_iterator convert_to_post_order() const noexcept
+			[[nodiscard]] constexpr post_order_iterator convert_to_post_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -780,7 +790,12 @@ export namespace xablau::graph
 			using reference = const binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const const_in_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const const_in_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -795,7 +810,7 @@ export namespace xablau::graph
 				return false;
 			}
 
-			constexpr bool operator==(const in_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr bool operator==(const in_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -925,27 +940,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -955,7 +970,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr const_pre_order_iterator convert_to_pre_order() const noexcept
+			[[nodiscard]] constexpr const_pre_order_iterator convert_to_pre_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -965,7 +980,7 @@ export namespace xablau::graph
 				return const_pre_order_iterator{};
 			}
 
-			constexpr const_post_order_iterator convert_to_post_order() const noexcept
+			[[nodiscard]] constexpr const_post_order_iterator convert_to_post_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -1017,7 +1032,12 @@ export namespace xablau::graph
 			using reference = binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const post_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const post_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -1153,27 +1173,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -1183,7 +1203,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr pre_order_iterator convert_to_pre_order() const noexcept
+			[[nodiscard]] constexpr pre_order_iterator convert_to_pre_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -1193,7 +1213,7 @@ export namespace xablau::graph
 				return pre_order_iterator{};
 			}
 
-			constexpr in_order_iterator convert_to_in_order() const noexcept
+			[[nodiscard]] constexpr in_order_iterator convert_to_in_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -1239,7 +1259,12 @@ export namespace xablau::graph
 			using reference = const binary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
 
-			constexpr bool operator==(const const_post_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
+
+			[[nodiscard]] constexpr bool operator==(const const_post_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -1254,7 +1279,7 @@ export namespace xablau::graph
 				return false;
 			}
 
-			constexpr bool operator==(const post_order_iterator &iterator) const noexcept
+			[[nodiscard]] constexpr bool operator==(const post_order_iterator &iterator) const noexcept
 			{
 				if (this->_node.has_value() && iterator._node.has_value())
 				{
@@ -1398,27 +1423,27 @@ export namespace xablau::graph
 				return _iterator;
 			}
 
-			constexpr reference operator*() const
+			[[nodiscard]] constexpr reference operator*() const
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
 			}
 
-			constexpr pointer operator->() const
+			[[nodiscard]] constexpr pointer operator->() const
 			{
 				if (this->_node.has_value())
 				{
-					return std::addressof(this->_node.value().get().value);
+					return std::addressof(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -1428,7 +1453,7 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			constexpr const_pre_order_iterator convert_to_pre_order() const noexcept
+			[[nodiscard]] constexpr const_pre_order_iterator convert_to_pre_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -1438,7 +1463,7 @@ export namespace xablau::graph
 				return const_pre_order_iterator{};
 			}
 
-			constexpr const_in_order_iterator convert_to_in_order() const noexcept
+			[[nodiscard]] constexpr const_in_order_iterator convert_to_in_order() const noexcept
 			{
 				if (this->_last_element.has_value())
 				{
@@ -1669,7 +1694,7 @@ export namespace xablau::graph
 			const binary_tree::value_type &value,
 			Iterator &iterator)
 		{
-			if (node.value == value)
+			if (node.value() == value)
 			{
 				iterator._node = node;
 
@@ -1703,7 +1728,7 @@ export namespace xablau::graph
 			std::vector < binary_node_side > &path,
 			Iterator &iterator)
 		{
-			if (node.value == value)
+			if (node.value() == value)
 			{
 				iterator._node = node;
 

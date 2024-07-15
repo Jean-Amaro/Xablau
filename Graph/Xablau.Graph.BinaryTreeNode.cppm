@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +23,7 @@
 export module xablau.graph:binary_tree_node;
 export import :node_configurations;
 
-export import <functional>;
-export import <memory>;
-export import <optional>;
-export import <type_traits>;
-export import <utility>;
+export import std;
 
 export namespace xablau::graph
 {
@@ -44,9 +36,9 @@ export namespace xablau::graph
 
 		using size_type = size_t;
 
-		Type value{};
-
 	private:
+		Type _value{};
+
 		constexpr void update_children() noexcept
 		{
 			if (this->_left_child)
@@ -67,34 +59,54 @@ export namespace xablau::graph
 		std::unique_ptr < binary_tree_node > _right_child = nullptr;
 
 	public:
-		[[nodiscard]] constexpr bool operator<(const binary_tree_node &node) const
+		[[nodiscard]] constexpr Type &value()
 		{
-			return this->value < node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator<=(const binary_tree_node &node) const
+		[[nodiscard]] constexpr const Type &value() const
 		{
-			return this->value <= node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator==(const binary_tree_node &node) const
+		[[nodiscard]] constexpr explicit operator Type &()
 		{
-			return this->value == node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator>=(const binary_tree_node &node) const
+		[[nodiscard]] constexpr explicit operator const Type &() const
 		{
-			return this->value >= node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator>(const binary_tree_node &node) const
+		[[nodiscard]] constexpr bool operator<(const binary_tree_node &other) const
 		{
-			return this->value > node.value;
+			return this->_value < other._value;
 		}
 
-		[[nodiscard]] constexpr bool operator!=(const binary_tree_node &node) const
+		[[nodiscard]] constexpr bool operator<=(const binary_tree_node &other) const
 		{
-			return this->value != node.value;
+			return this->_value <= other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator==(const binary_tree_node &other) const
+		{
+			return this->_value == other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator>=(const binary_tree_node &other) const
+		{
+			return this->_value >= other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator>(const binary_tree_node &other) const
+		{
+			return this->_value > other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator!=(const binary_tree_node &other) const
+		{
+			return this->_value != other._value;
 		}
 
 		constexpr binary_tree_node &insert_left_child(const Type &valueChild)
@@ -381,46 +393,46 @@ export namespace xablau::graph
 			return nullptr;
 		}
 
-		constexpr void swap(binary_tree_node &node)
+		constexpr void swap(binary_tree_node &other)
 			noexcept(
 				std::is_nothrow_move_constructible < Type >::value &&
 				std::is_nothrow_move_assignable < Type > ::value)
 		{
-			std::swap(this->value, node.value);
-			std::swap(this->_parent, node._parent);
-			std::swap(this->_left_child, node._left_child);
-			std::swap(this->_right_child, node._right_child);
+			std::swap(this->_value, other._value);
+			std::swap(this->_parent, other._parent);
+			std::swap(this->_left_child, other._left_child);
+			std::swap(this->_right_child, other._right_child);
 		}
 
-		constexpr binary_tree_node &operator=(const binary_tree_node &node)
+		constexpr binary_tree_node &operator=(const binary_tree_node &other)
 			noexcept(
 				std::is_nothrow_copy_assignable < Type > ::value &&
 				std::is_nothrow_copy_constructible < Type > ::value)
 		{
-			if (this == &node)
+			if (this == &other)
 			{
 				return *this;
 			}
 
-			this->value = node.value;
-			this->_left_child.reset(node._left_child ? std::make_unique < binary_tree_node > (*node._left_child) : nullptr);
-			this->_right_child.reset(node._right_child ? std::make_unique < binary_tree_node > (*node._right_child) : nullptr);
+			this->_value = other._value;
+			this->_left_child.reset(other._left_child ? std::make_unique < binary_tree_node > (*other._left_child) : nullptr);
+			this->_right_child.reset(other._right_child ? std::make_unique < binary_tree_node > (*other._right_child) : nullptr);
 
 			this->update_children();
 
 			return *this;
 		}
 
-		constexpr binary_tree_node &operator=(binary_tree_node &&node)
+		constexpr binary_tree_node &operator=(binary_tree_node &&other)
 			noexcept(std::is_nothrow_move_assignable < Type >::value)
 		{
-			this->value = std::move(node.value);
-			this->_left_child = std::move(node._left_child);
-			this->_right_child = std::move(node._right_child);
+			this->_value = std::move(other._value);
+			this->_left_child = std::move(other._left_child);
+			this->_right_child = std::move(other._right_child);
 
 			this->update_children();
 
-			node.extract_myself();
+			other.extract_myself();
 
 			return *this;
 		}
@@ -431,37 +443,37 @@ export namespace xablau::graph
 		constexpr binary_tree_node(const Type &data)
 			noexcept(std::is_nothrow_copy_constructible < Type > ::value) :
 
-			value(data)
+			_value(data)
 		{
 		}
 
 		constexpr binary_tree_node(Type &&data)
 			noexcept(std::is_nothrow_move_constructible < Type > ::value) :
 
-			value(std::move(data))
+			_value(std::move(data))
 		{
 		}
 
-		constexpr binary_tree_node(const binary_tree_node &node)
+		constexpr binary_tree_node(const binary_tree_node &other)
 			noexcept(std::is_nothrow_copy_constructible < Type > ::value) :
 
-			value(node.value),
-			_left_child(node._left_child ? std::make_unique < binary_tree_node > (*(node._left_child.get())) : nullptr),
-			_right_child(node._right_child ? std::make_unique < binary_tree_node > (*(node._right_child.get())) : nullptr)
+			_value(other._value),
+			_left_child(other._left_child ? std::make_unique < binary_tree_node > (*(other._left_child.get())) : nullptr),
+			_right_child(other._right_child ? std::make_unique < binary_tree_node > (*(other._right_child.get())) : nullptr)
 		{
 			this->update_children();
 		}
 
-		constexpr binary_tree_node(binary_tree_node &&node)
+		constexpr binary_tree_node(binary_tree_node &&other)
 			noexcept(std::is_nothrow_move_constructible < Type >::value) :
 
-			value(std::move(node.value)),
-			_left_child(std::move(node._left_child)),
-			_right_child(std::move(node._right_child))
+			_value(std::move(other._value)),
+			_left_child(std::move(other._left_child)),
+			_right_child(std::move(other._right_child))
 		{
 			this->update_children();
 
-			node.extract_myself();
+			other.extract_myself();
 		}
 	};
 }
@@ -472,9 +484,9 @@ export namespace std
 	requires (std::is_object < Type > ::value)
 	struct hash < xablau::graph::binary_tree_node < Type > >
 	{
-		size_t operator()(const xablau::graph::binary_tree_node < Type > &node) const
+		size_t operator()(const xablau::graph::binary_tree_node < Type > &other) const
 		{
-			return std::hash < Type > {}(node.value);
+			return std::hash < Type > {}(other.value());
 		}
 	};
 }

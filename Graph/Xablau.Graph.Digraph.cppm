@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,53 +23,43 @@
 export module xablau.graph:digraph;
 export import :fundamental_concepts;
 export import :graph;
+export import :graph_common_functions;
 export import :nary_tree;
+export import :node_ref;
 
-export import <execution>;
-export import <iostream>;
-export import <limits>;
-export import <list>;
-export import <map>;
-export import <mutex>;
-export import <queue>;
-export import <random>;
-export import <set>;
-export import <stack>;
-export import <thread>;
-export import <tuple>;
-export import <unordered_map>;
-export import <unordered_set>;
+export import std;
 
 export import xablau.algebra;
 
 export namespace xablau::graph
 {
 	template <
-		concepts::node NodeType,
-		concepts::graph_container_type ContainerType,
+		typename ValueType,
+		concepts::graph_container ContainerType,
 		concepts::edge EdgeType >
-	requires (concepts::graph_requirements < NodeType, ContainerType >)
+	requires (concepts::graph_requirements < ValueType, ContainerType >)
 	class digraph final
 	{
 	public:
-		using node_type = NodeType;
-		using graph_container_type = ContainerType;
+		using value_type = ValueType;
+		using value_reference_type = xablau::graph::node_ref < const ValueType >;
+		using container_type = ContainerType;
 		using edge_type = EdgeType;
 		using edge_weight_type = typename EdgeType::weight_type;
 
-		using graph_container =
+		using graph_container_type =
 			typename std::conditional < ContainerType::type() == graph_container_type_value::ordered,
-				std::map < NodeType, std::map < NodeType, EdgeType > >,
+				std::map < ValueType, std::map < value_reference_type, EdgeType > >,
 
 			typename std::conditional < ContainerType::type() == graph_container_type_value::unordered,
-				std::unordered_map < NodeType, std::unordered_map < NodeType, EdgeType > >,
+				std::unordered_map < ValueType, std::unordered_map < value_reference_type, EdgeType > >,
 
 			typename std::conditional < ContainerType::type() == graph_container_type_value::multi_ordered,
-				std::map < NodeType, std::map < NodeType, std::vector < EdgeType > > >,
+				std::map < ValueType, std::map < value_reference_type, std::vector < EdgeType > > >,
 
-				std::unordered_map < NodeType, std::unordered_map < NodeType, std::vector < EdgeType > > > >::type >::type >::type;
+				std::unordered_map < ValueType, std::unordered_map < value_reference_type, std::vector < EdgeType > > > >::type >::type >::type;
 
-		using size_type = typename graph_container::size_type;
+		using size_type = typename graph_container_type::size_type;
 
 	private:
 		static constexpr bool _ordered =
@@ -92,7 +78,8 @@ export namespace xablau::graph
 			ContainerType::type() == graph_container_type_value::multi_ordered ||
 			ContainerType::type() == graph_container_type_value::multi_unordered;
 
-		static constexpr bool _equal_nodes(const NodeType &node1, const NodeType &node2)
+		template < typename LocalType >
+		static constexpr bool _equal_nodes(const LocalType &node1, const LocalType &node2)
 		{
 			if constexpr (digraph::_ordered)
 			{
@@ -105,7 +92,8 @@ export namespace xablau::graph
 			}
 		}
 
-		static constexpr bool _different_nodes(const NodeType &node1, const NodeType &node2)
+		template < typename LocalType >
+		static constexpr bool _different_nodes(const LocalType &node1, const LocalType &node2)
 		{
 			return !digraph::_equal_nodes(node1, node2);
 		}
@@ -131,422 +119,247 @@ export namespace xablau::graph
 			return digraph::_unordered;
 		}
 
+		template < bool CopyNodes >
+		using node_selection_type = typename std::conditional < CopyNodes, ValueType, value_reference_type > ::type;
+
+		template < bool CopyNodes >
 		using connections_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::set < NodeType > >,
-				std::unordered_map < NodeType, std::unordered_set < NodeType > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::set < node_selection_type < CopyNodes > > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::unordered_set < node_selection_type < CopyNodes > > > > ::type;
 
 	private:
+		template < bool CopyNodes >
 		using betweenness_previous_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::pair < size_type, std::set < NodeType > > >,
-				std::unordered_map < NodeType, std::pair < size_type, std::unordered_set < NodeType > > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::pair <
+						size_type,
+						std::set < node_selection_type < CopyNodes > > > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::pair <
+						size_type,
+						std::unordered_set < node_selection_type < CopyNodes > > > > > ::type;
 
+		template < bool CopyNodes >
 		using betweenness_previous_container_set =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, betweenness_previous_container >,
-				std::unordered_map < NodeType, betweenness_previous_container > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					betweenness_previous_container < CopyNodes > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					betweenness_previous_container < CopyNodes > > > ::type;
 
+		template < bool CopyNodes >
 		using edge_betweenness_centrality_previous_container_list =
 			std::vector < std::pair <
 				typename std::conditional <
 					digraph::_ordered,
-					std::map < NodeType, std::tuple < size_type, std::set < NodeType >, edge_weight_type > >,
-					std::unordered_map < NodeType, std::tuple < size_type, std::unordered_set < NodeType >, edge_weight_type > > > ::type,
-				std::stack < NodeType > > >;
+					std::map <
+						node_selection_type < CopyNodes >,
+						std::tuple <
+							size_type,
+							std::set < node_selection_type < CopyNodes > >,
+							edge_weight_type > >,
+					std::unordered_map <
+						node_selection_type < CopyNodes >,
+						std::tuple <
+							size_type,
+							std::unordered_set < node_selection_type < CopyNodes > >,
+							edge_weight_type > > > ::type,
+				std::stack < node_selection_type < CopyNodes > > > >;
 
+		template < bool CopyNodes >
 		using node_node_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, NodeType >,
-				std::unordered_map < NodeType, NodeType > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > > ::type;
 
-		using transposed_graph_container = connections_container;
+		template < bool CopyNodes >
+		using transposed_graph_container = connections_container < CopyNodes >;
 
-		using Tarjan_stack = std::stack < NodeType, std::vector < NodeType > >;
+		template < bool CopyNodes >
+		using Tarjan_stack =
+			std::stack <
+				node_selection_type < CopyNodes >,
+				std::vector < node_selection_type < CopyNodes > > >;
 
+		template < bool CopyNodes >
 		using info_on_Tarjan_stack =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::tuple < size_type, size_type, bool > >,
-				std::unordered_map < NodeType, std::tuple < size_type, size_type, bool > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::tuple < size_type, size_type, bool > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::tuple < size_type, size_type, bool > > > ::type;
 
 	public:
+		template < bool CopyNodes >
 		using degree_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, edge_weight_type >,
-				std::unordered_map < NodeType, edge_weight_type > > ::type;
+				std::map < node_selection_type < CopyNodes >, edge_weight_type >,
+				std::unordered_map < node_selection_type < CopyNodes >, edge_weight_type > > ::type;
 
+		template < bool CopyNodes >
 		using node_set_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::set < NodeType >,
-				std::unordered_set < NodeType > > ::type;
+				std::set < node_selection_type < CopyNodes > >,
+				std::unordered_set < node_selection_type < CopyNodes > > > ::type;
 
-		using node_weight_container = degree_container;
+		template < bool CopyNodes >
+		using node_weight_container = degree_container < CopyNodes >;
 
+		template < bool CopyNodes >
 		struct less_pair
 		{
-			constexpr bool operator()(
-				const std::pair < NodeType, NodeType > &pair1,
-				const std::pair < NodeType, NodeType > &pair2) const
+			[[nodiscard]] constexpr bool operator()(
+				const std::pair <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > &pair1,
+				const std::pair <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > &pair2) const
 			{
 				return std::minmax(pair1.first, pair1.second) < std::minmax(pair2.first, pair2.second);
 			}
 		};
 
+		template < bool CopyNodes >
 		struct hash_pair
 		{
-			[[nodiscard]] constexpr size_t operator()(const std::pair < NodeType, NodeType > &pair) const
+			[[nodiscard]] constexpr auto operator()(
+				const std::pair <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > &pair) const
 			{
-				return
-					std::hash < NodeType > {}(pair.first) ^
-					std::rotl(std::hash < NodeType > {}(pair.second), 1);
+				using LocalType = node_selection_type < CopyNodes >;
+
+				return std::hash < LocalType > {}(pair.first) ^ std::hash < LocalType > {}(pair.second);
 			}
 		};
 
+		template < bool CopyNodes >
+		struct equality_pair
+		{
+			[[nodiscard]] constexpr bool operator()(
+				const std::pair <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > &pair1,
+				const std::pair <
+					node_selection_type < CopyNodes >,
+					node_selection_type < CopyNodes > > &pair2) const
+			{
+				return
+					digraph::_equal_nodes(pair1.first, pair2.first) && digraph::_equal_nodes(pair1.second, pair2.second) ||
+					digraph::_equal_nodes(pair1.first, pair2.second) && digraph::_equal_nodes(pair1.second, pair2.first);
+			}
+		};
+
+		template < bool CopyNodes >
 		using matrix_index_to_graph_node_map =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < size_type, NodeType >,
-				std::unordered_map < size_type, NodeType > > ::type;
+				std::map < size_type, node_selection_type < CopyNodes > >,
+				std::unordered_map < size_type, node_selection_type < CopyNodes > > > ::type;
 
+		template < bool CopyNodes >
 		using graph_node_to_matrix_index_map =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, size_type >,
-				std::unordered_map < NodeType, size_type > > ::type;
+				std::map < node_selection_type < CopyNodes >, size_type >,
+				std::unordered_map < node_selection_type < CopyNodes >, size_type > > ::type;
 
+		template < bool CopyNodes >
 		using edge_betweenness_centrality_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < std::pair < NodeType, NodeType >, edge_weight_type, less_pair >,
-				std::unordered_map < std::pair < NodeType, NodeType >, edge_weight_type, hash_pair > > ::type;
+				std::map <
+					std::pair <
+						node_selection_type < CopyNodes >,
+						node_selection_type < CopyNodes > >,
+					edge_weight_type,
+					less_pair < CopyNodes > >,
+				std::unordered_map <
+					std::pair <
+						node_selection_type < CopyNodes >,
+						node_selection_type < CopyNodes > >,
+					edge_weight_type,
+					hash_pair < CopyNodes >,
+					equality_pair < CopyNodes > > > ::type;
 
-		using all_previous_nodes_container = connections_container;
+		template < bool CopyNodes >
+		using all_previous_nodes_container = connections_container < CopyNodes >;
 
-		using next_nodes_container = connections_container;
-		
+		template < bool CopyNodes >
+		using next_nodes_container = connections_container < CopyNodes >;
+
+		template < bool CopyNodes >
 		using all_previous_nodes_with_weight_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::pair < node_set_container, edge_weight_type > >,
-				std::unordered_map < NodeType, std::pair < node_set_container, edge_weight_type > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::pair < node_set_container < CopyNodes >, edge_weight_type > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::pair < node_set_container < CopyNodes >, edge_weight_type > > > ::type;
 
+		template < bool CopyNodes >
 		using next_nodes_with_weight_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::map < NodeType, edge_weight_type > >,
-				std::unordered_map < NodeType, std::unordered_map < NodeType, edge_weight_type > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::map <
+						node_selection_type < CopyNodes >,
+						edge_weight_type > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::unordered_map <
+						node_selection_type < CopyNodes >,
+						edge_weight_type > > > ::type;
 
-		using single_previous_node_container = node_node_container;
+		template < bool CopyNodes >
+		using single_previous_node_container = node_node_container < CopyNodes >;
 
+		template < bool CopyNodes >
 		using single_previous_node_with_weight_container =
 			typename std::conditional <
 				digraph::_ordered,
-				std::map < NodeType, std::pair < NodeType, edge_weight_type > >,
-				std::unordered_map < NodeType, std::pair < NodeType, edge_weight_type > > > ::type;
+				std::map <
+					node_selection_type < CopyNodes >,
+					std::pair < node_selection_type < CopyNodes >, edge_weight_type > >,
+				std::unordered_map <
+					node_selection_type < CopyNodes >,
+					std::pair < node_selection_type < CopyNodes >, edge_weight_type > > > ::type;
 
 	private:
-		template < Dijkstra_modes Mode >
-		void generic_Dijkstra(
-			const NodeType &origin,
-			auto &previous,
-			const NodeType &destiny = NodeType{},
-			std::optional < std::reference_wrapper < edge_weight_type > > smallestDistance = std::nullopt) const
-		{
-			if constexpr (Mode == Dijkstra_modes::single_path)
-			{
-				smallestDistance.value().get() = std::numeric_limits < edge_weight_type > ::max();
-
-				if (!this->contains(origin) || !this->contains(destiny))
-				{
-					return;
-				}
-			}
-
-			else
-			{
-				if (!this->contains(origin))
-				{
-					return;
-				}
-			}
-
-			NodeType searchIndex = origin;
-			std::vector < std::pair < NodeType, edge_weight_type > > distances;
-
-			distances.reserve(this->node_count());
-
-			constexpr auto orderingFunction =
-				[] (const std::pair < NodeType, edge_weight_type > &pair1,
-					const std::pair < NodeType, edge_weight_type > &pair2) -> bool
-				{
-					return pair1.second < pair2.second;
-				};
-
-			const auto searchFunction =
-				[&searchIndex] (const std::pair < NodeType, edge_weight_type > &pair) -> bool
-				{
-					return digraph::_equal_nodes(pair.first, searchIndex);
-				};
-
-			for (const auto &item : this->_digraph)
-			{
-				distances.push_back(
-					std::make_pair(item.first, std::numeric_limits < edge_weight_type > ::max()));
-			}
-
-			std::find_if(distances.begin(), distances.end(), searchFunction)->second = edge_weight_type{};
-
-			if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-			{
-				if constexpr (digraph::unordered())
-				{
-					previous.first.reserve(this->node_count() * this->_expected_edges_by_node);
-				}
-			}
-
-			else
-			{
-				if constexpr (digraph::unordered())
-				{
-					previous.reserve(this->node_count() * this->_expected_edges_by_node);
-				}
-			}
-
-			if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes)
-			{
-				previous.insert(std::make_pair(origin, node_set_container{}));
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes_and_distance)
-			{
-				previous.insert(
-					std::make_pair(
-						origin,
-						std::make_pair(node_set_container{}, edge_weight_type{})));
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::node_betweenness)
-			{
-				previous.insert(
-					std::make_pair(
-						origin,
-						std::make_pair(1, node_set_container{})));
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-			{
-				previous.first.insert(
-					std::make_pair(
-						origin,
-						std::make_tuple(1, node_set_container{}, edge_weight_type{})));
-			}
-
-			for (size_type i = 0; i < this->node_count(); i++)
-			{
-				std::sort(distances.rbegin(), distances.rend(), orderingFunction);
-
-				const auto &bestNode = distances.back();
-
-				if (bestNode.second == std::numeric_limits < edge_weight_type > ::max())
-				{
-					break;
-				}
-
-				if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-				{
-					previous.second.push(bestNode.first);
-				}
-
-				for (const auto &neighbor : this->_digraph.at(bestNode.first))
-				{
-					searchIndex = neighbor.first;
-					edge_weight_type currentDistance = distances.back().second;
-
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						currentDistance += std::min_element(neighbor.second.cbegin(), neighbor.second.cend())->weight();
-					}
-
-					else
-					{
-						currentDistance += neighbor.second.weight();
-					}
-
-					const auto search = std::find_if(distances.begin(), distances.end(), searchFunction);
-
-					if constexpr (
-						Mode == Dijkstra_modes::single_previous_and_next_node ||
-						Mode == Dijkstra_modes::single_previous_and_next_node_and_distance ||
-						Mode == Dijkstra_modes::single_path)
-					{
-						if (search != distances.end() && currentDistance < search->second)
-						{
-							search->second = currentDistance;
-
-							if constexpr (Mode == Dijkstra_modes::single_previous_and_next_node_and_distance)
-							{
-								previous[neighbor.first] = std::make_pair(bestNode.first, currentDistance);
-							}
-
-							else
-							{
-								previous[neighbor.first] = bestNode.first;
-							}
-						}
-					}
-
-					else if constexpr (
-						Mode == Dijkstra_modes::all_previous_and_next_nodes ||
-						Mode == Dijkstra_modes::all_previous_and_next_nodes_and_distance ||
-						Mode == Dijkstra_modes::node_betweenness ||
-						Mode == Dijkstra_modes::edge_betweenness)
-					{
-						if (search != distances.end())
-						{
-							if (currentDistance < search->second)
-							{
-								size_type howManyPathsToGetHere{};
-
-								if constexpr (Mode == Dijkstra_modes::node_betweenness)
-								{
-									howManyPathsToGetHere = previous.at(bestNode.first).first;
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-								{
-									howManyPathsToGetHere = std::get < 0 > (previous.first.at(bestNode.first));
-								}
-								
-								search->second = currentDistance;
-
-								if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes)
-								{
-									(previous[neighbor.first] = node_set_container{}).insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes_and_distance)
-								{
-									(previous[neighbor.first] =
-										std::make_pair(node_set_container{}, currentDistance)).
-											first.insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::node_betweenness)
-								{
-									(previous[neighbor.first] =
-										std::make_pair(howManyPathsToGetHere, node_set_container{})).second.insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-								{
-									std::get < 1 > (previous.first[neighbor.first] =
-										std::make_tuple(howManyPathsToGetHere, node_set_container{}, edge_weight_type{})).
-											insert(bestNode.first);
-								}
-							}
-
-							else if (currentDistance == search->second)
-							{
-								if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes)
-								{
-									previous[neighbor.first].insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes_and_distance)
-								{
-									previous[neighbor.first].first.insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::node_betweenness)
-								{
-									const size_type pathCount = previous.at(bestNode.first).first;
-
-									previous[neighbor.first].first += pathCount;
-									previous[neighbor.first].second.insert(bestNode.first);
-								}
-
-								else if constexpr (Mode == Dijkstra_modes::edge_betweenness)
-								{
-									const size_type pathCount = std::get < 0 > (previous.first.at(bestNode.first));
-
-									std::get < 0 > (previous.first[neighbor.first]) += pathCount;
-									std::get < 1 > (previous.first[neighbor.first]).insert(bestNode.first);
-								}
-							}
-						}
-					}
-				}
-
-				if constexpr (Mode == Dijkstra_modes::single_path)
-				{
-					if (digraph::_equal_nodes(bestNode.first, destiny))
-					{
-						smallestDistance.value().get() = bestNode.second;
-
-						break;
-					}
-				}
-
-				distances.pop_back();
-			}
-		}
-
-		template < Dijkstra_modes Mode >
-		static void Dijkstra_create_next(auto &previous, auto &next)
-		{
-			if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes)
-			{
-				for (const auto &[node1, otherNodes] : previous)
-				{
-					for (const auto &node2 : otherNodes)
-					{
-						next[node2].insert(node1);
-					}
-				}
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::all_previous_and_next_nodes_and_distance)
-			{
-				for (const auto &[node1, otherNodesAndWeight] : previous)
-				{
-					for (const auto &node2 : otherNodesAndWeight.first)
-					{
-						next[node2][node1] = otherNodesAndWeight.second;
-					}
-				}
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::single_previous_and_next_node)
-			{
-				for (const auto &[node1, node2] : previous)
-				{
-					next[node2].insert(node1);
-				}
-			}
-
-			else if constexpr (Mode == Dijkstra_modes::single_previous_and_next_node_and_distance)
-			{
-				for (const auto &[node1, node2AndWeight] : previous)
-				{
-					next[node2AndWeight.first][node1] = node2AndWeight.second;
-				}
-			}
-		}
-
 		void Tarjan_strongly_connected_components(
-			const NodeType &node,
-			const typename graph_container::mapped_type &neighbors,
+			const ValueType &node,
+			const typename graph_container_type::mapped_type &neighbors,
 			size_type &index,
-			Tarjan_stack &stack,
-			std::vector < node_set_container > &stronglyConnectedComponents,
-			info_on_Tarjan_stack &nodeIndexLowlinkOnStack) const
+			Tarjan_stack < false > &stack,
+			std::vector < node_set_container < false > > &stronglyConnectedComponents,
+			info_on_Tarjan_stack < false > &nodeIndexLowlinkOnStack) const
 		{
 			auto &[_index, _lowlink, _onStack] = nodeIndexLowlinkOnStack[node];
 
@@ -576,7 +389,7 @@ export namespace xablau::graph
 
 			if (_lowlink == _index)
 			{
-				typename node_set_container::iterator iterator{};
+				typename node_set_container < false > ::iterator iterator{};
 
 				stronglyConnectedComponents.emplace_back();
 
@@ -589,301 +402,17 @@ export namespace xablau::graph
 					iterator = stronglyConnectedComponents.back().insert(std::move(stronglyConnectedNode)).first;
 
 					stack.pop();
-				} while (digraph::_different_nodes(*iterator, node));
+				} while (std::addressof(iterator->get()) != std::addressof(node));
 			}
-		}
-
-		connections_container breadth_first_search(const NodeType &origin) const
-		{
-			connections_container next{};
-			node_set_container visitedNodes{};
-			std::queue < NodeType > queue;
-
-			if (!this->contains(origin))
-			{
-				return next;
-			}
-
-			if constexpr (digraph::unordered())
-			{
-				const auto nodeCount = this->node_count();
-
-				next.reserve(nodeCount);
-				visitedNodes.reserve(nodeCount);
-			}
-
-			visitedNodes.insert(origin);
-			queue.push(origin);
-
-			while (!queue.empty())
-			{
-				const auto currentNode = queue.front();
-
-				queue.pop();
-
-				for (const auto &[neighbor, edge] : this->_digraph.at(currentNode))
-				{
-					if (!visitedNodes.contains(neighbor))
-					{
-						visitedNodes.insert(neighbor);
-
-						if constexpr (digraph::unordered())
-						{
-							next[currentNode].reserve(this->_expected_edges_by_node);
-						}
-
-						next[currentNode].insert(neighbor);
-
-						queue.push(neighbor);
-					}
-				}
-			}
-
-			return next;
-		}
-
-		connections_container depth_first_search(const NodeType &origin) const
-		{
-			using node_pair = std::pair < NodeType, NodeType >;
-
-			connections_container next{};
-			node_set_container visitedNodes{};
-			std::stack < node_pair, std::vector < node_pair > > stack;
-			node_pair previousAndCurrentNodes{ origin, origin };
-
-			if (!this->contains(origin))
-			{
-				return next;
-			}
-
-			if constexpr (digraph::unordered())
-			{
-				next.reserve(this->node_count());
-				visitedNodes.reserve(this->node_count());
-			}
-
-			stack.push(previousAndCurrentNodes);
-
-			while (!stack.empty())
-			{
-				previousAndCurrentNodes = stack.top();
-
-				stack.pop();
-
-				if (!visitedNodes.contains(previousAndCurrentNodes.second))
-				{
-					visitedNodes.insert(previousAndCurrentNodes.second);
-
-					if (digraph::_different_nodes(previousAndCurrentNodes.first, previousAndCurrentNodes.second))
-					{
-						if constexpr (digraph::unordered())
-						{
-							next[previousAndCurrentNodes.first].reserve(this->_expected_edges_by_node);
-						}
-
-						next[previousAndCurrentNodes.first].insert(previousAndCurrentNodes.second);
-					}
-
-					for (const auto &[neighbor, edge] : this->_digraph.at(previousAndCurrentNodes.second))
-					{
-						stack.push(std::make_pair(previousAndCurrentNodes.second, neighbor));
-					}
-				}
-			}
-
-			return next;
-		}
-
-		static edge_weight_type betweenness_centrality_of_a_node_in_a_path(
-			const NodeType &target,
-			const NodeType &origin,
-			const NodeType &destiny,
-			const betweenness_previous_container &previous)
-		{
-			NodeType currentNode = destiny;
-			std::queue < NodeType > queue;
-
-			while (digraph::_different_nodes(currentNode, origin))
-			{
-				if (digraph::_equal_nodes(currentNode, target))
-				{
-					return
-						static_cast < edge_weight_type > (previous.at(currentNode).first) /
-							static_cast < edge_weight_type > (previous.at(destiny).first);
-				}
-
-				for (auto node : previous.at(currentNode).second)
-				{
-					queue.push(std::move(node));
-				}
-
-				currentNode = queue.front();
-
-				queue.pop();
-			}
-
-			return edge_weight_type{};
-		}
-
-		betweenness_previous_container_set calculate_previous_for_node_betweenness_centrality() const
-		{
-			std::vector < std::thread > threads;
-			betweenness_previous_container_set previous{};
-
-			if constexpr (digraph::unordered())
-			{
-				previous.reserve(this->node_count());
-			}
-
-			for (const auto &[node, edges] : this->_digraph)
-			{
-				threads.emplace_back(
-					[this, &node, &previous] () -> void
-					{
-						this->template generic_Dijkstra < Dijkstra_modes::node_betweenness > (node, previous[node]);
-					});
-			}
-
-			for (auto &thread : threads)
-			{
-				thread.join();
-			}
-
-			return previous;
-		}
-
-		edge_betweenness_centrality_previous_container_list calculate_previous_for_edge_betweenness_centrality() const
-		{
-			size_type counter{};
-			std::vector < std::thread > threads;
-			edge_betweenness_centrality_previous_container_list previous(this->node_count());
-
-			for (const auto &[node, edges] : this->_digraph)
-			{
-				threads.emplace_back(
-					[this, &node, &previous, counter] () -> void
-					{
-						this->template generic_Dijkstra < Dijkstra_modes::edge_betweenness > (node, previous[counter]);
-					});
-
-				counter++;
-			}
-
-			for (auto &thread : threads)
-			{
-				thread.join();
-			}
-
-			return previous;
-		}
-
-		template <
-			xablau::algebra::concepts::xablau_matrix_dense MatrixType,
-			xablau::algebra::concepts::xablau_matrix_dense NextNodeType >
-		requires (std::same_as < typename MatrixType::value_type, edge_weight_type >)
-		auto Floyd_Warshall() const
-		{
-			using MatrixValueType = MatrixType::value_type;
-
-			size_type counter{};
-			const size_type matrixLineLength = this->node_count();
-
-			if constexpr (MatrixType::fixed())
-			{
-				if (matrixLineLength != MatrixType::dimensionalities()[0] ||
-					matrixLineLength != MatrixType::dimensionalities()[1])
-				{
-					throw std::runtime_error(""); // TODO: Create message.
-				}
-			}
-
-			MatrixType distanceMatrix{};
-			NextNodeType nextNode{};
-
-			if constexpr (!MatrixType::fixed())
-			{
-				distanceMatrix.resize(matrixLineLength, matrixLineLength);
-			}
-
-			distanceMatrix.fill(std::numeric_limits < MatrixValueType > ::max());
-
-			if constexpr (!MatrixType::fixed())
-			{
-				nextNode.resize(matrixLineLength, matrixLineLength);
-			}
-
-			nextNode.fill(std::nullopt);
-
-			graph_node_to_matrix_index_map graphNodeToMatrixIndex{};
-			matrix_index_to_graph_node_map matrixIndexToGraphNode{};
-
-			if constexpr (digraph::unordered())
-			{
-				graphNodeToMatrixIndex.reserve(matrixLineLength);
-				matrixIndexToGraphNode.reserve(matrixLineLength);
-			}
-
-			for (const auto &node : this->_digraph)
-			{
-				graphNodeToMatrixIndex[node.first] = counter;
-				matrixIndexToGraphNode[counter] = node.first;
-
-				counter++;
-			}
-
-			for (const auto &node1 : this->_digraph)
-			{
-				const size_type lineIndex1 = graphNodeToMatrixIndex[node1.first];
-
-				for (const auto &node2 : node1.second)
-				{
-					const size_type lineIndex2 = graphNodeToMatrixIndex[node2.first];
-
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						distanceMatrix(lineIndex1, lineIndex2) =
-							std::min_element(node2.second.cbegin(), node2.second.cend())->weight();
-					}
-
-					else
-					{
-						distanceMatrix(lineIndex1, lineIndex2) = node2.second.weight();
-					}
-
-					nextNode(lineIndex1, lineIndex2) = node2.first;
-				}
-
-				distanceMatrix(lineIndex1, lineIndex1) = MatrixValueType{};
-				nextNode(lineIndex1, lineIndex1) = node1.first;
-			}
-
-			for (size_type k = 0; k < matrixLineLength; k++)
-			{
-				for (size_type i = 0; i < matrixLineLength; i++)
-				{
-					const auto distanceIK = distanceMatrix(i, k);
-
-					for (size_type j = 0; j < matrixLineLength; j++)
-					{
-						if (distanceMatrix(i, j) > distanceIK + distanceMatrix(k, j))
-						{
-							distanceMatrix(i, j) = distanceIK + distanceMatrix(k, j);
-							nextNode(i, j) = nextNode(i, k);
-						}
-					}
-				}
-			}
-
-			return std::make_tuple(distanceMatrix, nextNode, graphNodeToMatrixIndex, matrixIndexToGraphNode);
 		}
 
 		edge_weight_type _weight_sum{};
-		graph_container _digraph{};
-		transposed_graph_container _transposed_digraph{};
-		degree_container _degrees{};
+		graph_container_type _digraph{};
+		transposed_graph_container < false > _transposed_digraph{};
+		degree_container < false > _degrees{};
 		size_type _edge_count{};
 		size_type _unique_edge_count{};
-		size_type _expected_edges_by_node{};
+		size_type _expected_connections_by_node{};
 
 	public:
 		[[nodiscard]] bool operator==(const digraph &digraph) const
@@ -891,7 +420,13 @@ export namespace xablau::graph
 			return this->_digraph == digraph._digraph;
 		}
 
-		[[nodiscard]] edge_weight_type degree(const NodeType &node) const
+		[[nodiscard]] bool operator<(const digraph &digraph) const
+		requires (digraph::ordered())
+		{
+			return this->_digraph < digraph._digraph;
+		}
+
+		[[nodiscard]] edge_weight_type degree(const ValueType &node) const
 		{
 			const auto iterator = this->_degrees.find(node);
 
@@ -983,9 +518,9 @@ export namespace xablau::graph
 
 		[[nodiscard]] edge_weight_type variance() const
 		{
-			const auto statistical_moment_order1 = this->statistical_moment(1);
+			const auto statisticalMomentOrder1 = this->statistical_moment(1);
 
-			return this->statistical_moment(2) - (statistical_moment_order1 * statistical_moment_order1);
+			return this->statistical_moment(2) - (statisticalMomentOrder1 * statisticalMomentOrder1);
 		}
 
 		[[nodiscard]] edge_weight_type volume() const noexcept
@@ -1000,47 +535,41 @@ export namespace xablau::graph
 
 		[[nodiscard]] edge_weight_type Shannon_entropy() const
 		{
-			const auto degree_distribution = this->degree_distribution();
+			return internals::Shannon_entropy(*this);
+		}
 
-			if (degree_distribution.empty())
+		[[nodiscard]] edge_weight_type closeness_centrality(const ValueType &origin) const
+		{
+			const auto iterator = this->_digraph.find(origin);
+
+			if (iterator == this->_digraph.cend())
 			{
 				return edge_weight_type{};
 			}
 
-			edge_weight_type acumulator{};
-
-			for (const auto &item : degree_distribution)
-			{
-				if (item.second != edge_weight_type{})
-				{
-					acumulator -=
-						item.second * xablau::algebra::functions::log2 < edge_weight_type > ::invoke(item.second);
-				}
-			}
-
-			return acumulator;
-		}
-
-		[[nodiscard]] edge_weight_type closeness_centrality(const NodeType &origin) const
-		{
 			edge_weight_type closeness{};
-			single_previous_node_with_weight_container previous{};
+			single_previous_node_with_weight_container < false > previous{};
 
-			this->template generic_Dijkstra < Dijkstra_modes::single_previous_and_next_node_and_distance > (origin, previous);
+			internals::generic_Dijkstra <
+				Dijkstra_modes::single_previous_and_next_node_and_distance > (
+					*this,
+					iterator->first,
+					previous);
 
-			for (const auto &[node, nodeAndDistance] : previous)
+			for (const auto &[_, nodeAndDistance] : previous)
 			{
 				closeness += nodeAndDistance.second;
 			}
 
-			return closeness / static_cast < edge_weight_type > (this->node_count());
+			return static_cast < edge_weight_type > (this->node_count() - 1) / closeness;
 		}
 
-		[[nodiscard]] node_weight_container closeness_centrality() const
+		template < bool CopyNodes >
+		[[nodiscard]] node_weight_container < CopyNodes > closeness_centrality() const
 		{
 			std::mutex mutex;
 			std::vector < std::thread > threads;
-			node_weight_container closeness{};
+			node_weight_container < CopyNodes > closeness{};
 
 			if constexpr (digraph::unordered())
 			{
@@ -1049,6 +578,7 @@ export namespace xablau::graph
 
 			for (const auto &[origin, edges] : this->_digraph)
 			{
+				// TODO: Deal with possible throws in these threads.
 				threads.emplace_back(
 					[this, &origin, &closeness, &mutex] () -> void
 					{
@@ -1056,7 +586,7 @@ export namespace xablau::graph
 
 						const std::lock_guard < std::mutex > lock(mutex);
 
-						closeness[origin] = std::move(_closeness);
+						closeness.emplace(origin, std::move(_closeness));
 					});
 			}
 
@@ -1068,303 +598,117 @@ export namespace xablau::graph
 			return closeness;
 		}
 
-		[[nodiscard]] edge_weight_type node_betweenness_centrality(const NodeType &node) const
+		// Thanks, Anuradha Bhatia!
+		// https://www.youtube.com/watch?v=ptqt2zr9ZRE
+		[[nodiscard]] edge_weight_type node_betweenness_centrality(const ValueType &node) const
 		{
-			const auto previous = this->calculate_previous_for_node_betweenness_centrality();
+			using MappedType =
+				typename std::conditional <
+					digraph::_ordered,
+					std::set < node_selection_type < false > >,
+					std::unordered_set < node_selection_type < false > > > ::type;
 
-			edge_weight_type betweennessCentrality{};
+			using PreviousContainerSet = betweenness_previous_container_set < false >;
 
-			for (auto iterator1 = previous.cbegin(); iterator1 != previous.cend(); ++iterator1)
-			{
-				const auto &node1 = iterator1->first;
-				auto iterator2 = iterator1;
-
-				++iterator2;
-
-				for (; iterator2 != previous.cend(); ++iterator2)
-				{
-					const auto &node2 = iterator2->first;
-
-					if (digraph::_different_nodes(node, node1) &&
-						digraph::_different_nodes(node, node2) &&
-						iterator1->second.contains(node1) &&
-						iterator1->second.contains(node2) &&
-						iterator1->second.contains(node))
-					{
-						betweennessCentrality +=
-							digraph::betweenness_centrality_of_a_node_in_a_path(node, node1, node2, iterator1->second);
-					}
-				}
-			}
-
-			return betweennessCentrality;
+			return internals::node_betweenness_centrality < MappedType, PreviousContainerSet > (*this, node);
 		}
 
-		[[nodiscard]] node_weight_container node_betweenness_centrality() const
+		// Thanks, Anuradha Bhatia!
+		// https://www.youtube.com/watch?v=ptqt2zr9ZRE
+		template < bool CopyNodes >
+		[[nodiscard]] node_weight_container < CopyNodes > node_betweenness_centrality() const
 		{
-			const auto previous = this->calculate_previous_for_node_betweenness_centrality();
+			using MappedType =
+				typename std::conditional <
+					digraph::_ordered,
+					std::set < node_selection_type < false > >,
+					std::unordered_set < node_selection_type < false > > > ::type;
 
-			node_weight_container betweennessCentrality{};
+			using PreviousContainerSet = betweenness_previous_container_set < false >;
 
-			if constexpr (digraph::unordered())
-			{
-				betweennessCentrality.reserve(this->node_count());
-			}
-
-			for (auto iterator1 = previous.cbegin(); iterator1 != previous.cend(); ++iterator1)
-			{
-				const auto &node1 = iterator1->first;
-				auto iterator2 = iterator1;
-
-				++iterator2;
-
-				for (; iterator2 != previous.cend(); ++iterator2)
-				{
-					const auto &node2 = iterator2->first;
-
-					for (const auto &[target, edges] : this->_digraph)
-					{
-						if (digraph::_different_nodes(target, node1) &&
-							digraph::_different_nodes(target, node2) &&
-							iterator1->second.contains(node1) &&
-							iterator1->second.contains(node2) &&
-							iterator1->second.contains(target))
-						{
-							betweennessCentrality[target] +=
-								digraph::betweenness_centrality_of_a_node_in_a_path(target, node1, node2, iterator1->second);
-						}
-					}
-				}
-			}
-
-			return betweennessCentrality;
+			return
+				internals::node_betweenness_centrality <
+					MappedType,
+					PreviousContainerSet,
+					node_weight_container < CopyNodes > > (*this);
 		}
 
-		[[nodiscard]] edge_betweenness_centrality_container edge_betweenness_centrality() const
+		// Thanks, Anuradha Bhatia!
+		// https://www.youtube.com/watch?v=LtQoPEKKRYM
+		template < bool CopyNodes >
+		[[nodiscard]] edge_betweenness_centrality_container < CopyNodes > edge_betweenness_centrality() const
 		{
-			auto previous = this->calculate_previous_for_edge_betweenness_centrality();
+			using MappedType =
+				typename std::conditional <
+					digraph::_ordered,
+					std::set < node_selection_type < false > >,
+					std::unordered_set < node_selection_type < false > > > ::type;
 
-			edge_betweenness_centrality_container betweennessCentrality{};
+			using PreviousContainerList = edge_betweenness_centrality_previous_container_list < false >;
 
-			if constexpr (digraph::unordered())
-			{
-				betweennessCentrality.reserve(this->node_count());
-			}
-
-			for (auto iterator = previous.begin(); iterator != previous.end(); ++iterator)
-			{
-				auto &nodeTree = iterator->first;
-				auto &stack = iterator->second;
-
-				while (!stack.empty())
-				{
-					const auto &currentNode = stack.top();
-
-					const size_type pathCount = std::get < 0 > (nodeTree.at(currentNode));
-					const auto &immediatePreviousSet = std::get < 1 > (nodeTree.at(currentNode));
-					const auto &currentBetweennessWeight = std::get < 2 > (nodeTree.at(currentNode));
-
-					for (const auto &immediatePrevious : immediatePreviousSet)
-					{
-						const size_type immediatePreviousPathCount = std::get < 0 > (nodeTree.at(immediatePrevious));
-						auto &immediatePreviousBetweennessWeight = std::get < 2 > (nodeTree.at(immediatePrevious));
-
-						const edge_weight_type factor =
-							static_cast < edge_weight_type > (immediatePreviousPathCount) / static_cast < edge_weight_type > (pathCount);
-
-						edge_weight_type localImmediatePreviousBetweennessWeight =
-							(edge_weight_type{1} + currentBetweennessWeight) * factor;
-
-						betweennessCentrality[std::make_pair(currentNode, immediatePrevious)] +=
-							localImmediatePreviousBetweennessWeight;
-
-						immediatePreviousBetweennessWeight += localImmediatePreviousBetweennessWeight;
-					}
-
-					stack.pop();
-				}
-			}
-
-			return betweennessCentrality;
+			return
+				internals::edge_betweenness_centrality <
+					MappedType,
+					PreviousContainerList,
+					edge_betweenness_centrality_container < CopyNodes > > (*this);
 		}
 
 		// https://journals.aps.org/pre/pdf/10.1103/PhysRevE.69.026113
 		// Weights cannot be negative.
-		template < bool CheckCommunitiesClassification, typename CommunityDataType >
-		[[nodiscard]] edge_weight_type modularity(
-			const typename std::conditional <
-				digraph::unordered(),
-				std::unordered_map < CommunityDataType, node_set_container >,
-				std::map < CommunityDataType, node_set_container > > ::type &communitiesClassification) const
+		template < bool CheckCommunitiesClassification, typename CommunityType >
+		requires (
+			std::same_as < CommunityType, std::vector < node_set_container < false > > > ||
+			std::same_as < CommunityType, std::vector < node_set_container < true > > >)
+		[[nodiscard]] edge_weight_type modularity(const CommunityType &communitiesClassification) const
 		{
-			if (this->_weight_sum == edge_weight_type{})
-			{
-				throw std::domain_error("There are no edges in the digraph.");
-			}
-
-			if constexpr (CheckCommunitiesClassification)
-			{
-				node_set_container insertedNodes{};
-
-				for (const auto &item1 : communitiesClassification)
-				{
-					for (const auto &item2 : item1.second)
-					{
-						if (this->_digraph.contains(item2))
-						{
-							throw std::runtime_error("There is a node in \"communitiesClassification\" not present in the digraph.");
-						}
-
-						insertedNodes.insert(item2);
-					}
-				}
-
-				if (insertedNodes.size() != this->_digraph.size())
-				{
-					throw std::runtime_error("Not every node in the digraph is present in \"communitiesClassification\".");
-				}
-			}
-
-			const edge_weight_type inverseOfTwoTimesOfWeightSum = edge_weight_type{2} / this->_weight_sum;
-			edge_weight_type sum{};
-			std::mutex mutex;
-
-			std::for_each(std::execution::par, communitiesClassification.cbegin(), communitiesClassification.cend(),
-				[&] (const std::pair < CommunityDataType, node_set_container > &pair) -> void
-				{
-					edge_weight_type weightSum{};
-					edge_weight_type degreeSum{};
-
-					for (const auto &item1 : pair.second)
-					{
-						degreeSum += this->degree(item1);
-
-						for (const auto &item2 : pair.second)
-						{
-							weightSum += this->weight(item1, item2);
-						}
-					}
-
-					weightSum *= inverseOfTwoTimesOfWeightSum;
-					degreeSum *= inverseOfTwoTimesOfWeightSum;
-
-					const std::lock_guard < std::mutex > lock(mutex);
-
-					sum += weightSum - degreeSum * degreeSum;
-				});
-
-			return sum;
+			return
+				internals::modularity <
+					CheckCommunitiesClassification,
+					node_set_container < false > > (*this, communitiesClassification, this->_weight_sum);
 		}
 
 		template <
 			xablau::algebra::concepts::xablau_matrix_dense MatrixType,
-			bool AllowAutoEdges >
+			bool AllowAutoEdges,
+			bool CopyNodes >
 		requires (std::same_as < typename MatrixType::value_type, edge_weight_type >)
 		[[nodiscard]] auto adjacency_matrix() const
 		{
 			using MatrixValueType = typename MatrixType::value_type;
+			using GraphNodeToMatrixIndexMap = graph_node_to_matrix_index_map < CopyNodes >;
+			using MatrixIndexToGraphNodeMap = matrix_index_to_graph_node_map < CopyNodes >;
 
-			size_type counter{};
-			const auto matrixLineLength = this->node_count();
-
-			if constexpr (MatrixType::fixed())
-			{
-				if (matrixLineLength != MatrixType::dimensionalities()[0] ||
-					matrixLineLength != MatrixType::dimensionalities()[1])
-				{
-					throw std::runtime_error(""); // TODO: Create message.
-				}
-			}
-
-			MatrixType adjacencyMatrix{};
-
-			if constexpr (!MatrixType::fixed())
-			{
-				adjacencyMatrix.resize(matrixLineLength, matrixLineLength);
-			}
-
-			graph_node_to_matrix_index_map graphNodeToMatrixIndex{};
-			matrix_index_to_graph_node_map matrixIndexToGraphNode{};
-
-			if constexpr (digraph::unordered())
-			{
-				graphNodeToMatrixIndex.reserve(matrixLineLength);
-				matrixIndexToGraphNode.reserve(matrixLineLength);
-			}
-
-			for (const auto &item : this->_digraph)
-			{
-				graphNodeToMatrixIndex[item.first] = counter;
-				matrixIndexToGraphNode[counter] = item.first;
-
-				counter++;
-			}
-
-			std::for_each(this->_digraph.cbegin(), this->_digraph.cend(),
-				[&adjacencyMatrix, &graphNodeToMatrixIndex] (const typename graph_container::value_type &node1) -> void
-				{
-					const auto lineIndex1 = graphNodeToMatrixIndex.at(node1.first);
-
-					for (const auto &node2 : node1.second)
-					{
-						const auto lineIndex2 = graphNodeToMatrixIndex.at(node2.first);
-
-						if constexpr (digraph::can_have_multiple_edges())
-						{
-							auto &value = adjacencyMatrix(lineIndex1, lineIndex2);
-
-							for (const auto &edge : node2.second)
-							{
-								value += edge.weight();
-							}
-						}
-
-						else
-						{
-							adjacencyMatrix(lineIndex1, lineIndex2) = node2.second.weight();
-						}
-					}
-				});
-
-			if constexpr (!AllowAutoEdges)
-			{
-				for (size_type i = 0; i < matrixLineLength; i++)
-				{
-					adjacencyMatrix(i, i) = MatrixValueType{};
-				}
-			}
-
-			return std::make_tuple(adjacencyMatrix, graphNodeToMatrixIndex, matrixIndexToGraphNode);
+			return
+				internals::adjacency_matrix <
+					MatrixType,
+					AllowAutoEdges,
+					false,
+					GraphNodeToMatrixIndexMap,
+					MatrixIndexToGraphNodeMap > (*this);
 		}
 
-		template < xablau::algebra::concepts::xablau_matrix_dense MatrixType >
+		template < xablau::algebra::concepts::xablau_matrix_dense MatrixType, bool CopyNodes >
+		requires (std::same_as < typename MatrixType::value_type, edge_weight_type >)
 		[[nodiscard]] auto laplacian_matrix() const
 		{
 			using MatrixValueType = typename MatrixType::value_type;
+			using GraphNodeToMatrixIndexMap = graph_node_to_matrix_index_map < CopyNodes >;
+			using MatrixIndexToGraphNodeMap = matrix_index_to_graph_node_map < CopyNodes >;
 
-			auto [laplacianMatrix, graphNodeToMatrixIndex, matrixIndexToGraphNode] =
-				this->template adjacency_matrix < MatrixType, false > ();
-
-			std::for_each(matrixIndexToGraphNode.begin(), matrixIndexToGraphNode.end(),
-				[this, &laplacianMatrix](const std::pair < const size_type, NodeType > &pair) -> void
-				{
-					auto &diagonalElement = laplacianMatrix(pair.first, pair.first);
-					const auto loopWeight = this->weight(pair.second, pair.second);
-
-					diagonalElement = loopWeight - this->degree(pair.second);
-				});
-
-			laplacianMatrix *= MatrixValueType{-1};
-
-			return std::make_tuple(laplacianMatrix, graphNodeToMatrixIndex, matrixIndexToGraphNode);
+			return
+				internals::laplacian_matrix <
+					MatrixType,
+					false,
+					GraphNodeToMatrixIndexMap,
+					MatrixIndexToGraphNodeMap > (*this);
 		}
 
-		[[nodiscard]] connections_container Tarjan_strongly_connected_components() const
+		[[nodiscard]] connections_container < false > Tarjan_strongly_connected_components() const
 		{
 			size_t index{};
-			Tarjan_stack stack{};
-			std::vector < node_set_container > stronglyConnectedComponents;
-			info_on_Tarjan_stack nodeIndexLowlinkOnStack{};
+			Tarjan_stack < false > stack{};
+			std::vector < node_set_container < false > > stronglyConnectedComponents;
+			info_on_Tarjan_stack < false > nodeIndexLowlinkOnStack{};
 
 			for (const auto &node : this->_digraph)
 			{
@@ -1375,7 +719,7 @@ export namespace xablau::graph
 				}
 			}
 
-			connections_container _stronglyConnectedNodes{};
+			connections_container < false > _stronglyConnectedNodes{};
 
 			if constexpr (digraph::unordered())
 			{
@@ -1394,16 +738,16 @@ export namespace xablau::graph
 		}
 
 		template < bool SmallerWeightSum >
-		[[nodiscard]] graph < NodeType, ContainerType, EdgeType > convert_to_graph_using_weight_sum_comparison() const
+		[[nodiscard]] graph < ValueType, ContainerType, EdgeType > convert_to_graph_using_weight_sum_comparison() const
 		{
 			const auto graphInitialization =
 				[this] () -> auto
 				{
-					using GraphDataType = graph < NodeType, ContainerType, EdgeType >;
+					using GraphDataType = graph < ValueType, ContainerType, EdgeType >;
 
 					if constexpr (digraph::unordered())
 					{
-						return GraphDataType(this->node_count(), this->_expected_edges_by_node);
+						return GraphDataType(this->node_count(), this->_expected_connections_by_node);
 					}
 
 					else
@@ -1411,7 +755,7 @@ export namespace xablau::graph
 						return GraphDataType{};
 					}
 				};
-			
+
 			auto graph = graphInitialization();
 
 			for (const auto &node : this->_digraph)
@@ -1453,17 +797,17 @@ export namespace xablau::graph
 		}
 
 		template < bool SmallestWeight >
-		[[nodiscard]] graph < NodeType, ContainerType, EdgeType > convert_to_graph_using_one_weight_comparison() const
+		[[nodiscard]] graph < ValueType, ContainerType, EdgeType > convert_to_graph_using_one_weight_comparison() const
 		requires (digraph::can_have_multiple_edges())
 		{
 			const auto graphInitialization =
 				[this] () -> auto
 				{
-					using GraphDataType = graph < NodeType, ContainerType, EdgeType >;
+					using GraphDataType = graph < ValueType, ContainerType, EdgeType >;
 
 					if constexpr (digraph::unordered())
 					{
-						return GraphDataType(this->node_count(), this->_expected_edges_by_node);
+						return GraphDataType(this->node_count(), this->_expected_connections_by_node);
 					}
 
 					else
@@ -1471,7 +815,7 @@ export namespace xablau::graph
 						return GraphDataType{};
 					}
 				};
-			
+
 			auto graph = graphInitialization();
 
 			for (const auto &node : this->_digraph)
@@ -1509,7 +853,7 @@ export namespace xablau::graph
 
 					else
 					{
-						if (std::max_element(edges.second.cbegin(), edges.second.cend()) > 
+						if (std::max_element(edges.second.cbegin(), edges.second.cend()) >
 							std::max_element(transposedEdges.cbegin(), transposedEdges.cend()))
 						{
 							for (const auto &edge : edges.second)
@@ -1532,502 +876,204 @@ export namespace xablau::graph
 			return graph;
 		}
 
-		[[nodiscard]] std::pair < all_previous_nodes_container, next_nodes_container > Dijkstra_all_previous_and_next_nodes(const NodeType &origin) const
+		template < bool CopyNodes >
+		[[nodiscard]]
+			std::pair <
+				all_previous_nodes_container < CopyNodes >,
+				next_nodes_container < CopyNodes > >
+			Dijkstra_all_previous_and_next_nodes(const ValueType &origin) const
 		{
-			all_previous_nodes_container previous{};
-			next_nodes_container next{};
+			const auto iterator = this->_digraph.find(origin);
 
-			this->template generic_Dijkstra < Dijkstra_modes::all_previous_and_next_nodes > (origin, previous);
-			this->template Dijkstra_create_next < Dijkstra_modes::all_previous_and_next_nodes > (previous, next);
-
-			return std::make_pair(previous, next);
-		}
-
-		[[nodiscard]] std::pair < all_previous_nodes_with_weight_container, next_nodes_with_weight_container > Dijkstra_all_previous_and_next_nodes_and_distance(
-			const NodeType &origin) const
-		{
-			all_previous_nodes_with_weight_container previous{};
-			next_nodes_with_weight_container next{};
-
-			this->template generic_Dijkstra < Dijkstra_modes::all_previous_and_next_nodes_and_distance > (origin, previous);
-			this->template Dijkstra_create_next < Dijkstra_modes::all_previous_and_next_nodes_and_distance > (previous, next);
-
-			return std::make_pair(previous, next);
-		}
-
-		[[nodiscard]] std::pair < single_previous_node_container, next_nodes_container > Dijkstra_single_previous_and_next_nodes(const NodeType &origin) const
-		{
-			single_previous_node_container previous{};
-			next_nodes_container next{};
-
-			this->template generic_Dijkstra < Dijkstra_modes::single_previous_and_next_node > (origin, previous);
-			this->template Dijkstra_create_next < Dijkstra_modes::single_previous_and_next_node > (previous, next);
-
-			return std::make_pair(previous, next);
-		}
-
-		[[nodiscard]] std::pair < single_previous_node_with_weight_container, next_nodes_with_weight_container >
-			Dijkstra_single_previous_and_next_nodes_and_distance(const NodeType &origin) const
-		{
-			single_previous_node_with_weight_container previous{};
-			next_nodes_with_weight_container next{};
-
-			this->template generic_Dijkstra < Dijkstra_modes::single_previous_and_next_node_and_distance > (origin, previous);
-			this->template Dijkstra_create_next < Dijkstra_modes::single_previous_and_next_node_and_distance > (previous, next);
-
-			return std::make_pair(previous, next);
-		}
-
-		template < bool CreatePath >
-		[[nodiscard]] auto Dijkstra_single_path(const NodeType &origin, const NodeType &destiny) const
-		{
-			std::vector < NodeType > path;
-			
-			if (!this->contains(origin) || !this->contains(destiny))
+			if (iterator == this->_digraph.cend())
 			{
-				if constexpr (CreatePath)
-				{
-					return std::make_pair(std::numeric_limits < edge_weight_type > ::max(), std::vector < NodeType > ());
-				}
-
-				else
-				{
-					return std::numeric_limits < edge_weight_type > ::max();
-				}
+				return {};
 			}
 
-			if (digraph::_equal_nodes(origin, destiny))
+			all_previous_nodes_container < CopyNodes > previous{};
+			next_nodes_container < CopyNodes > next{};
+
+			using MappedType =
+				typename std::conditional <
+					digraph::_ordered,
+					std::set < node_selection_type < CopyNodes > >,
+					std::unordered_set < node_selection_type < CopyNodes > > > ::type;
+
+			internals::generic_Dijkstra <
+				Dijkstra_modes::all_previous_and_next_nodes,
+				MappedType > (
+					*this,
+					iterator->first,
+					previous);
+
+			internals::Dijkstra_create_next < Dijkstra_modes::all_previous_and_next_nodes, digraph::unordered() > (previous, next);
+
+			return std::make_pair(std::move(previous), std::move(next));
+		}
+
+		template < bool CopyNodes >
+		[[nodiscard]]
+			std::pair <
+				all_previous_nodes_with_weight_container < CopyNodes >,
+				next_nodes_with_weight_container < CopyNodes > >
+			Dijkstra_all_previous_and_next_nodes_and_distance(const ValueType &origin) const
+		{
+			const auto iterator = this->_digraph.find(origin);
+
+			if (iterator == this->_digraph.cend())
 			{
-				if constexpr (CreatePath)
-				{
-					path.push_back(destiny);
-
-					return std::make_pair(edge_weight_type{}, path);
-				}
-
-				else
-				{
-					return edge_weight_type{};
-				}
+				return {};
 			}
 
-			edge_weight_type smallestDistance{};
+			all_previous_nodes_with_weight_container < CopyNodes > previous{};
+			next_nodes_with_weight_container < CopyNodes > next{};
 
-			node_node_container previous{};
+			internals::generic_Dijkstra <
+				Dijkstra_modes::all_previous_and_next_nodes_and_distance,
+				node_set_container < CopyNodes > > (
+					*this,
+					iterator->first,
+					previous);
 
-			this->template generic_Dijkstra < Dijkstra_modes::single_path > (origin, previous, destiny, smallestDistance);
+			internals::Dijkstra_create_next < Dijkstra_modes::all_previous_and_next_nodes_and_distance, digraph::unordered() > (previous, next);
 
-			if constexpr (CreatePath)
+			return std::make_pair(std::move(previous), std::move(next));
+		}
+
+		template < bool CopyNodes >
+		[[nodiscard]]
+			std::pair <
+				single_previous_node_container < CopyNodes >,
+				next_nodes_container < CopyNodes > >
+			Dijkstra_single_previous_and_next_nodes(const ValueType &origin) const
+		{
+			const auto iterator = this->_digraph.find(origin);
+
+			if (iterator == this->_digraph.cend())
 			{
-				NodeType current = destiny;
-
-				while (true)
-				{
-					const auto iterator = previous.find(current);
-
-					path.push_back(current);
-
-					if (iterator != previous.cend())
-					{
-						current = iterator->second;
-					}
-
-					else
-					{
-						break;
-					}
-				}
-
-				std::reverse(path.begin(), path.end());
-
-				return std::make_pair(smallestDistance, path);
+				return {};
 			}
 
-			else
+			single_previous_node_container < CopyNodes > previous{};
+			next_nodes_container < CopyNodes > next{};
+
+			internals::generic_Dijkstra <
+				Dijkstra_modes::single_previous_and_next_node > (
+					*this,
+					iterator->first,
+					previous);
+
+			internals::Dijkstra_create_next < Dijkstra_modes::single_previous_and_next_node, digraph::unordered() > (previous, next);
+
+			return std::make_pair(std::move(previous), std::move(next));
+		}
+
+		template < bool CopyNodes >
+		[[nodiscard]]
+			std::pair <
+				single_previous_node_with_weight_container < CopyNodes >,
+				next_nodes_with_weight_container < CopyNodes > >
+			Dijkstra_single_previous_and_next_nodes_and_distance(const ValueType &origin) const
+		{
+			const auto iterator = this->_digraph.find(origin);
+
+			if (iterator == this->_digraph.cend())
 			{
-				return smallestDistance;
+				return {};
 			}
+
+			single_previous_node_with_weight_container < CopyNodes > previous{};
+			next_nodes_with_weight_container < CopyNodes > next{};
+
+			internals::generic_Dijkstra <
+				Dijkstra_modes::single_previous_and_next_node_and_distance > (
+					*this,
+					iterator->first,
+					previous);
+
+			internals::Dijkstra_create_next < Dijkstra_modes::single_previous_and_next_node_and_distance, digraph::unordered() > (previous, next);
+
+			return std::make_pair(std::move(previous), std::move(next));
+		}
+
+		template < bool CreatePath, bool CopyNodes >
+		[[nodiscard]] auto Dijkstra_single_path(const ValueType &origin, const ValueType &destiny) const
+		{
+			return
+				internals::Dijkstra_single_path <
+					CreatePath,
+					node_selection_type < CopyNodes >,
+					node_node_container < false > > (*this, origin, destiny);
 		}
 
 		// It cannot have negative cycles.
-		template < xablau::algebra::concepts::xablau_matrix_dynamic MatrixType >
+		template < xablau::algebra::concepts::xablau_matrix_dynamic MatrixType, bool CopyNodes >
 		requires (std::same_as < typename MatrixType::value_type, edge_weight_type >)
 		[[nodiscard]] auto Floyd_Warshall() const
 		{
 			return
-				this->template Floyd_Warshall <
+				internals::Floyd_Warshall <
+					graph_node_to_matrix_index_map < CopyNodes >,
+					matrix_index_to_graph_node_map < CopyNodes >,
 					MatrixType,
 					xablau::algebra::tensor_dense_dynamic <
-						std::optional < NodeType >,
+						std::optional < node_selection_type < CopyNodes > >,
 						xablau::algebra::tensor_rank < MatrixType::rank() >,
 						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
-						MatrixType::memory_order_indices > > ();
+						MatrixType::memory_order_indices > > (*this);
 		}
 
 		// It cannot have negative cycles.
-		template < xablau::algebra::concepts::xablau_matrix_fixed MatrixType >
+		template < xablau::algebra::concepts::xablau_matrix_fixed MatrixType, bool CopyNodes >
 		requires (std::same_as < typename MatrixType::value_type, edge_weight_type >)
 		[[nodiscard]] auto Floyd_Warshall() const
 		{
 			return
-				this->template Floyd_Warshall <
+				internals::Floyd_Warshall <
+					graph_node_to_matrix_index_map < CopyNodes >,
+					matrix_index_to_graph_node_map < CopyNodes >,
 					MatrixType,
 					xablau::algebra::tensor_dense_fixed <
-						std::optional < NodeType >,
+						std::optional < node_selection_type < CopyNodes > >,
 						MatrixType::fixed_dimensionalities,
 						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
-						MatrixType::memory_order_indices > > ();
+						MatrixType::memory_order_indices > > (*this);
 		}
 
 		// Adapted from https://www.geeksforgeeks.org/traveling-salesman-problem-tsp-implementation/
-		[[nodiscard]] auto traveling_salesman_problem(const NodeType &start) const
+		template < bool CopyNodes >
+		[[nodiscard]] auto traveling_salesman_problem(const ValueType &start) const
 		requires (std::totally_ordered < edge_weight_type > && digraph::cannot_have_multiple_edges())
 		{
-			const auto iterator = this->_digraph.find(start);
-
-			if (iterator == this->_digraph.cend())
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (),
-						edge_weight_type{});
-			}
-
-			if (this->node_count() == size_type{1})
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (1, iterator->first),
-						edge_weight_type{});
-			}
-
-			std::reference_wrapper < const NodeType > thisStart = iterator->first;
-			std::vector < std::reference_wrapper < const NodeType > > nodes;
-
-			constexpr auto comparison =
-				[] (const std::reference_wrapper < const NodeType > &node1,
-					const std::reference_wrapper < const NodeType > &node2) -> bool
-				{
-					return std::less < const NodeType * > {}(std::addressof(node1.get()), std::addressof(node2.get()));
-				};
-
-			nodes.reserve(this->node_count());
-
-			for (const auto &[node, _] : this->_digraph)
-			{
-				if (digraph::_different_nodes(thisStart, node))
-				{
-					nodes.emplace_back(node);
-				}
-			}
-
-			std::ranges::sort(nodes, comparison);
-
-			nodes.insert(nodes.begin(), thisStart);
-
-			bool foundSolution = false;
-			std::vector < std::reference_wrapper < const NodeType > > bestPath;
-			edge_weight_type minimumWeight = std::numeric_limits < edge_weight_type > ::max();
-
-			do
-			{
-				bool validPath = true;
-				edge_weight_type currentPathweight{};
-
-				for (auto previous = nodes.begin(), next = ++(nodes.begin()); next != nodes.end(); ++previous, ++next)
-				{
-					if (const auto connection = this->edges(previous->get(), next->get());
-						connection.has_value())
-					{
-						currentPathweight += connection.value().get().weight();
-					}
-
-					else
-					{
-						validPath = false;
-
-						break;
-					}
-				}
-
-				if (validPath)
-				{
-					foundSolution = true;
-
-					if (currentPathweight <= minimumWeight)
-					{
-						minimumWeight = currentPathweight;
-						bestPath = nodes;
-					}
-				}
-
-			} while (std::next_permutation(nodes.begin() + 1, nodes.end(), comparison));
-
-			if (foundSolution)
-			{
-				std::vector < NodeType > result;
-
-				result.reserve(bestPath.size());
-
-				for (const auto &node : bestPath)
-				{
-					result.push_back(node.get());
-				}
-
-				return std::make_pair(std::move(result), minimumWeight);
-			}
-
-			else
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (),
-						edge_weight_type{});
-			}
+			return
+				internals::traveling_salesman_problem < node_selection_type < CopyNodes > > (*this, start);
 		}
 
-		template < concepts::digraph DependencyType >
-		requires (std::same_as < typename digraph::node_type, typename DependencyType::node_type >)
-		[[nodiscard]] auto traveling_salesman_problem(const NodeType &start, const DependencyType &dependency) const
+		template < bool CopyNodes, concepts::digraph DependencyType >
+		requires (std::same_as < ValueType, typename DependencyType::value_type >)
+		[[nodiscard]] auto traveling_salesman_problem(const ValueType &start, const DependencyType &dependency) const
 		requires (std::totally_ordered < edge_weight_type > && digraph::cannot_have_multiple_edges())
 		{
-			if (this->node_count() != dependency.node_count())
-			{
-				throw std::runtime_error(""); // TODO: Create message.
-			}
-
-			if (this->node_count() != dependency.node_count())
-			{
-				throw std::runtime_error(""); // TODO: Create message.
-			}
-
-			for (const auto &[node, _] : this->_digraph)
-			{
-				if (!dependency.contains(node))
-				{
-					throw std::runtime_error(""); // TODO: Create message.
-				}
-			}
-
-			const auto iterator = this->_digraph.find(start);
-
-			if (iterator == this->_digraph.cend())
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (),
-						edge_weight_type{});
-			}
-
-			if (this->node_count() == size_type{1})
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (1, iterator->first),
-						edge_weight_type{});
-			}
-
-			std::vector < std::tuple < size_type, std::reference_wrapper < const NodeType > > > nodes;
-			std::vector <
-				std::pair <
-					typename decltype(nodes)::difference_type,
-					typename decltype(nodes)::difference_type > > groups;
-
-			constexpr auto priorityAndNodeComparison =
-				[] (const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node1,
-					const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node2) -> bool
-				{
-					return
-						std::get < 0 > (node1) < std::get < 0 > (node2) ||
-
-						std::get < 0 > (node1) == std::get < 0 > (node2) &&
-						std::less < const NodeType * > {}(
-							std::addressof(std::get < 1 > (node1).get()),
-							std::addressof(std::get < 1 > (node2).get()));
-				};
-
-			auto dependencyCopy = dependency;
-
-			nodes.reserve(this->node_count());
-			groups.reserve(this->node_count());
-
-			for (size_type priority{}, accumulator{}; !dependencyCopy.empty();)
-			{
-				const auto sinkNodes = dependencyCopy.sink_nodes();
-				const auto sinkNodeCount = std::distance(sinkNodes.cbegin(), sinkNodes.cend());
-
-				if (sinkNodeCount == 0)
-				{
-					throw std::runtime_error(""); // TODO: Create message.s
-				}
-
-				groups.emplace_back(
-					static_cast < typename decltype(nodes)::difference_type > (accumulator),
-					static_cast < typename decltype(nodes)::difference_type > (accumulator + sinkNodeCount));
-
-				for (const auto &sinkNode : sinkNodes)
-				{
-					nodes.emplace_back(priority, this->_digraph.find(sinkNode)->first);
-					dependencyCopy.erase(sinkNode);
-				}
-
-				accumulator += static_cast < size_type > (sinkNodeCount);
-
-				priority++;
-			}
-
-			std::ranges::sort(nodes, priorityAndNodeComparison);
-
-			if (groups[0].second - groups[0].first != 1 ||
-				digraph::_different_nodes(std::get < 1 > (*(nodes.cbegin() + groups[0].first)).get(), iterator->first))
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (),
-						edge_weight_type{});
-			}
-
-			bool foundSolution = false;
-			decltype(nodes) bestPath;
-			edge_weight_type minimumWeight = std::numeric_limits < edge_weight_type > ::max();
-			const auto permuteNodes =
-				[&groups, &nodes] () -> bool
-				{
-					constexpr auto nodeComparison =
-						[] (const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node1,
-							const std::tuple < size_type, std::reference_wrapper < const NodeType > > &node2) -> bool
-						{
-							return
-								std::less < const NodeType * > {}(
-									std::addressof(std::get < 1 > (node1).get()),
-									std::addressof(std::get < 1 > (node2).get()));
-						};
-
-					for (auto iterator = groups.crbegin(); iterator != groups.crend(); ++iterator)
-					{
-						if (std::next_permutation(nodes.begin() + iterator->first, nodes.begin() + iterator->second, nodeComparison))
-						{
-							return true;
-						}
-					}
-
-					return false;
-				};
-
-			do
-			{
-				bool validPath = true;
-				edge_weight_type currentPathweight{};
-				dependencyCopy = dependency;
-
-				for (auto previous = nodes.begin(), next = ++(nodes.begin()); next != nodes.end(); ++previous, ++next)
-				{
-					const auto connection = this->edges(std::get < 1 > (*previous).get(), std::get < 1 > (*next).get());
-					const auto sinkNodes = dependencyCopy.sink_nodes();
-					const auto searchFunction =
-						[&previous] (const NodeType &sinkNode) -> bool
-						{
-							return digraph::_equal_nodes(std::get < 1 > (*previous).get(), sinkNode);
-						};
-
-					if (connection.has_value() && std::find_if(sinkNodes.cbegin(), sinkNodes.cend(), searchFunction) != sinkNodes.cend())
-					{
-						currentPathweight += connection.value().get().weight();
-					}
-
-					else
-					{
-						validPath = false;
-
-						break;
-					}
-
-					dependencyCopy.erase(std::get < 1 > (*previous).get());
-				}
-
-				if (validPath)
-				{
-					foundSolution = true;
-
-					if (currentPathweight <= minimumWeight)
-					{
-						minimumWeight = currentPathweight;
-						bestPath = nodes;
-					}
-				}
-
-			} while (permuteNodes());
-
-			if (foundSolution)
-			{
-				std::vector < NodeType > result;
-
-				result.reserve(bestPath.size());
-
-				for (const auto &[_, node] : bestPath)
-				{
-					result.push_back(node.get());
-				}
-
-				return std::make_pair(std::move(result), minimumWeight);
-			}
-
-			else
-			{
-				return
-					std::make_pair(
-						std::vector < NodeType > (),
-						edge_weight_type{});
-			}
+			return
+				internals::traveling_salesman_problem <
+					node_selection_type < CopyNodes > > (
+						*this,
+						digraph::_equal_nodes < ValueType >,
+						digraph::_different_nodes < ValueType >,
+						start,
+						dependency);
 		}
 
 		template < concepts::nary_tree TreeType, tree_generation_modes TreeGenerationMode >
-		requires (std::same_as < typename TreeType::value_type, typename digraph::node_type::value_type >)
-		[[nodiscard]] TreeType generate_tree(const NodeType &origin) const
+		requires (std::same_as < typename TreeType::value_type, ValueType >)
+		[[nodiscard]] TreeType generate_tree(const ValueType &origin) const
 		{
-			connections_container next{};
-
-			if constexpr (TreeGenerationMode == tree_generation_modes::breadth_first_search)
-			{
-				next = this->breadth_first_search(origin);
-			}
-
-			else if constexpr (TreeGenerationMode == tree_generation_modes::depth_first_search)
-			{
-				next = this->depth_first_search(origin);
-			}
-
-			else if constexpr (TreeGenerationMode == tree_generation_modes::Dijkstra)
-			{
-				auto [_previous, _next] = this->Dijkstra_single_previous_and_next_nodes(origin);
-
-				next = std::move(_next);
-			}
-
-			TreeType tree{};
-			std::queue < typename TreeType::iterator > queue;
-
-			queue.push(tree.insert_root(origin.value));
-
-			while (!queue.empty())
-			{
-				const auto currentNodeInTree = queue.front();
-				const auto &currentNodeInGraph = *currentNodeInTree;
-
-				if (next.contains(currentNodeInGraph))
-				{
-					const auto &edges = next.at(currentNodeInGraph);
-
-					for (const auto &edge : edges)
-					{
-						queue.emplace(tree.insert_back_child(currentNodeInTree, edge.value));
-					}
-				}
-
-				queue.pop();
-			}
-
-			return tree;
+			return
+				internals::generate_tree <
+					connections_container < false >,
+					node_set_container < false >,
+					TreeType,
+					TreeGenerationMode > (*this, origin);
 		}
 
 		[[nodiscard]] bool connected() const
@@ -2042,7 +1088,7 @@ export namespace xablau::graph
 				{
 					if constexpr (digraph::unordered())
 					{
-						return digraph(this->node_count(), this->_expected_edges_by_node);
+						return digraph(this->node_count(), this->_expected_connections_by_node);
 					}
 
 					else
@@ -2057,23 +1103,23 @@ export namespace xablau::graph
 
 			for (typename std::vector < digraph > ::size_type i = 0; i < connectedDigraphs.size(); i++)
 			{
-				const auto nodes = connectedGraphs[i].nodes();
+				const auto nodes = connectedGraphs[i].nodes < false > ();
 
-				for (const auto &node : nodes)
+				for (const auto &node1 : nodes)
 				{
-					for (const auto &edge : this->_digraph.at(node))
+					for (const auto &[node2, edges] : this->_digraph.at(node1.get()))
 					{
 						if constexpr (digraph::can_have_multiple_edges())
 						{
-							for (const auto &_edge : edge.second)
+							for (const auto &edge : edges)
 							{
-								connectedDigraphs[i].insert(node, edge.first, _edge);
+								connectedDigraphs[i].insert(node1, node2, edge);
 							}
 						}
 
 						else
 						{
-							connectedDigraphs[i].insert(node, edge.first, edge.second);
+							connectedDigraphs[i].insert(node1, node2, edges);
 						}
 					}
 				}
@@ -2088,7 +1134,7 @@ export namespace xablau::graph
 
 			if constexpr (digraph::unordered())
 			{
-				localDigraph._expected_edges_by_node = this->_expected_edges_by_node;
+				localDigraph._expected_connections_by_node = this->_expected_connections_by_node;
 				localDigraph._digraph.reserve(this->node_count());
 				localDigraph._transposed_digraph.reserve(this->node_count());
 				localDigraph._degrees.reserve(this->node_count());
@@ -2120,57 +1166,19 @@ export namespace xablau::graph
 
 		[[nodiscard]] digraph shuffle() const
 		{
-			std::random_device randomDevice{};
-			std::default_random_engine engine(randomDevice());
-			node_node_container indicesMap{};
-			std::vector < NodeType > indices;
-
-			indices.reserve(this->_digraph.size());
-
-			for (const auto &node : this->_digraph)
-			{
-				indices.push_back(node.first);
-			}
-
-			std::shuffle(indices.begin(), indices.end(), engine);
-
-			size_type counter{};
-
-			for (const auto &node : this->_digraph)
-			{
-				indicesMap[node.first] = indices[counter];
-
-				counter++;
-			}
-
 			digraph newDigraph;
 
 			if constexpr (digraph::unordered())
 			{
-				newDigraph._expected_edges_by_node = this->_expected_edges_by_node;
-				newDigraph._digraph.reserve(this->node_count());
-				newDigraph._transposed_digraph.reserve(this->node_count());
-				newDigraph._degrees.reserve(this->node_count());
+				const auto nodeCount = this->node_count();
+
+				newDigraph._expected_connections_by_node = this->_expected_connections_by_node;
+				newDigraph._digraph.reserve(nodeCount);
+				newDigraph._transposed_digraph.reserve(nodeCount);
+				newDigraph._degrees.reserve(nodeCount);
 			}
 
-			for (const auto &node1 : this->_digraph)
-			{
-				for (const auto &node2 : node1.second)
-				{
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						for (const auto &edge : node2.second)
-						{
-							newDigraph.insert(indicesMap.at(node1.first), indicesMap.at(node2.first), edge);
-						}
-					}
-
-					else
-					{
-						newDigraph.insert(indicesMap.at(node1.first), indicesMap.at(node2.first), node2.second);
-					}
-				}
-			}
+			internals::shuffle < node_node_container < false > > (*this, newDigraph);
 
 			return newDigraph;
 		}
@@ -2185,6 +1193,12 @@ export namespace xablau::graph
 			return this->_digraph.size();
 		}
 
+		[[nodiscard]] size_type expected_connections_by_node() const
+		requires (digraph::unordered())
+		{
+			return this->_expected_connections_by_node;
+		}
+
 		void clear() noexcept
 		{
 			this->_weight_sum = edge_weight_type{};
@@ -2195,35 +1209,37 @@ export namespace xablau::graph
 			this->_unique_edge_count = size_type{};
 		}
 
-		bool insert(const NodeType &node)
+		const ValueType &insert(const ValueType &node)
 		{
-			if (this->contains(node))
+			auto iterator = this->_digraph.find(node);
+
+			if (iterator != this->_digraph.end())
 			{
-				return false;
+				return iterator->first;
 			}
 
 			if constexpr (digraph::unordered())
 			{
-				this->_digraph[node] = typename graph_container::mapped_type(this->_expected_edges_by_node);
-				this->_transposed_digraph[node] = node_set_container(this->_expected_edges_by_node);
+				iterator = this->_digraph.emplace(node, typename graph_container_type::mapped_type(this->_expected_connections_by_node)).first;
+				this->_transposed_digraph.emplace(iterator->first, node_set_container < false > (this->_expected_connections_by_node));
 			}
 
 			else
 			{
-				this->_digraph[node] = typename graph_container::mapped_type{};
-				this->_transposed_digraph[node] = node_set_container{};
+				iterator = this->_digraph.emplace(node, typename graph_container_type::mapped_type()).first;
+				this->_transposed_digraph.emplace(iterator->first, node_set_container < false > {});
 			}
 
-			this->_degrees[node] = edge_weight_type{};
+			this->_degrees[iterator->first] = edge_weight_type{};
 
-			return true;
+			return iterator->first;
 		}
 
 		std::optional < std::reference_wrapper < const EdgeType > >
 			insert(
-				const NodeType &node1,
-				const NodeType &node2,
-				const EdgeType &edge = EdgeType{edge_weight_type{1}})
+				const ValueType &node1,
+				const ValueType &node2,
+				const EdgeType &edge = EdgeType{})
 		{
 			const auto weight = edge.weight();
 
@@ -2232,14 +1248,13 @@ export namespace xablau::graph
 				return std::nullopt;
 			}
 
-			this->insert(node1);
-			this->insert(node2);
-
-			const auto &_node2 = this->_digraph.find(node2)->first;
+			const auto &_node1 = this->insert(node1);
+			const auto &_node2 = this->insert(node2);
+			std::optional < std::reference_wrapper < const EdgeType > > insertedEdge{};
 
 			if constexpr (digraph::can_have_multiple_edges())
 			{
-				auto _edge = this->_digraph.at(node1).insert(std::make_pair(_node2, std::vector < EdgeType > ()));
+				auto _edge = this->_digraph.at(_node1).emplace(_node2, std::vector < EdgeType > ());
 
 				_edge.first->second.push_back(edge);
 
@@ -2248,184 +1263,195 @@ export namespace xablau::graph
 					++(this->_unique_edge_count);
 				}
 
-				const auto &insertedEdge = _edge.first->second.back();
-
-				this->_transposed_digraph.at(_node2).insert(node1);
-
-				this->_degrees.at(node1) += weight;
-
-				++(this->_edge_count);
-
-				this->_weight_sum += weight;
-
-				return insertedEdge;
+				insertedEdge = _edge.first->second.back();
 			}
 
 			else
 			{
-				const auto _edge = this->_digraph.at(node1).insert(std::make_pair(_node2, edge));
+				const auto _edge = this->_digraph.at(_node1).emplace(_node2, edge);
 
 				if (!_edge.second)
 				{
 					return _edge.first->second;
 				}
 
-				const auto &insertedEdge = _edge.first->second;
+				insertedEdge = _edge.first->second;
 
-				this->_transposed_digraph.at(_node2).insert(node1);
-
-				this->_degrees.at(node1) += weight;
-
-				++(this->_edge_count);
 				++(this->_unique_edge_count);
-
-				this->_weight_sum += weight;
-
-				return insertedEdge;
 			}
+
+			this->_transposed_digraph.at(_node2).insert(_node1);
+
+			this->_degrees[_node1] += weight;
+
+			++(this->_edge_count);
+
+			this->_weight_sum += weight;
+
+			return insertedEdge;
 		}
 
-		bool erase(const NodeType &node)
+		size_type erase(const ValueType &node)
 		{
-			if (this->contains(node))
+			const auto nodeIterator = this->_digraph.find(node);
+
+			if (nodeIterator == this->_digraph.end())
 			{
-				const auto transposedNodesIterator = this->_transposed_digraph.find(node);
-
-				for (const auto &transposedNode : transposedNodesIterator->second)
-				{
-					const auto edges = this->_digraph.find(transposedNode);
-					const auto &edge = edges->second.at(node);
-
-					if (this->_digraph.find(node) == edges)
-					{
-						continue;
-					}
-
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						const auto _weight =
-							std::accumulate(edge.cbegin(), edge.cend(), edge_weight_type{},
-								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
-								{
-									return edge1.weight() + edge2.weight();
-								});
-
-						this->_weight_sum -= _weight;
-						this->_edge_count -= edge.size();
-						this->_degrees.at(transposedNode) -= _weight;
-					}
-
-					else
-					{
-						this->_weight_sum -= edge.weight();
-						--(this->_edge_count);
-						this->_degrees.at(transposedNode) -= edge.weight();
-					}
-
-					--(this->_unique_edge_count);
-
-					edges->second.erase(node);
-				}
-
-				const auto &edges = this->_digraph.at(node);
-
-				for (const auto &[_node, edge] : edges)
-				{
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						const auto _weight =
-							std::accumulate(edge.cbegin(), edge.cend(), edge_weight_type{},
-								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
-								{
-									return edge1.weight() + edge2.weight();
-								});
-
-						this->_weight_sum -= _weight;
-						this->_edge_count -= edge.size();
-					}
-
-					else
-					{
-						this->_weight_sum -= edge.weight();
-						--(this->_edge_count);
-					}
-
-					--(this->_unique_edge_count);
-
-					this->_transposed_digraph.at(_node).erase(node);
-				}
-
-				this->_digraph.erase(node);
-				this->_transposed_digraph.erase(node);
-				this->_degrees.erase(node);
-
-				return true;
+				return 0;
 			}
 
-			return false;
+			size_type removedEdgesCount{};
+
+			const auto transposedNodesIterator = this->_transposed_digraph.find(node);
+
+			for (const auto &transposedNode : transposedNodesIterator->second)
+			{
+				const auto connections = this->_digraph.find(transposedNode);
+				const auto &connection = connections->second.at(node);
+				edge_weight_type weight{};
+
+				if (nodeIterator == connections)
+				{
+					continue;
+				}
+
+				if constexpr (digraph::can_have_multiple_edges())
+				{
+					weight =
+						std::accumulate(connection.cbegin(), connection.cend(), edge_weight_type{},
+							[] (const EdgeType &connection1, const EdgeType &connection2) -> edge_weight_type
+							{
+								return connection1.weight() + connection2.weight();
+							});
+
+					this->_edge_count -= connection.size();
+
+					removedEdgesCount += connection.size();
+				}
+
+				else
+				{
+					weight = connection.weight();
+
+					--(this->_edge_count);
+
+					removedEdgesCount++;
+				}
+
+				this->_degrees.at(transposedNode) -= weight;
+				this->_weight_sum -= weight;
+				--(this->_unique_edge_count);
+
+				connections->second.erase(transposedNodesIterator->first);
+			}
+
+			const auto &connections = nodeIterator->second;
+			edge_weight_type weight{};
+
+			for (const auto &[_node, connection] : connections)
+			{
+				if constexpr (digraph::can_have_multiple_edges())
+				{
+					weight =
+						std::accumulate(connection.cbegin(), connection.cend(), edge_weight_type{},
+							[] (const EdgeType &connection1, const EdgeType &connection2) -> edge_weight_type
+							{
+								return connection1.weight() + connection2.weight();
+							});
+
+					this->_edge_count -= connection.size();
+
+					removedEdgesCount += connection.size();
+				}
+
+				else
+				{
+					weight = connection.weight();
+
+					--(this->_edge_count);
+
+					removedEdgesCount++;
+				}
+
+				this->_weight_sum -= weight;
+				--(this->_unique_edge_count);
+
+				this->_transposed_digraph.at(_node).erase(nodeIterator->first);
+			}
+
+			this->_transposed_digraph.erase(nodeIterator->first);
+			this->_degrees.erase(nodeIterator->first);
+			this->_digraph.erase(nodeIterator);
+
+			return removedEdgesCount;
 		}
 
-		bool erase(const NodeType &node1, const NodeType &node2)
+		size_type erase(const ValueType &node1, const ValueType &node2)
 		{
 			const auto iterator1 = this->_digraph.find(node1);
 
-			if (iterator1 != this->_digraph.end())
+			if (iterator1 == this->_digraph.end())
 			{
-				const auto &edges = iterator1->second;
-				const auto iterator2 = edges.find(node2);
-
-				if (iterator2 != edges.end())
-				{
-					edge_weight_type weight{};
-
-					if constexpr (digraph::can_have_multiple_edges())
-					{
-						const auto &_edges = iterator2->second;
-
-						weight =
-							std::accumulate(_edges.cbegin(), _edges.cend(), edge_weight_type{},
-								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
-								{
-									return edge1.weight() + edge2.weight();
-								});
-
-						this->_edge_count -= _edges.size();
-					}
-
-					else
-					{
-						weight = iterator2->second.weight();
-
-						--(this->_edge_count);
-					}
-
-					this->_weight_sum -= weight;
-
-					this->_degrees.at(node1) -= weight;
-
-					--(this->_unique_edge_count);
-
-					this->_digraph.at(node1).erase(node2);
-
-					this->_transposed_digraph.at(node2).erase(node1);
-
-					return true;
-				}
+				return size_type{};
 			}
 
-			return false;
+			auto &connections = iterator1->second;
+			const auto iterator2 = connections.find(node2);
+
+			if (iterator2 == connections.end())
+			{
+				return size_type{};
+			}
+
+			edge_weight_type weight{};
+			size_type removedEdgesCount{1};
+
+			if constexpr (digraph::can_have_multiple_edges())
+			{
+				const auto &edges = iterator2->second;
+
+				removedEdgesCount = edges.size();
+
+				weight =
+					std::accumulate(edges.cbegin(), edges.cend(), edge_weight_type{},
+						[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
+						{
+							return edge1.weight() + edge2.weight();
+						});
+
+				this->_edge_count -= removedEdgesCount;
+			}
+
+			else
+			{
+				weight = iterator2->second.weight();
+
+				--(this->_edge_count);
+			}
+
+			this->_weight_sum -= weight;
+
+			this->_degrees.at(iterator1->first) -= weight;
+
+			--(this->_unique_edge_count);
+
+			this->_transposed_digraph.at(iterator2->first.get()).erase(iterator1->first);
+
+			connections.erase(iterator2);
+
+			return removedEdgesCount;
 		}
 
-		[[nodiscard]] bool contains(const NodeType &node) const
+		[[nodiscard]] bool contains(const ValueType &node) const
 		{
 			return this->_digraph.contains(node);
 		}
 
-		[[nodiscard]] bool contains(const NodeType &node1, const NodeType &node2) const
+		[[nodiscard]] bool contains(const ValueType &node1, const ValueType &node2) const
 		{
 			const auto iterator = this->_digraph.find(node1);
 
-			if (iterator != this->_digraph.cend())
+			if (iterator != this->_digraph.cend()) [[likely]]
 			{
 				const auto &edges = iterator->second;
 
@@ -2435,13 +1461,13 @@ export namespace xablau::graph
 			return false;
 		}
 
-		[[nodiscard]] const graph_container &container() const noexcept
+		[[nodiscard]] const graph_container_type &container() const noexcept
 		{
 			return this->_digraph;
 		}
 
-		[[nodiscard]] std::optional < std::reference_wrapper < const typename graph_container::mapped_type > >
-			edges(const NodeType &node) const
+		[[nodiscard]] std::optional < std::reference_wrapper < const typename graph_container_type::mapped_type > >
+			connections(const ValueType &node) const
 		{
 			const auto iterator = this->_digraph.find(node);
 
@@ -2453,17 +1479,17 @@ export namespace xablau::graph
 			return std::nullopt;
 		}
 
-		[[nodiscard]] std::optional < std::reference_wrapper < const typename graph_container::mapped_type::mapped_type > >
-			edges(const NodeType &node1, const NodeType &node2) const
+		[[nodiscard]] std::optional < std::reference_wrapper < const typename graph_container_type::mapped_type::mapped_type > >
+			edges(const ValueType &node1, const ValueType &node2) const
 		{
 			const auto iterator1 = this->_digraph.find(node1);
 
 			if (iterator1 != this->_digraph.cend())
 			{
-				const auto &edges = iterator1->second;
-				const auto iterator2 = edges.find(node2);
+				const auto &connections = iterator1->second;
+				const auto iterator2 = connections.find(node2);
 
-				if (iterator2 != edges.cend())
+				if (iterator2 != connections.cend())
 				{
 					return iterator2->second;
 				}
@@ -2472,23 +1498,23 @@ export namespace xablau::graph
 			return std::nullopt;
 		}
 
-		[[nodiscard]] edge_weight_type weight(const NodeType &node1, const NodeType &node2) const
+		[[nodiscard]] edge_weight_type weight(const ValueType &node1, const ValueType &node2) const
 		{
 			const auto iterator1 = this->_digraph.find(node1);
 
 			if (iterator1 != this->_digraph.cend())
 			{
-				const auto &edges = iterator1->second;
-				const auto iterator2 = edges.find(node2);
+				const auto &connections = iterator1->second;
+				const auto iterator2 = connections.find(node2);
 
-				if (iterator2 != edges.cend())
+				if (iterator2 != connections.cend())
 				{
 					if constexpr (digraph::can_have_multiple_edges())
 					{
-						const auto &_edges = iterator2->second;
+						const auto &edges = iterator2->second;
 
 						return
-							std::accumulate(_edges.cbegin(), _edges.cend(), edge_weight_type{},
+							std::accumulate(edges.cbegin(), edges.cend(), edge_weight_type{},
 								[] (const EdgeType &edge1, const EdgeType &edge2) -> edge_weight_type
 								{
 									return edge1.weight() + edge2.weight();
@@ -2510,31 +1536,33 @@ export namespace xablau::graph
 			return this->_edge_count;
 		}
 
-		[[nodiscard]] size_type edge_count(const NodeType &node) const
+		[[nodiscard]] size_type edge_count(const ValueType &node) const
 		{
 			const auto iterator = this->_digraph.find(node);
 
-			if (iterator != this->_digraph.cend())
+			if (iterator == this->_digraph.cend())
 			{
-				if constexpr (digraph::can_have_multiple_edges())
-				{
-					size_type edgeCount{};
-
-					for (const auto &nodes : iterator->second)
-					{
-						edgeCount += nodes.second.size();
-					}
-
-					return edgeCount;
-				}
-
-				else
-				{
-					return iterator->second.size();
-				}
+				return size_type{};
 			}
 
-			return size_type{};
+			const auto &connections = iterator->second;
+
+			if constexpr (digraph::can_have_multiple_edges())
+			{
+				size_type edgeCount{};
+
+				for (const auto &[_, edges] : connections)
+				{
+					edgeCount += edges.size();
+				}
+
+				return edgeCount;
+			}
+
+			else
+			{
+				return connections.size();
+			}
 		}
 
 		[[nodiscard]] size_type unique_edge_count() const noexcept
@@ -2542,7 +1570,7 @@ export namespace xablau::graph
 			return this->_unique_edge_count;
 		}
 
-		[[nodiscard]] size_type unique_edge_count(const NodeType &node) const
+		[[nodiscard]] size_type unique_edge_count(const ValueType &node) const
 		{
 			const auto iterator = this->_digraph.find(node);
 
@@ -2554,26 +1582,28 @@ export namespace xablau::graph
 			return size_type{};
 		}
 
-		[[nodiscard]] node_set_container nodes() const
+		template < bool CopyNodes >
+		[[nodiscard]] node_set_container < CopyNodes > nodes() const
 		{
-			node_set_container nodes{};
+			node_set_container < CopyNodes > nodes{};
 
 			if constexpr (digraph::unordered())
 			{
 				nodes.reserve(this->node_count());
 			}
 
-			for (const auto &item : this->_digraph)
+			for (const auto &[node, _] : this->_digraph)
 			{
-				nodes.insert(item.first);
+				nodes.insert(node);
 			}
 
 			return nodes;
 		}
 
-		[[nodiscard]] node_set_container source_nodes() const
+		template < bool CopyNodes >
+		[[nodiscard]] node_set_container < CopyNodes > source_nodes() const
 		{
-			node_set_container sourceNodes{};
+			node_set_container < CopyNodes > sourceNodes{};
 
 			if constexpr (digraph::unordered())
 			{
@@ -2591,9 +1621,10 @@ export namespace xablau::graph
 			return sourceNodes;
 		}
 
-		[[nodiscard]] node_set_container sink_nodes() const
+		template < bool CopyNodes >
+		[[nodiscard]] node_set_container < CopyNodes > sink_nodes() const
 		{
-			node_set_container sinkNodes{};
+			node_set_container < CopyNodes > sinkNodes{};
 
 			if constexpr (digraph::unordered())
 			{
@@ -2612,6 +1643,7 @@ export namespace xablau::graph
 		}
 
 		friend std::ostream &operator<<(std::ostream &stream, const digraph &digraph)
+		requires (digraph::cannot_have_multiple_edges())
 		{
 			size_type accumulator1{};
 			const size_type nodeCount = digraph.node_count();
@@ -2620,25 +1652,25 @@ export namespace xablau::graph
 
 			if (nodeCount != size_type{})
 			{
-				stream << "\n";
+				stream << '\n';
 			}
 
-			for (const auto &nodes : digraph._digraph)
+			for (const auto &[node1, connections] : digraph._digraph)
 			{
-				stream << "* " << nodes.first << " ->\n";
+				stream << "* " << node1 << " ->\n";
 
 				size_type accumulator2{};
-				const size_type edgeCount = nodes.second.size();
+				const size_type edgeCount = connections.size();
 
-				for (const auto &edges : nodes.second)
+				for (const auto &[node2, edge] : connections)
 				{
-					stream << "\t * " << edges.first << ": " << edges.second;
+					stream << "\t * " << node2.get() << ": " << edge;
 
 					accumulator2++;
 
 					if (accumulator2 != edgeCount)
 					{
-						stream << "\n";
+						stream << '\n';
 					}
 				}
 
@@ -2646,7 +1678,7 @@ export namespace xablau::graph
 
 				if (accumulator1 != nodeCount)
 				{
-					stream << "\n";
+					stream << '\n';
 				}
 			}
 
@@ -2672,11 +1704,11 @@ export namespace xablau::graph
 		{
 		}
 
-		explicit digraph(const size_type expectedNodes, const size_type expectedEdgesByNode)
+		explicit digraph(const size_type expectedNodes, const size_type expectedConnectionsByNode)
 		requires (digraph::unordered()) :
 			_digraph(expectedNodes),
 			_degrees(expectedNodes),
-			_expected_edges_by_node(expectedEdgesByNode)
+			_expected_connections_by_node(expectedConnectionsByNode)
 		{
 		}
 	};

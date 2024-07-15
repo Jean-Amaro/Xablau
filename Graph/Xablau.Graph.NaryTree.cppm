@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +23,7 @@
 export module xablau.graph:nary_tree;
 export import :fundamental_concepts;
 
-export import <stdexcept>;
+export import std;
 
 export namespace xablau::graph
 {
@@ -91,6 +87,11 @@ export namespace xablau::graph
 			using pointer = nary_tree::value_type *;
 			using reference = nary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
+
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
 
 			[[nodiscard]] constexpr bool operator==(const const_pre_order_iterator &iterator) const noexcept
 			{
@@ -228,7 +229,7 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
@@ -238,13 +239,13 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return &(this->_node.value().get().value);
+					return &(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -299,6 +300,11 @@ export namespace xablau::graph
 			using pointer = const nary_tree::value_type *;
 			using reference = const nary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
+
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
 
 			[[nodiscard]] constexpr bool operator==(const const_pre_order_iterator &iterator) const noexcept
 			{
@@ -443,7 +449,7 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
@@ -453,13 +459,13 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return &(this->_node.value().get().value);
+					return &(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -520,6 +526,11 @@ export namespace xablau::graph
 			using pointer = nary_tree::value_type *;
 			using reference = nary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
+
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
 
 			[[nodiscard]] constexpr bool operator==(const const_pre_order_iterator &iterator) const noexcept
 			{
@@ -658,7 +669,7 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
@@ -668,13 +679,13 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return &(this->_node.value().get().value);
+					return &(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -729,6 +740,11 @@ export namespace xablau::graph
 			using pointer = const nary_tree::value_type *;
 			using reference = const nary_tree::value_type &;
 			using iterator_category = std::bidirectional_iterator_tag;
+
+			[[nodiscard]] constexpr operator bool() const
+			{
+				return this->_node.has_value();
+			}
 
 			[[nodiscard]] constexpr bool operator==(const const_post_order_iterator &iterator) const noexcept
 			{
@@ -875,7 +891,7 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return this->_node.value().get().value;
+					return this->_node.value().get().value();
 				}
 
 				throw std::logic_error("Attempt of getting the reference of an invalid iterator.");
@@ -885,13 +901,13 @@ export namespace xablau::graph
 			{
 				if (this->_node.has_value())
 				{
-					return &(this->_node.value().get().value);
+					return &(this->_node.value().get().value());
 				}
 
 				throw std::logic_error("Attempt of getting the pointer of an invalid iterator.");
 			}
 
-			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() noexcept
+			[[nodiscard]] constexpr std::optional < std::reference_wrapper < const NodeType > > node() const noexcept
 			{
 				if (this->_node.has_value())
 				{
@@ -1102,7 +1118,7 @@ export namespace xablau::graph
 			const nary_tree::value_type &value,
 			Iterator &iterator)
 		{
-			if (node.value == value)
+			if (node.value() == value)
 			{
 				iterator._node = node;
 
@@ -1129,7 +1145,7 @@ export namespace xablau::graph
 			std::vector < nary_tree::size_type > &path,
 			Iterator &iterator)
 		{
-			if (node.value == value)
+			if (node.value() == value)
 			{
 				iterator._node = node;
 

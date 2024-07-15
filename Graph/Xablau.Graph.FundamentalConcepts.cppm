@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +24,7 @@ export module xablau.graph:fundamental_concepts;
 export import :graph_configurations;
 export import :node_configurations;
 
-export import <functional>;
-export import <iterator>;
-export import <memory>;
-export import <optional>;
-export import <ranges>;
-export import <vector>;
+export import std;
 
 export import xablau.algebra;
 
@@ -41,13 +32,22 @@ namespace xablau::graph::concepts
 {
 	export template < typename Node >
 	concept node =
-		std::same_as < decltype(Node::value), typename Node::value_type > &&
 		std::is_object < typename Node::value_type > ::value &&
 
 		requires ()
 		{
 			{ Node { std::declval < const typename Node::value_type & > () } } -> std::same_as < Node >;
 			{ Node { std::declval < typename Node::value_type && > () } } -> std::same_as < Node >;
+		} &&
+
+		requires (Node mutable_node)
+		{
+			{ mutable_node.value() } -> std::same_as < typename Node::value_type & >;
+		} &&
+
+		requires (const Node const_node)
+		{
+			{ const_node.value() } -> std::same_as < const typename Node::value_type & >;
 		};
 
 	export template < typename Edge >
@@ -91,14 +91,14 @@ namespace xablau::graph::concepts
 			Multi && group_of_edges_multi < typename std::remove_reference < Class > ::type, EdgeType > ||
 			!Multi && group_of_edges_single < typename std::remove_reference < Class > ::type, EdgeType >;
 
-		template < typename Class, typename NodeType, typename EdgeType, bool Multi >
+		template < typename Class, typename ValueType, typename EdgeType, bool Multi >
 		concept group_of_group_of_edges =
 			std::ranges::forward_range < Class > &&
 			std::is_const < Class > ::value &&
-			std::same_as < typename std::tuple_element < 0, std::ranges::range_value_t < Class > > ::type, const NodeType > &&
 
 			requires (Class container)
 			{
+				{ std::get < 0 > (*std::ranges::begin(container)).get() } -> std::same_as < const ValueType & >;
 				{ std::get < 1 > (*std::ranges::begin(container)) } -> group_of_edges < EdgeType, Multi >;
 			};
 
@@ -111,13 +111,13 @@ namespace xablau::graph::concepts
 				EdgeType,
 				Multi >;
 
-		template < typename Class, typename NodeType, typename EdgeType, bool Multi >
+		template < typename Class, typename ValueType, typename EdgeType, bool Multi >
 		concept optional_reference_of_group_of_group_of_edges =
 			std::same_as < Class, std::optional < typename Class::value_type > > &&
 			std::same_as < typename Class::value_type, std::reference_wrapper < typename Class::value_type::type > > &&
 			group_of_group_of_edges <
 				typename Class::value_type::type,
-				NodeType,
+				ValueType,
 				EdgeType,
 				Multi >;
 
@@ -217,8 +217,8 @@ namespace xablau::graph::concepts
 
 		template < typename Graph >
 		concept common_graph =
-			node < typename Graph::node_type > &&
 			edge < typename Graph::edge_type > &&
+			std::same_as < typename Graph::edge_type::weight_type, typename Graph::edge_weight_type > &&
 			std::unsigned_integral < typename Graph::size_type > &&
 
 			requires ()
@@ -232,15 +232,16 @@ namespace xablau::graph::concepts
 			requires (Graph mutable_graph)
 			{
 				{ mutable_graph.clear() } noexcept -> std::same_as < void >;
-				{ mutable_graph.insert(std::declval < const typename Graph::node_type & > ()) } -> std::convertible_to < bool >;
-				{ mutable_graph.insert(std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::edge_type & > ()) } -> std::same_as < std::optional < std::reference_wrapper < const typename Graph::edge_type > > >;
-				{ mutable_graph.erase(std::declval < const typename Graph::node_type & > ()) } -> std::convertible_to < bool >;
-				{ mutable_graph.erase(std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::node_type & > ()) } -> std::convertible_to < bool >;
+				{ mutable_graph.insert(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < const typename Graph::value_type & >;
+				{ mutable_graph.insert(std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::edge_type & > ()) } -> std::same_as < std::optional < std::reference_wrapper < const typename Graph::edge_type > > >;
+				{ mutable_graph.erase(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::size_type >;
+				{ mutable_graph.erase(std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::size_type >;
 			} &&
 
 			requires (const Graph const_graph)
 			{
-				{ const_graph.degree(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
+				{ const_graph.container() } -> std::same_as < const typename Graph::graph_container_type & >;
+				{ const_graph.degree(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
 				{ const_graph.average_degree() } -> std::same_as < typename Graph::edge_type::weight_type >;
 				{ const_graph.density() } -> std::same_as < typename Graph::edge_type::weight_type >;
 				{ const_graph.degree_distribution(typename Graph::edge_type::weight_type{}) } -> std::same_as < typename Graph::edge_type::weight_type >;
@@ -254,21 +255,25 @@ namespace xablau::graph::concepts
 				{ const_graph.dismember_disconnected_nodes() } -> internals::forward_container_of < Graph, true >;
 				{ const_graph.empty() } noexcept -> std::convertible_to < bool >;
 				{ const_graph.node_count() } noexcept -> std::same_as < typename Graph::size_type >;
-				{ const_graph.contains(std::declval < const typename Graph::node_type & > ()) } -> std::convertible_to < bool >;
-				{ const_graph.contains(std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::node_type & > ()) } -> std::convertible_to < bool >;
-				{ const_graph.edges(std::declval < const typename Graph::node_type & > ()) } -> internals::optional_reference_of_group_of_group_of_edges < typename Graph::node_type, typename Graph::edge_type, Graph::can_have_multiple_edges() >;
-				{ const_graph.edges(std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::node_type & > ()) } -> internals::optional_reference_of_group_of_edges < typename Graph::edge_type, Graph::can_have_multiple_edges() >;
-				{ const_graph.weight(std::declval < const typename Graph::node_type & > (), std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
+				{ const_graph.contains(std::declval < const typename Graph::value_type & > ()) } -> std::convertible_to < bool >;
+				{ const_graph.contains(std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::value_type & > ()) } -> std::convertible_to < bool >;
+				{ const_graph.connections(std::declval < const typename Graph::value_type & > ()) } -> internals::optional_reference_of_group_of_group_of_edges < typename Graph::value_type, typename Graph::edge_type, Graph::can_have_multiple_edges() >;
+				{ const_graph.edges(std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::value_type & > ()) } -> internals::optional_reference_of_group_of_edges < typename Graph::edge_type, Graph::can_have_multiple_edges() >;
+				{ const_graph.weight(std::declval < const typename Graph::value_type & > (), std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
 				{ const_graph.edge_count() } noexcept -> std::same_as < typename Graph::size_type >;
-				{ const_graph.edge_count(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::size_type >;
+				{ const_graph.edge_count(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::size_type >;
 				{ const_graph.unique_edge_count() } -> std::same_as < typename Graph::size_type >;
-				{ const_graph.unique_edge_count(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::size_type >;
-				{ const_graph.nodes() } -> internals::forward_container_of < typename Graph::node_type, true >;
-				{ const_graph.closeness_centrality(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
-				{ const_graph.closeness_centrality() } -> internals::forward_container_of < std::pair < typename Graph::node_type, typename Graph::edge_type::weight_type >, false >;
-				{ const_graph.node_betweenness_centrality(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
-				{ const_graph.node_betweenness_centrality() } -> internals::forward_container_of < std::pair < typename Graph::node_type, typename Graph::edge_type::weight_type >, false >;
-				{ const_graph.edge_betweenness_centrality() } -> internals::forward_container_of < std::pair < std::pair < typename Graph::node_type, typename Graph::node_type >, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.unique_edge_count(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::size_type >;
+				{ const_graph.template nodes < true > () } -> internals::forward_container_of < typename Graph::value_type, true >;
+				{ const_graph.template nodes < false > () } -> internals::forward_container_of < typename Graph::value_reference_type, true >;
+				{ const_graph.closeness_centrality(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
+				{ const_graph.template closeness_centrality < true > () } -> internals::forward_container_of < std::pair < typename Graph::value_type, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.template closeness_centrality < false > () } -> internals::forward_container_of < std::pair < typename Graph::value_reference_type, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.node_betweenness_centrality(std::declval < const typename Graph::value_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
+				{ const_graph.template node_betweenness_centrality < true > () } -> internals::forward_container_of < std::pair < typename Graph::value_type, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.template node_betweenness_centrality < false > () } -> internals::forward_container_of < std::pair < typename Graph::value_reference_type, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.template edge_betweenness_centrality < true > () } -> internals::forward_container_of < std::pair < std::pair < typename Graph::value_type, typename Graph::value_type >, typename Graph::edge_type::weight_type >, false >;
+				{ const_graph.template edge_betweenness_centrality < false > () } -> internals::forward_container_of < std::pair < std::pair < typename Graph::value_reference_type, typename Graph::value_reference_type >, typename Graph::edge_type::weight_type >, false >;
 			};
 	}
 
@@ -540,34 +545,40 @@ namespace xablau::graph::concepts
 		};
 
 	export template < typename Type >
-	concept graph_container_type = internals::is_specialization_graph_container_type_value < Type, graph::graph_container_type > ::value;
+	concept graph_container = internals::is_specialization_graph_container_type_value < Type, graph::graph_container_type > ::value;
 
-	template < typename NodeType, typename ContainerType >
+	template < typename ValueType, typename ContainerType >
 	concept graph_requirements =
+		std::is_object < ValueType > ::value &&
 		((ContainerType::type() == graph_container_type_value::ordered || ContainerType::type() == graph_container_type_value::multi_ordered) ?
-		internals::has_less_than < NodeType > :
-		internals::has_hash_and_equality_comparison < NodeType >);
+			internals::has_less_than < ValueType > :
+			internals::has_hash_and_equality_comparison < ValueType >);
+
+	export template < typename Graph >
+	concept base_graph =
+		graph_requirements < typename Graph::value_type, typename Graph::container_type > &&
+		internals::common_graph < Graph >;
 
 	export template < typename Graph >
 	concept graph =
-		internals::common_graph < Graph > &&
+		base_graph < Graph > &&
 
 		requires (const Graph const_graph)
 		{
 			{ const_graph.triangle_count() } -> std::same_as < typename Graph::size_type >;
 			{ const_graph.triplet_count() } -> std::same_as < typename Graph::size_type >;
-			{ const_graph.clustering_coefficient(std::declval < const typename Graph::node_type & > ()) } -> std::same_as < typename Graph::edge_type::weight_type >;
 			{ const_graph.clustering_coefficient() } -> std::same_as < typename Graph::edge_type::weight_type >;
-			{ const_graph.average_clustering_coefficient() } -> std::same_as < typename Graph::edge_type::weight_type >;
 		};
 
 	export template < typename Graph >
 	concept digraph =
-		internals::common_graph < Graph > &&
+		base_graph < Graph > &&
 
 		requires (const Graph const_graph)
 		{
-			{ const_graph.source_nodes() } -> internals::forward_container_of < typename Graph::node_type, true >;
-			{ const_graph.sink_nodes() } -> internals::forward_container_of < typename Graph::node_type, true >;
+			{ const_graph.template source_nodes < true > () } -> internals::forward_container_of < typename Graph::value_type, true >;
+			{ const_graph.template source_nodes < false > () } -> internals::forward_container_of < typename Graph::value_reference_type, true >;
+			{ const_graph.template sink_nodes < true > () } -> internals::forward_container_of < typename Graph::value_type, true >;
+			{ const_graph.template sink_nodes < false > () } -> internals::forward_container_of < typename Graph::value_reference_type, true >;
 		};
 }

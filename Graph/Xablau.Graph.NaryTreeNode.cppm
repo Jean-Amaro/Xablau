@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +24,7 @@ export module xablau.graph:nary_tree_node;
 export import :fundamental_concepts;
 export import :node_configurations;
 
-export import <deque>;
-export import <functional>;
-export import <list>;
-export import <memory>;
-export import <optional>;
-export import <stdexcept>;
-export import <type_traits>;
-export import <utility>;
-export import <vector>;
+export import std;
 
 export namespace xablau::graph
 {
@@ -47,9 +35,9 @@ export namespace xablau::graph
 	public:
 		using value_type = Type;
 
-		Type value{};
-
 	private:
+		Type _value{};
+
 		static constexpr nary_tree_node_container_value _container_value = Container::container();
 
 		using container =
@@ -128,34 +116,54 @@ export namespace xablau::graph
 		}
 
 	public:
-		[[nodiscard]] constexpr bool operator<(const nary_tree_node &node) const
+		[[nodiscard]] constexpr Type &value()
 		{
-			return this->value < node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator<=(const nary_tree_node &node) const
+		[[nodiscard]] constexpr const Type &value() const
 		{
-			return this->value <= node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator==(const nary_tree_node &node) const
+		[[nodiscard]] constexpr explicit operator Type &()
 		{
-			return this->value == node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator>=(const nary_tree_node &node) const
+		[[nodiscard]] constexpr explicit operator const Type &() const
 		{
-			return this->value >= node.value;
+			return this->_value;
 		}
 
-		[[nodiscard]] constexpr bool operator>(const nary_tree_node &node) const
+		[[nodiscard]] constexpr bool operator<(const nary_tree_node &other) const
 		{
-			return this->value > node.value;
+			return this->_value < other._value;
 		}
 
-		[[nodiscard]] constexpr bool operator!=(const nary_tree_node &node) const
+		[[nodiscard]] constexpr bool operator<=(const nary_tree_node &other) const
 		{
-			return this->value != node.value;
+			return this->_value <= other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator==(const nary_tree_node &other) const
+		{
+			return this->_value == other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator>=(const nary_tree_node &other) const
+		{
+			return this->_value >= other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator>(const nary_tree_node &other) const
+		{
+			return this->_value > other._value;
+		}
+
+		[[nodiscard]] constexpr bool operator!=(const nary_tree_node &other) const
+		{
+			return this->_value != other._value;
 		}
 
 		constexpr nary_tree_node &insert_child(const Type &valueChild, const size_type position)
@@ -237,7 +245,7 @@ export namespace xablau::graph
 					return child;
 				};
 
-			return this->moveRollback(std::move(lambda), valueChild, pointer->value);
+			return this->moveRollback(std::move(lambda), valueChild, pointer->_value);
 		}
 
 		constexpr nary_tree_node &insert_back_child(Type &&valueChild)
@@ -257,7 +265,7 @@ export namespace xablau::graph
 					return child;
 				};
 
-			return this->moveRollback(std::move(lambda), valueChild, pointer->value);
+			return this->moveRollback(std::move(lambda), valueChild, pointer->_value);
 		}
 
 		constexpr nary_tree_node &insert_front_child(Type &&valueChild)
@@ -291,7 +299,7 @@ export namespace xablau::graph
 					}
 				};
 
-			return this->moveRollback(std::move(lambda), valueChild, pointer->value);
+			return this->moveRollback(std::move(lambda), valueChild, pointer->_value);
 		}
 
 		constexpr nary_tree_node &insert_child(const nary_tree_node &child, const size_type position)
@@ -1152,19 +1160,19 @@ export namespace xablau::graph
 			return pointer;
 		}
 
-		constexpr void swap(nary_tree_node &node)
+		constexpr void swap(nary_tree_node &other)
 			noexcept(
 				std::is_nothrow_move_constructible < Type >::value &&
 				std::is_nothrow_move_assignable < Type > ::value)
 		{
-			std::swap(this->value, node.value);
-			std::swap(this->_parent, node._parent);
-			std::swap(this->_children, node._children);
+			std::swap(this->_value, other._value);
+			std::swap(this->_parent, other._parent);
+			std::swap(this->_children, other._children);
 		}
 
-		constexpr nary_tree_node &operator=(const nary_tree_node &node)
+		constexpr nary_tree_node &operator=(const nary_tree_node &other)
 		{
-			if (this == &node)
+			if (this == &other)
 			{
 				return *this;
 			}
@@ -1173,15 +1181,15 @@ export namespace xablau::graph
 
 			if constexpr (_container_value == nary_tree_node_container_value::vector)
 			{
-				newChildren.reserve(node.size());
+				newChildren.reserve(other.size());
 			}
 
-			for (const auto &child : node._children)
+			for (const auto &child : other._children)
 			{
 				newChildren.push_back(child ? std::make_unique < nary_tree_node > (*(child.get())) : nullptr);
 			}
 
-			this->node.value = node.value;
+			this->_value = other._value;
 
 			this->_children = std::move(newChildren);
 
@@ -1190,13 +1198,13 @@ export namespace xablau::graph
 			return *this;
 		}
 
-		constexpr nary_tree_node &operator=(nary_tree_node &&node)
+		constexpr nary_tree_node &operator=(nary_tree_node &&other)
 		{
-			this->value = std::move(node.value);
-			this->_children = std::move(node._children);
+			this->_value = std::move(other._value);
+			this->_children = std::move(other._children);
 			this->updateChildren();
 
-			node.extract_and_invalidate_myself_on_parent();
+			other.extract_and_invalidate_myself_on_parent();
 
 			return *this;
 		}
@@ -1207,21 +1215,21 @@ export namespace xablau::graph
 		constexpr nary_tree_node(const Type &data)
 			noexcept(std::is_nothrow_copy_constructible < Type > ::value) :
 
-			value(data)
+			_value(data)
 		{
 		}
 
 		constexpr nary_tree_node(Type &&data)
 			noexcept(std::is_nothrow_move_constructible < Type > ::value) :
 
-			value(std::move(data))
+			_value(std::move(data))
 		{
 		}
 
-		constexpr nary_tree_node(const nary_tree_node &node) :
-			value(node.value)
+		constexpr nary_tree_node(const nary_tree_node &other) :
+			_value(other._value)
 		{
-			const auto &children = node._children;
+			const auto &children = other._children;
 
 			if constexpr (_container_value == nary_tree_node_container_value::vector)
 			{
@@ -1245,15 +1253,15 @@ export namespace xablau::graph
 			this->updateChildren();
 		}
 
-		constexpr nary_tree_node(nary_tree_node &&node)
+		constexpr nary_tree_node(nary_tree_node &&other)
 			noexcept(std::is_nothrow_move_constructible < Type >::value) :
 
-			value(std::move(node.value)),
-			_children(std::move(node._children))
+			_value(std::move(other._value)),
+			_children(std::move(other._children))
 		{
 			this->updateChildren();
 
-			node.extract_and_invalidate_myself_on_parent();
+			other.extract_and_invalidate_myself_on_parent();
 		}
 	};
 }
@@ -1266,7 +1274,7 @@ export namespace std
 	{
 		size_t operator()(const xablau::graph::nary_tree_node < Type, Container > &node) const
 		{
-			return std::hash < Type > {}(node.value);
+			return std::hash < Type > {}(node.value());
 		}
 	};
 }

@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +22,7 @@
 
 #include <gtest/gtest.h>
 
-import <array>;
-import <concepts>;
-import <vector>;
+import std;
 
 import xablau.graph;
 import xablau.testing;
@@ -831,12 +825,12 @@ namespace xablau::unit_testing
 
 		for (size_t i = 0; i < nodes.size(); i++)
 		{
-			EXPECT_EQ(nodes[i].get().value, i + 1);
+			EXPECT_EQ(nodes[i].get().value(), i + 1);
 		}
 
 		for (size_t i = 0; i < leafNodes.size(); i++)
 		{
-			EXPECT_EQ(leafNodes[i].get().value, leafIndices[i]);
+			EXPECT_EQ(leafNodes[i].get().value(), leafIndices[i]);
 		}
 	}
 
@@ -860,12 +854,12 @@ namespace xablau::unit_testing
 
 		for (size_t i = 0; i < nodes.size(); i++)
 		{
-			EXPECT_EQ(nodes[i].get().value, nodesIndices[i]);
+			EXPECT_EQ(nodes[i].get().value(), nodesIndices[i]);
 		}
 
 		for (size_t i = 0; i < leafNodes.size(); i++)
 		{
-			EXPECT_EQ(leafNodes[i].get().value, leafIndices[i]);
+			EXPECT_EQ(leafNodes[i].get().value(), leafIndices[i]);
 		}
 	}
 

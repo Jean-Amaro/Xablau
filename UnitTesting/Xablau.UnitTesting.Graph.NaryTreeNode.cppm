@@ -1,10 +1,6 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 // MIT License
 //
-// Copyright (c) 2023 Jean Amaro <jean.amaro@outlook.com.br>
+// Copyright (c) 2023-2024 Jean Amaro <jean.amaro@outlook.com.br>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +22,7 @@
 
 #include <gtest/gtest.h>
 
-import <algorithm>;
-import <concepts>;
+import std;
 
 import xablau.graph;
 import xablau.testing;
@@ -247,7 +242,7 @@ namespace xablau::unit_testing
 			std::sort(children.begin(), children.end(),
 				[] (auto &node1, auto &node2) -> bool
 				{
-					return node1.get().value < node2.get().value;
+					return node1.get().value() < node2.get().value();
 				});
 
 			this->validateChildren(root, children);
@@ -334,7 +329,7 @@ namespace xablau::unit_testing
 
 			this->validateChildren(root, children, false);
 
-			EXPECT_EQ(root.front_child().value().get().value, i + 2);
+			EXPECT_EQ(root.front_child().value().get().value(), i + 2);
 		}
 
 		for (size_t i = 8; i > 5; i--)
@@ -344,7 +339,7 @@ namespace xablau::unit_testing
 
 			this->validateChildren(root, children, false);
 
-			EXPECT_EQ(root.back_child().value().get().value, i);
+			EXPECT_EQ(root.back_child().value().get().value(), i);
 		}
 
 		root.erase_child(1);
@@ -352,8 +347,8 @@ namespace xablau::unit_testing
 
 		this->validateChildren(root, children, false);
 
-		EXPECT_EQ(root.front_child().value().get().value, 4);
-		EXPECT_EQ(root.back_child().value().get().value, 6);
+		EXPECT_EQ(root.front_child().value().get().value(), 4);
+		EXPECT_EQ(root.back_child().value().get().value(), 6);
 
 		EXPECT_EQ(root.valid_size(), 2);
 		EXPECT_EQ(root.size(), 2);
@@ -372,15 +367,15 @@ namespace xablau::unit_testing
 		this->insert < false, false > (root, children);
 
 		EXPECT_EQ(children[0].get().left_valid_sibling(), std::nullopt);
-		EXPECT_EQ(children[0].get().right_valid_sibling().value().get().value, 2);
+		EXPECT_EQ(children[0].get().right_valid_sibling().value().get().value(), 2);
 
 		for (size_t i = 1; i < children.size() - 1; i++)
 		{
-			EXPECT_EQ(children[i].get().left_valid_sibling().value().get().value, i);
-			EXPECT_EQ(children[i].get().right_valid_sibling().value().get().value, i + 2);
+			EXPECT_EQ(children[i].get().left_valid_sibling().value().get().value(), i);
+			EXPECT_EQ(children[i].get().right_valid_sibling().value().get().value(), i + 2);
 		}
 
-		EXPECT_EQ(children[8].get().left_valid_sibling().value().get().value, 8);
+		EXPECT_EQ(children[8].get().left_valid_sibling().value().get().value(), 8);
 		EXPECT_EQ(children[8].get().right_valid_sibling(), std::nullopt);
 	}
 

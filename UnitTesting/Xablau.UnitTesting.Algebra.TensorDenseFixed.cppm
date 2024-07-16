@@ -33,7 +33,6 @@ namespace xablau::unit_testing
 		typename DataType,
 		xablau::algebra::concepts::tensor_fixed_dimensionalities FixedDimensionalities,
 		xablau::algebra::concepts::tensor_fixed_dimensionalities HalfSizeFixedDimensionalities,
-		xablau::algebra::concepts::tensor_contiguity Contiguous,
 		xablau::algebra::concepts::tensor_memory_order_indices MemoryOrderIndices,
 		xablau::algebra::concepts::tensor_type TensorType,
 		typename KernelSizes >
@@ -42,7 +41,6 @@ namespace xablau::unit_testing
 		using type = DataType;
 		using fixed_dimensionalities = FixedDimensionalities;
 		using half_size_fixed_dimensionalities = HalfSizeFixedDimensionalities;
-		using contiguous = Contiguous;
 		using memory_order_indices = MemoryOrderIndices;
 		using tensor_type = TensorType;
 		using kernel_sizes = KernelSizes;
@@ -182,42 +180,36 @@ namespace xablau::unit_testing
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename DataTypes::fixed_dimensionalities,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > tensor{};
 
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename DataTypes::half_size_fixed_dimensionalities,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > halfSizeTensor{};
 
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename std::tuple_element < 0, typename DataTypes::kernel_sizes > ::type,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > squareTensor1{};
 
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename std::tuple_element < 1, typename DataTypes::kernel_sizes > ::type,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > squareTensor2{};
 
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename std::tuple_element < 2, typename DataTypes::kernel_sizes > ::type,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > squareTensor3{};
 
 		xablau::algebra::tensor_dense_fixed <
 			typename DataTypes::type,
 			typename std::tuple_element < 3, typename DataTypes::kernel_sizes > ::type,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > squareTensor4{};
 	};
@@ -1032,7 +1024,6 @@ namespace xablau::unit_testing
 			xablau::algebra::tensor_dense_fixed <
 				typename TypeParam::type,
 				xablau::algebra::tensor_fixed_dimensionalities < 4, 4 >,
-				typename TypeParam::contiguous,
 				typename TypeParam::memory_order_indices,
 				typename TypeParam::tensor_type > diagonalEigenvalues{};
 
@@ -1091,7 +1082,6 @@ namespace xablau::unit_testing
 			xablau::algebra::tensor_dense_fixed <
 				typename TypeParam::type,
 				xablau::algebra::tensor_fixed_dimensionalities < 4, 4 >,
-				typename TypeParam::contiguous,
 				typename TypeParam::memory_order_indices,
 				typename TypeParam::tensor_type > diagonalEigenvalues{};
 
@@ -1181,11 +1171,6 @@ namespace xablau::unit_testing
 	using AlgebraTensorHalfSizeFixedDimensionalities2 = std::tuple < xablau::algebra::tensor_fixed_dimensionalities < 3, 4 > >;
 	using AlgebraTensorHalfSizeFixedDimensionalities3 = std::tuple < xablau::algebra::tensor_fixed_dimensionalities < 3, 4, 5 > >;
 
-	using AlgebraTensorDenseFixedTestContiguity =
-		std::tuple <
-			xablau::algebra::tensor_contiguity < false >,
-			xablau::algebra::tensor_contiguity < true > >;
-
 	using AlgebraTensorDenseDynamicTestMemoryOrderIndices0 =
 		std::tuple < xablau::algebra::tensor_memory_order_indices < > >;
 
@@ -1244,7 +1229,6 @@ namespace xablau::unit_testing
 			AlgebraTensorDenseFixedTestDataTypes,
 			AlgebraTensorFixedDimensionalities0,
 			AlgebraTensorHalfSizeFixedDimensionalities0,
-			AlgebraTensorDenseFixedTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices0,
 			AlgebraTensorDenseDynamicTestType,
 			AlgebraTensorKernelSizes0 > ::template test_group < AlgebraTensorDenseFixedTypeDefinitions >;
@@ -1254,7 +1238,6 @@ namespace xablau::unit_testing
 			AlgebraTensorDenseFixedTestDataTypes,
 			AlgebraTensorFixedDimensionalities1,
 			AlgebraTensorHalfSizeFixedDimensionalities1,
-			AlgebraTensorDenseFixedTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices1,
 			AlgebraTensorDenseDynamicTestType,
 			AlgebraTensorKernelSizes1 > ::template test_group < AlgebraTensorDenseFixedTypeDefinitions >;
@@ -1264,7 +1247,6 @@ namespace xablau::unit_testing
 			AlgebraTensorDenseFixedTestDataTypes,
 			AlgebraTensorFixedDimensionalities2,
 			AlgebraTensorHalfSizeFixedDimensionalities2,
-			AlgebraTensorDenseFixedTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices2,
 			AlgebraTensorDenseDynamicTestType,
 			AlgebraTensorKernelSizes2 > ::template test_group < AlgebraTensorDenseFixedTypeDefinitions >;
@@ -1274,7 +1256,6 @@ namespace xablau::unit_testing
 			AlgebraTensorDenseFixedTestDataTypes,
 			AlgebraTensorFixedDimensionalities3,
 			AlgebraTensorHalfSizeFixedDimensionalities3,
-			AlgebraTensorDenseFixedTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices3,
 			AlgebraTensorDenseDynamicTestType,
 			AlgebraTensorKernelSizes3 > ::template test_group < AlgebraTensorDenseFixedTypeDefinitions >;

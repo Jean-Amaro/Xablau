@@ -59,8 +59,7 @@ namespace xablau::unit_testing
 			return
 				xablau::algebra::tensor_dense_dynamic <
 					char,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > > (std::to_array({ size_t{5}, size_t{5} }), char{1});
+					xablau::algebra::tensor_rank < 2 > > (std::to_array({ size_t{5}, size_t{5} }), char{1});
 		}
 
 		static auto create3DMazeDynamic()
@@ -68,16 +67,14 @@ namespace xablau::unit_testing
 			return
 				xablau::algebra::tensor_dense_dynamic <
 				char,
-				xablau::algebra::tensor_rank < 3 >,
-				xablau::algebra::tensor_contiguity < false > > (std::to_array({ size_t{3}, size_t{3}, size_t{3} }), char{1});
+				xablau::algebra::tensor_rank < 3 > > (std::to_array({ size_t{3}, size_t{3}, size_t{3} }), char{1});
 		}
 
 		static auto create2DMazeFixed()
 		{
 			xablau::algebra::tensor_dense_fixed <
 				char,
-				xablau::algebra::tensor_fixed_dimensionalities < 5, 5 >,
-				xablau::algebra::tensor_contiguity < false > > tensor{};
+				xablau::algebra::tensor_fixed_dimensionalities < 5, 5 > > tensor{};
 
 			tensor.fill(char{1});
 
@@ -88,8 +85,7 @@ namespace xablau::unit_testing
 		{
 			xablau::algebra::tensor_dense_fixed <
 				char,
-				xablau::algebra::tensor_fixed_dimensionalities < 3, 3, 3 >,
-				xablau::algebra::tensor_contiguity < false > > tensor{};
+				xablau::algebra::tensor_fixed_dimensionalities < 3, 3, 3 > > tensor{};
 
 			tensor.fill(char{1});
 

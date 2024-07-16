@@ -32,14 +32,12 @@ namespace xablau::unit_testing
 	template <
 		std::semiregular Type,
 		xablau::algebra::concepts::tensor_rank Rank,
-		xablau::algebra::concepts::tensor_contiguity Contiguous,
 		xablau::algebra::concepts::tensor_memory_order_indices MemoryOrderIndices,
 		xablau::algebra::concepts::tensor_type TensorType >
 	struct AlgebraTensorDenseDynamicTypeDefinitions
 	{
 		using type = Type;
 		using rank = Rank;
-		using contiguous = Contiguous;
 		using memory_order_indices = MemoryOrderIndices;
 		using tensor_type = TensorType;
 	};
@@ -202,7 +200,6 @@ namespace xablau::unit_testing
 		xablau::algebra::tensor_dense_dynamic <
 			typename DataTypes::type,
 			typename DataTypes::rank,
-			typename DataTypes::contiguous,
 			typename DataTypes::memory_order_indices,
 			typename DataTypes::tensor_type > tensor{};
 	};
@@ -1198,11 +1195,6 @@ namespace xablau::unit_testing
 	using AlgebraTensorDenseDynamicTestRank2 = std::tuple < xablau::algebra::tensor_rank < 2 > >;
 	using AlgebraTensorDenseDynamicTestRank3 = std::tuple < xablau::algebra::tensor_rank < 3 > >;
 
-	using AlgebraTensorDenseDynamicTestContiguity =
-		std::tuple <
-			xablau::algebra::tensor_contiguity < false >,
-			xablau::algebra::tensor_contiguity < true > >;
-
 	using AlgebraTensorDenseDynamicTestMemoryOrderIndices0 =
 		std::tuple < xablau::algebra::tensor_memory_order_indices < > >;
 
@@ -1232,7 +1224,6 @@ namespace xablau::unit_testing
 		xablau::testing::test_bundler <
 			AlgebraTensorDenseDynamicTestDataTypes,
 			AlgebraTensorDenseDynamicTestRank0,
-			AlgebraTensorDenseDynamicTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices0,
 			AlgebraTensorDenseDynamicTestType > ::template test_group < AlgebraTensorDenseDynamicTypeDefinitions >;
 
@@ -1240,7 +1231,6 @@ namespace xablau::unit_testing
 		xablau::testing::test_bundler <
 			AlgebraTensorDenseDynamicTestDataTypes,
 			AlgebraTensorDenseDynamicTestRank1,
-			AlgebraTensorDenseDynamicTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices1,
 			AlgebraTensorDenseDynamicTestType > ::template test_group < AlgebraTensorDenseDynamicTypeDefinitions >;
 
@@ -1248,7 +1238,6 @@ namespace xablau::unit_testing
 		xablau::testing::test_bundler <
 			AlgebraTensorDenseDynamicTestDataTypes,
 			AlgebraTensorDenseDynamicTestRank2,
-			AlgebraTensorDenseDynamicTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices2,
 			AlgebraTensorDenseDynamicTestType > ::template test_group < AlgebraTensorDenseDynamicTypeDefinitions >;
 
@@ -1256,7 +1245,6 @@ namespace xablau::unit_testing
 		xablau::testing::test_bundler <
 			AlgebraTensorDenseDynamicTestDataTypes,
 			AlgebraTensorDenseDynamicTestRank3,
-			AlgebraTensorDenseDynamicTestContiguity,
 			AlgebraTensorDenseDynamicTestMemoryOrderIndices3,
 			AlgebraTensorDenseDynamicTestType > ::template test_group < AlgebraTensorDenseDynamicTypeDefinitions >;
 

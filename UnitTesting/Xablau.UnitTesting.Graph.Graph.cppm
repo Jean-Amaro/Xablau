@@ -938,8 +938,7 @@ namespace xablau::unit_testing
 			graph.template adjacency_matrix <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true,
 				true > ();
 
@@ -947,8 +946,7 @@ namespace xablau::unit_testing
 			graph.template adjacency_matrix <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true,
 				true > ();
 
@@ -987,16 +985,14 @@ namespace xablau::unit_testing
 			graph.template laplacian_matrix <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true > ();
 
 		const auto [dynamicMatrix, dynamicNodeToIndex, dynamicIndexToNode] =
 			graph.template laplacian_matrix <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true > ();
 
 		const auto &graphContainer = graph.container();
@@ -1839,16 +1835,14 @@ namespace xablau::unit_testing
 			graph.template Floyd_Warshall <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true > ();
 
 		const auto [dynamicMatrix, dynamicNextNode, dynamicNodeToIndex, dynamicIndexToNode] =
 			graph.template Floyd_Warshall <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true > ();
 
 		const auto &graphContainer = graph.container();

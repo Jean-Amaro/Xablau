@@ -839,8 +839,7 @@ namespace xablau::unit_testing
 			digraph.template adjacency_matrix <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true,
 				true > ();
 
@@ -848,8 +847,7 @@ namespace xablau::unit_testing
 			digraph.template adjacency_matrix <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true,
 				true > ();
 
@@ -888,16 +886,14 @@ namespace xablau::unit_testing
 			digraph.template laplacian_matrix <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true > ();
 
 		const auto [dynamicMatrix, dynamicNodeToIndex, dynamicIndexToNode] =
 			digraph.template laplacian_matrix <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true > ();
 
 		const auto &graphContainer = digraph.container();
@@ -1984,16 +1980,14 @@ namespace xablau::unit_testing
 			digraph.template Floyd_Warshall <
 				xablau::algebra::tensor_dense_fixed <
 					float,
-					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_fixed_dimensionalities < 10, 10 > >,
 				true > ();
 
 		const auto [dynamicMatrix, dynamicNextNode, dynamicNodeToIndex, dynamicIndexToNode] =
 			digraph.template Floyd_Warshall <
 				xablau::algebra::tensor_dense_dynamic <
 					float,
-					xablau::algebra::tensor_rank < 2 >,
-					xablau::algebra::tensor_contiguity < false > >,
+					xablau::algebra::tensor_rank < 2 > >,
 				true > ();
 
 		const auto &graphContainer = digraph.container();

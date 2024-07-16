@@ -30,35 +30,29 @@ namespace xablau::machine_learning
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			float,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				float,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix);
+				xablau::algebra::tensor_rank < 2 > > &matrix);
 
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			double,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				double,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix);
+				xablau::algebra::tensor_rank < 2 > > &matrix);
 
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			long double,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				long double,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix);
+				xablau::algebra::tensor_rank < 2 > > &matrix);
 }
 
 #endif

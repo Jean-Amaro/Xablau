@@ -28,13 +28,11 @@ template < std::floating_point Type >
 auto generic_eigenvalues(
 	const xablau::algebra::tensor_dense_dynamic <
 		Type,
-		xablau::algebra::tensor_rank < 2 >,
-		xablau::algebra::tensor_contiguity < true > > &matrix)
+		xablau::algebra::tensor_rank < 2 > > &matrix)
 {
 	xablau::algebra::tensor_dense_dynamic <
 		Type,
-		xablau::algebra::tensor_rank < 2 >,
-		xablau::algebra::tensor_contiguity < true > > result(matrix.rows(), 1);
+		xablau::algebra::tensor_rank < 2 > > result(matrix.rows(), 1);
 
 	Eigen::Matrix < Type, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > eigenMatrix;
 
@@ -64,13 +62,11 @@ namespace xablau::machine_learning
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			float,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				float,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix)
+				xablau::algebra::tensor_rank < 2 > > &matrix)
 	{
 		return generic_eigenvalues < float > (matrix);
 	}
@@ -78,13 +74,11 @@ namespace xablau::machine_learning
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			double,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				double,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix)
+				xablau::algebra::tensor_rank < 2 > > &matrix)
 	{
 		return generic_eigenvalues < double > (matrix);
 	}
@@ -92,13 +86,11 @@ namespace xablau::machine_learning
 	[[nodiscard]]
 		xablau::algebra::tensor_dense_dynamic <
 			long double,
-			xablau::algebra::tensor_rank < 2 >,
-			xablau::algebra::tensor_contiguity < true > >
+			xablau::algebra::tensor_rank < 2 > >
 		eigenvalues_self_adjoint(
 			const xablau::algebra::tensor_dense_dynamic <
 				long double,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > &matrix)
+				xablau::algebra::tensor_rank < 2 > > &matrix)
 	{
 		return generic_eigenvalues < long double > (matrix);
 	}

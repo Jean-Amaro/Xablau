@@ -65,8 +65,7 @@ export namespace xablau::machine_learning
 		using matrix_type =
 			xablau::algebra::tensor_dense_dynamic <
 				Type,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > >;
+				xablau::algebra::tensor_rank < 2 > >;
 
 		struct labeled_eigenvalues_type
 		{

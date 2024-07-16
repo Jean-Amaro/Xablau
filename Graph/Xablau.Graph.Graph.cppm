@@ -944,7 +944,6 @@ export namespace xablau::graph
 					xablau::algebra::tensor_dense_dynamic <
 						std::optional < node_selection_type < CopyNodes > >,
 						xablau::algebra::tensor_rank < MatrixType::rank() >,
-						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
 						MatrixType::memory_order_indices > > (*this);
 		}
 
@@ -961,7 +960,6 @@ export namespace xablau::graph
 					xablau::algebra::tensor_dense_fixed <
 						std::optional < node_selection_type < CopyNodes > >,
 						MatrixType::fixed_dimensionalities,
-						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
 						MatrixType::memory_order_indices > > (*this);
 		}
 
@@ -1095,8 +1093,7 @@ export namespace xablau::graph
 			const auto matrixSize = this->_graph.size();
 			xablau::algebra::tensor_dense_dynamic <
 				edge_weight_type,
-				xablau::algebra::tensor_rank < 2 >,
-				xablau::algebra::tensor_contiguity < true > > matrix(matrixSize, matrixSize);
+				xablau::algebra::tensor_rank < 2 > > matrix(matrixSize, matrixSize);
 
 			std::for_each(std::execution::par_unseq, this->_graph.cbegin(), this->_graph.cend(),
 				[&matrix, &graphNodeToMatrixIndex] (

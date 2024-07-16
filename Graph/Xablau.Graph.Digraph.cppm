@@ -1019,7 +1019,6 @@ export namespace xablau::graph
 					xablau::algebra::tensor_dense_dynamic <
 						std::optional < node_selection_type < CopyNodes > >,
 						xablau::algebra::tensor_rank < MatrixType::rank() >,
-						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
 						MatrixType::memory_order_indices > > (*this);
 		}
 
@@ -1036,7 +1035,6 @@ export namespace xablau::graph
 					xablau::algebra::tensor_dense_fixed <
 						std::optional < node_selection_type < CopyNodes > >,
 						MatrixType::fixed_dimensionalities,
-						xablau::algebra::tensor_contiguity < MatrixType::contiguous() >,
 						MatrixType::memory_order_indices > > (*this);
 		}
 

@@ -399,7 +399,6 @@ namespace xablau::graph::algorithm
 					algebra::tensor_dense_dynamic <
 						CellType,
 						xablau::algebra::tensor_rank < MazeTensorType::rank() >,
-						xablau::algebra::tensor_contiguity < MazeTensorType::contiguous() >,
 						typename MazeTensorType::memory_order_indices > ();
 			}
 
@@ -409,7 +408,6 @@ namespace xablau::graph::algorithm
 					algebra::tensor_dense_fixed <
 						CellType,
 						typename MazeTensorType::fixed_dimensionalities,
-						xablau::algebra::tensor_contiguity < MazeTensorType::contiguous() >,
 						typename MazeTensorType::memory_order_indices > ();
 			}
 		}

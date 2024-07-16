@@ -1107,7 +1107,7 @@ export namespace xablau::algebra
 					}
 				};
 
-			for (size_t i = 0; i < this->_size; i++)
+			for (size_t i = 0; i < tensor_dense_fixed::_size; i++)
 			{
 				binaryOperator(result._data[i], this->_data[i]);
 			}

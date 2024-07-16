@@ -22,7 +22,6 @@
 
 export module xablau.algebra;
 
-export import :algorithm;
 export import :complex;
 export import :complex_concepts;
 export import :complex_configurations;

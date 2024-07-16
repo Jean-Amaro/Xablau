@@ -37,14 +37,12 @@ namespace xablau::algebra::concepts
 		template <
 			typename Type,
 			concepts::tensor_rank Rank,
-			concepts::tensor_contiguity Contiguous,
 			concepts::tensor_memory_order_indices MemoryOrderIndices,
 			concepts::tensor_type TensorType >
 		struct is_tensor_dense_dynamic <
 			xablau::algebra::tensor_dense_dynamic <
 				Type,
 				Rank,
-				Contiguous,
 				MemoryOrderIndices,
 				TensorType > > : std::true_type {};
 
@@ -54,14 +52,12 @@ namespace xablau::algebra::concepts
 		template <
 			typename Type,
 			concepts::tensor_fixed_dimensionalities FixedDimensionalities,
-			concepts::tensor_contiguity Contiguous,
 			concepts::tensor_memory_order_indices MemoryOrderIndices,
 			concepts::tensor_type TensorType >
 		struct is_tensor_dense_fixed <
 			xablau::algebra::tensor_dense_fixed <
 				Type,
 				FixedDimensionalities,
-				Contiguous,
 				MemoryOrderIndices,
 				TensorType > > : std::true_type {};
 

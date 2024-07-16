@@ -188,9 +188,6 @@ namespace xablau::algebra::concepts
 	export template < typename Rank >
 	concept tensor_rank = internals::is_specialization_size_t_pack < Rank, algebra::tensor_rank > ::value;
 
-	export template < typename Contiguity >
-	concept tensor_contiguity = internals::is_specialization_bool < Contiguity, algebra::tensor_contiguity > ::value;
-
 	export template < typename MemoryOrderIndices >
 	concept tensor_memory_order_indices =
 		internals::is_specialization_size_t_pack < MemoryOrderIndices, algebra::tensor_memory_order_indices > ::value;

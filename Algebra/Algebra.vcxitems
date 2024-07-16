@@ -19,7 +19,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexDefinitions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.ComplexFunctions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.cppm" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.Algorithm.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.Complex.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalConfigurations.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalDefinitions.cppm" />

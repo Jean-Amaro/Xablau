@@ -36,7 +36,6 @@ export namespace xablau::algebra
 	template <
 		typename Type,
 		concepts::tensor_fixed_dimensionalities FixedDimensionalities,
-		concepts::tensor_contiguity Contiguous,
 		concepts::tensor_memory_order_indices MemoryOrderIndices = tensor_memory_order_indices <>,
 		concepts::tensor_type TensorType = tensor_type < tensor_type_value::main > >
 	requires (
@@ -48,7 +47,6 @@ export namespace xablau::algebra
 		template <
 			typename OtherType,
 			concepts::tensor_rank OtherRank,
-			concepts::tensor_contiguity,
 			concepts::tensor_memory_order_indices OtherMemoryOrderIndices,
 			concepts::tensor_type OtherTensorType >
 		requires (
@@ -59,7 +57,6 @@ export namespace xablau::algebra
 		template <
 			typename OtherType,
 			concepts::tensor_fixed_dimensionalities OtherFixedDimensionalities,
-			concepts::tensor_contiguity,
 			concepts::tensor_memory_order_indices OtherMemoryOrderIndices,
 			concepts::tensor_type OtherTensorType>
 		requires (
@@ -87,7 +84,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_const < Type > ::type,
 				FixedDimensionalities,
-				Contiguous,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::main > >;
 
@@ -96,7 +92,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				Type,
 				FixedDimensionalities,
-				Contiguous,
 				OtherMemoryOrderIndices,
 				TensorType >;
 
@@ -104,8 +99,6 @@ export namespace xablau::algebra
 		static constexpr Type _null_value{};
 
 		static constexpr size_t _rank = FixedDimensionalities::size();
-
-		static constexpr bool _contiguous = Contiguous::contiguous();
 
 		static constexpr bool _fixed = true;
 
@@ -178,7 +171,7 @@ export namespace xablau::algebra
 			return tensor_dense_fixed::_dimensionalities_by_memory_orders[index];
 		}
 
-		[[nodiscard]] static consteval auto type_deduction_for_contiguous_tensor() noexcept
+		[[nodiscard]] static consteval auto type_deduction() noexcept
 		{
 			if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
 			{
@@ -193,57 +186,10 @@ export namespace xablau::algebra
 			}
 		}
 
-		template < size_t rank >
-		[[nodiscard]] static consteval auto type_deduction_for_non_contiguous_tensor() noexcept
-		{
-			if constexpr (rank == 0)
-			{
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
-				{
-					return std::optional < std::reference_wrapper < Type > > {};
-				}
-
-				else
-				{
-					return Type{};
-				}
-			}
-
-			else
-			{
-				return std::array <
-					decltype(tensor_dense_fixed::template type_deduction_for_non_contiguous_tensor < rank - 1 > ()),
-					tensor_dense_fixed::_dimensionalities[tensor_dense_fixed::dimensionality_mapping < tensor_dense_fixed::_rank - rank > ()] > {};
-			}
-		}
-
-		typename std::conditional <
-			tensor_dense_fixed::_contiguous,
-			decltype(tensor_dense_fixed::template type_deduction_for_contiguous_tensor()),
-			decltype(tensor_dense_fixed::template type_deduction_for_non_contiguous_tensor < tensor_dense_fixed::_rank > ()) > ::type _data{};
-
-		template < size_t TupleIndex, typename TupleDataType >
-		requires (std::tuple_size < TupleDataType > ::value == tensor_dense_fixed::_rank)
-		[[nodiscard]] static constexpr auto &non_contiguous_indexing(
-			auto &data,
-			const TupleDataType &tuple)
-		{
-			if constexpr (TupleIndex == std::tuple_size < TupleDataType > ::value)
-			{
-				return data;
-			}
-
-			else
-			{
-				const auto dataIndex =
-					static_cast < size_t > (std::get < tensor_dense_fixed::dimensionality_mapping < TupleIndex > () > (tuple));
-
-				return tensor_dense_fixed::template non_contiguous_indexing < TupleIndex + 1 > (data.at(dataIndex), tuple);
-			}
-		}
+		decltype(tensor_dense_fixed::template type_deduction()) _data{};
 
 		template < size_t DimensionalityIndex >
-		[[nodiscard]] static consteval size_t offset_for_contiguous_indexing() noexcept
+		[[nodiscard]] static consteval size_t offset() noexcept
 		{
 			size_t offset{1};
 			constexpr size_t dimensionalityOrder = tensor_dense_fixed::_dimensionality_mapping[DimensionalityIndex];
@@ -260,7 +206,7 @@ export namespace xablau::algebra
 		}
 
 		template < size_t DimensionalityIndex >
-		[[nodiscard]] static consteval size_t offset_for_contiguous_indexing() noexcept
+		[[nodiscard]] static consteval size_t offset() noexcept
 		requires (tensor_dense_fixed::_rank == 0)
 		{
 			return size_t{1};
@@ -271,7 +217,7 @@ export namespace xablau::algebra
 			TupleIndex <= TupleLimit &&
 			TupleIndex <= std::tuple_size < TupleDataType > ::value &&
 			TupleLimit <= std::tuple_size < TupleDataType > ::value)
-		[[nodiscard]] static constexpr size_t offset_for_contiguous_indexing(
+		[[nodiscard]] static constexpr size_t offset(
 			const size_t currentIndex,
 			const TupleDataType &tuple)
 		{
@@ -282,20 +228,18 @@ export namespace xablau::algebra
 
 			else
 			{
-				constexpr size_t offset = tensor_dense_fixed::offset_for_contiguous_indexing < TupleIndex > ();
+				constexpr size_t offset = tensor_dense_fixed::offset < TupleIndex > ();
 
-				return tensor_dense_fixed::template offset_for_contiguous_indexing < TupleIndex + 1, TupleLimit > (
+				return tensor_dense_fixed::template offset < TupleIndex + 1, TupleLimit > (
 					currentIndex + static_cast < size_t > (std::get < TupleIndex > (tuple)) * offset,
 					tuple);
 			}
 		}
 
 		template < size_t TupleIndex, size_t TupleLimit >
-		[[nodiscard]] constexpr auto contiguous_indexing(
-			auto begin,
-			const auto &tuple) const
+		[[nodiscard]] constexpr auto indexing(auto begin, const auto &tuple) const
 		{
-			const auto offset = tensor_dense_fixed::template offset_for_contiguous_indexing < TupleIndex, TupleLimit > (0, tuple);
+			const auto offset = tensor_dense_fixed::template offset < TupleIndex, TupleLimit > (0, tuple);
 			auto _begin = begin + offset;
 
 			if (_begin >= this->_data.end())
@@ -310,51 +254,25 @@ export namespace xablau::algebra
 		requires (std::tuple_size < TupleDataType > ::value == tensor_dense_fixed::_rank)
 		[[nodiscard]] constexpr const_reference const_parentheses_operator(const TupleDataType &tuple) const
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
+			const auto element =
+				this->template indexing < 0, std::tuple_size < TupleDataType > ::value > (this->_data.cbegin(), tuple);
+
+			if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
 			{
-				const auto element =
-					this->template contiguous_indexing < 0, std::tuple_size < TupleDataType > ::value > (this->_data.cbegin(), tuple);
-
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
+				if (element->has_value())
 				{
-					if (element->has_value())
-					{
-						return element->value().get();
-					}
-
-					else
-					{
-						return tensor_dense_fixed::_null_value;
-					}
+					return element->value().get();
 				}
 
 				else
 				{
-					return *element;
+					return tensor_dense_fixed::_null_value;
 				}
 			}
 
 			else
 			{
-				const auto &element = tensor_dense_fixed::template non_contiguous_indexing < 0 > (this->_data, tuple);
-
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
-				{
-					if (element.has_value())
-					{
-						return element.value().get();
-					}
-
-					else
-					{
-						return tensor_dense_fixed::_null_value;
-					}
-				}
-
-				else
-				{
-					return element;
-				}
+				return *element;
 			}
 		}
 
@@ -362,264 +280,31 @@ export namespace xablau::algebra
 		requires (std::tuple_size < TupleDataType > ::value == tensor_dense_fixed::_rank)
 		[[nodiscard]] constexpr reference parentheses_operator(const TupleDataType &tuple)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
+			const auto element =
+				this->template indexing < 0, std::tuple_size < TupleDataType > ::value > (this->_data.begin(), tuple);
+
+			if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
 			{
-				const auto element =
-					this->template contiguous_indexing < 0, std::tuple_size < TupleDataType > ::value > (this->_data.begin(), tuple);
-
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
+				if (element->has_value())
 				{
-					if (element->has_value())
-					{
-						return element->value().get();
-					}
-
-					else
-					{
-						throw std::runtime_error(""); // TODO: Create message.
-					}
+					return element->value().get();
 				}
 
 				else
 				{
-					return *element;
+					throw std::runtime_error(""); // TODO: Create message.
 				}
 			}
 
 			else
 			{
-				auto &element = tensor_dense_fixed::template non_contiguous_indexing < 0 > (this->_data, tuple);
-
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
-				{
-					if (element.has_value())
-					{
-						return element.value().get();
-					}
-
-					else
-					{
-						throw std::runtime_error(""); // TODO: Create message.
-					}
-				}
-
-				else
-				{
-					return element;
-				}
-			}
-		}
-
-		template < size_t CurrentRank >
-		[[nodiscard]] static constexpr void fill_non_contiguous_tensor(
-			auto &data,
-			const Type &value)
-		{
-			if constexpr (CurrentRank + 1 == tensor_dense_fixed::_rank)
-			{
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
-				{
-					for (auto &cell : data)
-					{
-						if (cell.has_value())
-						{
-							cell.value().get() = value;
-						}
-					}
-				}
-
-				else
-				{
-					data.fill(value);
-				}
-			}
-
-			else
-			{
-				for (auto &line : data)
-				{
-					tensor_dense_fixed::template fill_non_contiguous_tensor < CurrentRank + 1 > (line, value);
-				}
-			}
-		}
-
-		[[nodiscard]] constexpr auto convert_to_tensor_dense_dynamic_for_contiguous_tensor() const
-		{
-			tensor_dense_dynamic <
-				Type,
-				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < true >,
-				MemoryOrderIndices,
-				tensor_type < tensor_type_value::main > > tensor{};
-
-			if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				*tensor = *(*this);
-			}
-
-			else
-			{
-				tensor._data.reserve(this->_data.size());
-
-				std::copy(this->_data.cbegin(), this->_data.cend(), std::back_inserter(tensor._data));
-
-				tensor._dimensionalities = tensor_dense_fixed::_dimensionalities;
-				tensor._size = tensor_dense_fixed::_size;
-			}
-
-			return tensor;
-		}
-
-		template < size_t CurrentRank >
-		[[nodiscard]] static constexpr void convert_to_tensor_dense_dynamic_for_non_contiguous_tensor(
-			auto &dynamicData,
-			const auto &fixedData)
-		{
-			if constexpr (CurrentRank + 1 == tensor_dense_fixed::_rank)
-			{
-				dynamicData.reserve(fixedData.size());
-
-				std::copy(fixedData.cbegin(), fixedData.cend(), std::back_inserter(dynamicData));
-			}
-
-			else
-			{
-				dynamicData.resize(fixedData.size());
-
-				for (size_t i = 0; i < fixedData.size(); i++)
-				{
-					tensor_dense_fixed::template convert_to_tensor_dense_dynamic_for_non_contiguous_tensor < CurrentRank + 1 > (
-						dynamicData[i], fixedData[i]);
-				}
-			}
-		}
-
-		[[nodiscard]] constexpr auto convert_to_tensor_dense_dynamic_for_non_contiguous_tensor() const
-		{
-			tensor_dense_dynamic <
-				Type,
-				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < false >,
-				MemoryOrderIndices,
-				tensor_type < tensor_type_value::main > > tensor{};
-
-			if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				*tensor = *(*this);
-			}
-
-			else
-			{
-				tensor_dense_fixed::convert_to_tensor_dense_dynamic_for_non_contiguous_tensor < 0 > (tensor._data, this->_data);
-			}
-
-			tensor._dimensionalities = tensor_dense_fixed::_dimensionalities;
-			tensor._size = tensor_dense_fixed::_size;
-
-			return tensor;
-		}
-
-		template < size_t CurrentRank >
-		requires (CurrentRank < tensor_dense_fixed::_rank)
-		[[nodiscard]] static constexpr void binary_operator_for_non_contiguous_tensor(
-			auto &data,
-			const auto &binaryOperator,
-			const Type &value)
-		{
-			if constexpr (CurrentRank + 1 == tensor_dense_fixed::_rank)
-			{
-				for (auto &thisValue : data)
-				{
-					binaryOperator(thisValue, value);
-				}
-			}
-
-			else
-			{
-				for (auto &line : data)
-				{
-					tensor_dense_fixed::
-						template binary_operator_for_non_contiguous_tensor < CurrentRank + 1 > (line, binaryOperator, value);
-				}
-			}
-		}
-
-		template < size_t CurrentRank >
-		requires (CurrentRank < tensor_dense_fixed::_rank)
-		[[nodiscard]] static constexpr void element_wise_binary_operator_for_non_contiguous_tensor(
-			auto &data,
-			const auto &otherData,
-			const auto &binaryOperator)
-		{
-			if constexpr (CurrentRank + 1 == tensor_dense_fixed::_rank)
-			{
-				for (size_t i = 0; i < data.size(); i++)
-				{
-					binaryOperator(data[i], otherData[i]);
-				}
-			}
-
-			else
-			{
-				for (size_t i = 0; i < data.size(); i++)
-				{
-					tensor_dense_fixed::
-						template element_wise_binary_operator_for_non_contiguous_tensor < CurrentRank + 1 > (
-							data[i],
-							otherData[i],
-							binaryOperator);
-				}
-			}
-		}
-
-		template < size_t TupleIndex >
-		static constexpr void kernel_for_non_contiguous_tensor(
-			auto &data,
-			auto &kernelData,
-			const auto &tuple,
-			const std::array < size_t, tensor_dense_fixed::_rank > &kernelSize)
-		{
-			size_t dataIndex{};
-			size_t kernelIndex{};
-			constexpr auto mappedDimensionality = tensor_dense_fixed::dimensionality_mapping < TupleIndex > ();
-			constexpr auto boundary = tensor_dense_fixed::_dimensionalities[mappedDimensionality];
-			const auto center = std::get < mappedDimensionality > (tuple);
-			const size_t offset = kernelSize[mappedDimensionality] / 2;
-
-			if (center >= offset)
-			{
-				dataIndex = center - offset;
-			}
-
-			else
-			{
-				kernelIndex = offset - center;
-			}
-
-			while (dataIndex <= center + offset && dataIndex < boundary)
-			{
-				if constexpr (TupleIndex + 1 == tensor_dense_fixed::_rank)
-				{
-					kernelData.at(kernelIndex).emplace(data.at(dataIndex));
-				}
-
-				else
-				{
-					tensor_dense_fixed::template kernel_for_non_contiguous_tensor < TupleIndex + 1 > (
-						data.at(dataIndex),
-						kernelData.at(kernelIndex),
-						tuple,
-						kernelSize);
-				}
-
-				dataIndex++;
-				kernelIndex++;
+				return *element;
 			}
 		}
 
 		template < size_t TupleIndex >
 		requires (TupleIndex < tensor_dense_fixed::_rank)
-		static constexpr void kernel_for_contiguous_tensor(
+		static constexpr void kernel(
 			auto iteratorData,
 			auto iteratorKernelData,
 			const auto &kernel,
@@ -642,8 +327,8 @@ export namespace xablau::algebra
 				kernelIndex = offset - center;
 			}
 
-			constexpr auto offsetData = tensor_dense_fixed::offset_for_contiguous_indexing < TupleIndex > ();
-			const auto offsetKernel = kernel.offset_for_contiguous_indexing < TupleIndex > ();
+			constexpr auto offsetData = tensor_dense_fixed::offset < TupleIndex > ();
+			const auto offsetKernel = kernel.offset < TupleIndex > ();
 
 			iteratorData += dataIndex * offsetData;
 			iteratorKernelData += kernelIndex * offsetKernel;
@@ -652,7 +337,7 @@ export namespace xablau::algebra
 			{
 				if constexpr (TupleIndex + 1 < tensor_dense_fixed::_rank)
 				{
-					tensor_dense_fixed::template kernel_for_contiguous_tensor < TupleIndex + 1 > (
+					tensor_dense_fixed::template kernel < TupleIndex + 1 > (
 						iteratorData,
 						iteratorKernelData,
 						kernel,
@@ -694,24 +379,12 @@ export namespace xablau::algebra
 				kernel.resize(kernelSize);
 			}
 
-			if constexpr (tensor_dense_fixed::_contiguous)
-			{
-				tensor_dense_fixed::template kernel_for_contiguous_tensor < 0 > (
-					data.begin(),
-					kernel._data.begin(),
-					kernel,
-					tuple,
-					kernelSize);
-			}
-
-			else
-			{
-				tensor_dense_fixed::template kernel_for_non_contiguous_tensor < 0 > (
-					data,
-					kernel._data,
-					tuple,
-					kernelSize);
-			}
+			tensor_dense_fixed::template kernel < 0 > (
+				data.begin(),
+				kernel._data.begin(),
+				kernel,
+				tuple,
+				kernelSize);
 		}
 
 		template < bool DynamicKernel, typename ... DimensionalityTypes >
@@ -795,9 +468,7 @@ export namespace xablau::algebra
 		}
 
 		template < typename MatrixType >
-		requires (
-			MatrixType::contiguous() == tensor_dense_fixed::contiguous() &&
-			std::same_as < typename MatrixType::memory_order_indices, memory_order_indices >)
+		requires (std::same_as < typename MatrixType::memory_order_indices, memory_order_indices >)
 		static constexpr void addition_assignment(tensor_dense_fixed &thisTensor, const MatrixType &addend)
 		{
 			constexpr auto binaryOperator =
@@ -843,26 +514,9 @@ export namespace xablau::algebra
 					}
 				};
 
-			if constexpr (tensor_dense_fixed::_contiguous)
+			for (size_t i = 0; i < thisTensor._size; i++)
 			{
-				for (size_t i = 0; i < thisTensor._size; i++)
-				{
-					binaryOperator(thisTensor._data[i], addend._data[i]);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				binaryOperator(thisTensor._data, addend._data);
-			}
-
-			else
-			{
-				tensor_dense_fixed::
-					template element_wise_binary_operator_for_non_contiguous_tensor < 0 > (
-						thisTensor._data,
-						addend._data,
-						binaryOperator);
+				binaryOperator(thisTensor._data[i], addend._data[i]);
 			}
 		}
 
@@ -893,9 +547,7 @@ export namespace xablau::algebra
 		}
 
 		template < typename MatrixType >
-		requires (
-			MatrixType::contiguous() == tensor_dense_fixed::contiguous() &&
-			std::same_as < typename MatrixType::memory_order_indices, memory_order_indices >)
+		requires (std::same_as < typename MatrixType::memory_order_indices, memory_order_indices >)
 		static constexpr void subtraction_assignment(tensor_dense_fixed &thisTensor, const MatrixType &subtrahend)
 		{
 			constexpr auto binaryOperator =
@@ -941,26 +593,9 @@ export namespace xablau::algebra
 					}
 				};
 
-			if constexpr (tensor_dense_fixed::_contiguous)
+			for (size_t i = 0; i < thisTensor._size; i++)
 			{
-				for (size_t i = 0; i < thisTensor._size; i++)
-				{
-					binaryOperator(thisTensor._data[i], subtrahend._data[i]);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				binaryOperator(thisTensor._data, subtrahend._data);
-			}
-
-			else
-			{
-				tensor_dense_fixed::
-					template element_wise_binary_operator_for_non_contiguous_tensor < 0 > (
-						thisTensor._data,
-						subtrahend._data,
-						binaryOperator);
+				binaryOperator(thisTensor._data[i], subtrahend._data[i]);
 			}
 		}
 
@@ -968,11 +603,6 @@ export namespace xablau::algebra
 		[[nodiscard]] static consteval size_t rank() noexcept
 		{
 			return tensor_dense_fixed::_rank;
-		}
-
-		[[nodiscard]] static consteval bool contiguous() noexcept
-		{
-			return tensor_dense_fixed::_contiguous;
 		}
 
 		[[nodiscard]] static consteval bool fixed() noexcept
@@ -1025,15 +655,28 @@ export namespace xablau::algebra
 		[[nodiscard]] constexpr auto convert_to_tensor_dense_dynamic() const
 		requires (tensor_dense_fixed::_type == tensor_type_value::main)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
+			tensor_dense_dynamic <
+				Type,
+				tensor_rank < tensor_dense_fixed::_rank >,
+				MemoryOrderIndices,
+				tensor_type < tensor_type_value::main > > tensor{};
+
+			if constexpr (tensor_dense_fixed::_rank == 0)
 			{
-				return this->convert_to_tensor_dense_dynamic_for_contiguous_tensor();
+				*tensor = *(*this);
 			}
 
 			else
 			{
-				return this->convert_to_tensor_dense_dynamic_for_non_contiguous_tensor();
+				tensor._data.reserve(this->_data.size());
+
+				std::copy(this->_data.cbegin(), this->_data.cend(), std::back_inserter(tensor._data));
+
+				tensor._dimensionalities = tensor_dense_fixed::_dimensionalities;
+				tensor._size = tensor_dense_fixed::_size;
 			}
+
+			return tensor;
 		}
 
 		template < concepts::tensor_fixed_dimensionalities KernelSize, typename ... Types >
@@ -1047,7 +690,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				KernelSize,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1067,7 +709,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				KernelSize,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1088,7 +729,6 @@ export namespace xablau::algebra
 			tensor_dense_dynamic <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1109,7 +749,6 @@ export namespace xablau::algebra
 			tensor_dense_dynamic <
 				typename std::remove_reference < reference > ::type,
 				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1129,7 +768,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				KernelSize,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1149,7 +787,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				KernelSize,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1166,7 +803,6 @@ export namespace xablau::algebra
 			tensor_dense_dynamic <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1187,7 +823,6 @@ export namespace xablau::algebra
 			tensor_dense_dynamic <
 				typename std::remove_reference < reference > ::type,
 				tensor_rank < tensor_dense_fixed::_rank >,
-				tensor_contiguity < tensor_dense_fixed::_contiguous >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1257,7 +892,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_fixed_dimensionalities < 1, tensor_dense_fixed::columns() >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1283,7 +917,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				tensor_fixed_dimensionalities < 1, tensor_dense_fixed::columns() >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1309,7 +942,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_fixed_dimensionalities < tensor_dense_fixed::rows(), 1 >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1335,7 +967,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				tensor_fixed_dimensionalities < tensor_dense_fixed::rows(), 1 >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1358,7 +989,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_fixed_dimensionalities < 1, tensor_dense_fixed::columns() >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1381,7 +1011,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				tensor_fixed_dimensionalities < 1, tensor_dense_fixed::columns() >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1404,7 +1033,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < const_reference > ::type,
 				tensor_fixed_dimensionalities < tensor_dense_fixed::rows(), 1 >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1427,7 +1055,6 @@ export namespace xablau::algebra
 			tensor_dense_fixed <
 				typename std::remove_reference < reference > ::type,
 				tensor_fixed_dimensionalities < tensor_dense_fixed::rows(), 1 >,
-				tensor_contiguity < true >,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::sub > > _kernel{};
 
@@ -1453,19 +1080,9 @@ export namespace xablau::algebra
 		[[nodiscard]] constexpr bool has_reference_to_main(const std::tuple < Types ... > &tuple) const
 		requires (tensor_dense_fixed::_type == tensor_type_value::sub)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
-			{
-				return
-					tensor_dense_fixed::template contiguous_indexing < 0, tensor_dense_fixed::_rank > (
-						this->_data.cbegin(), tuple)->has_value();
-			}
-
-			else
-			{
-				const auto &data = tensor_dense_fixed::template non_contiguous_indexing < 0 > (this->_data, tuple);
-
-				return data.has_value();
-			}
+			return
+				tensor_dense_fixed::template indexing < 0, tensor_dense_fixed::_rank > (
+					this->_data.cbegin(), tuple)->has_value();
 		}
 
 		[[nodiscard]] constexpr bool has_reference_to_main(const std::array < size_t, tensor_dense_fixed::_rank > &args) const
@@ -1490,23 +1107,9 @@ export namespace xablau::algebra
 					}
 				};
 
-			if constexpr (tensor_dense_fixed::_contiguous)
+			for (size_t i = 0; i < this->_size; i++)
 			{
-				for (size_t i = 0; i < this->_size; i++)
-				{
-					binaryOperator(result._data[i], this->_data[i]);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				binaryOperator(result._data, this->_data);
-			}
-
-			else
-			{
-				tensor_dense_fixed::
-					template element_wise_binary_operator_for_non_contiguous_tensor < 0 > (result._data, this->_data, binaryOperator);
+				binaryOperator(result._data[i], this->_data[i]);
 			}
 
 			return result;
@@ -1579,7 +1182,6 @@ export namespace xablau::algebra
 					xablau::algebra::tensor_fixed_dimensionalities <
 						tensor_dense_fixed::dimensionalities()[0],
 						tensor_dense_fixed::dimensionalities()[0] >,
-					tensor_contiguity < tensor_dense_fixed::_contiguous >,
 					MemoryOrderIndices,
 					tensor_type < tensor_type_value::main > >;
 
@@ -1601,7 +1203,6 @@ export namespace xablau::algebra
 				tensor_dense_fixed <
 					typename std::remove_const < Type > ::type,
 					xablau::algebra::tensor_fixed_dimensionalities < tensor_dense_fixed::dimensionalities()[0], 1 >,
-					tensor_contiguity < tensor_dense_fixed::_contiguous >,
 					MemoryOrderIndices,
 					tensor_type < tensor_type_value::main > >;
 
@@ -1623,15 +1224,7 @@ export namespace xablau::algebra
 			tensor_dense_fixed::_rank == 0 &&
 			tensor_dense_fixed::_type == tensor_type_value::main)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
-			{
-				return *(this->_data.cbegin());
-			}
-
-			else
-			{
-				return this->_data;
-			}
+			return *(this->_data.cbegin());
 		}
 
 		[[nodiscard]] constexpr reference operator*() noexcept
@@ -1639,15 +1232,7 @@ export namespace xablau::algebra
 			tensor_dense_fixed::_rank == 0 &&
 			tensor_dense_fixed::_type == tensor_type_value::main)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
-			{
-				return *(this->_data.begin());
-			}
-
-			else
-			{
-				return this->_data;
-			}
+			return *(this->_data.begin());
 		}
 
 		template < typename MatrixType >
@@ -1658,7 +1243,6 @@ export namespace xablau::algebra
 				algebra::tensor_dense_fixed <
 					typename MatrixType::value_type,
 					typename MatrixType::fixed_dimensionalities,
-					tensor_contiguity < MatrixType::contiguous() >,
 					typename MatrixType::memory_order_indices,
 					tensor_type < MatrixType::type() > > > &&
 			MatrixType::dimensionalities() == tensor_dense_fixed::dimensionalities())
@@ -1694,7 +1278,6 @@ export namespace xablau::algebra
 				algebra::tensor_dense_fixed <
 					typename MatrixType::value_type,
 					typename MatrixType::fixed_dimensionalities,
-					tensor_contiguity < MatrixType::contiguous() >,
 					typename MatrixType::memory_order_indices,
 					tensor_type < MatrixType::type() > > > &&
 			MatrixType::dimensionalities() == tensor_dense_fixed::dimensionalities())
@@ -1732,7 +1315,6 @@ export namespace xablau::algebra
 				algebra::tensor_dense_fixed <
 					typename MatrixType::value_type,
 					typename MatrixType::fixed_dimensionalities,
-					tensor_contiguity < MatrixType::contiguous() >,
 					typename MatrixType::memory_order_indices,
 					tensor_type < MatrixType::type() > > >)
 		[[nodiscard]] constexpr auto operator*(const MatrixType &multiplicand) const
@@ -1746,7 +1328,6 @@ export namespace xablau::algebra
 				tensor_fixed_dimensionalities <
 					tensor_dense_fixed::_dimensionalities[0],
 					MatrixType::dimensionalities()[1] >,
-				Contiguous,
 				MemoryOrderIndices,
 				tensor_type < tensor_type_value::main > > result{};
 
@@ -1774,7 +1355,6 @@ export namespace xablau::algebra
 				algebra::tensor_dense_fixed <
 					typename MatrixType::value_type,
 					typename MatrixType::fixed_dimensionalities,
-					tensor_contiguity < MatrixType::contiguous() >,
 					typename MatrixType::memory_order_indices,
 					tensor_type < MatrixType::type() > > > &&
 			MatrixType::dimensionalities() == tensor_dense_fixed::dimensionalities())
@@ -1794,7 +1374,6 @@ export namespace xablau::algebra
 				algebra::tensor_dense_fixed <
 					typename MatrixType::value_type,
 					typename MatrixType::fixed_dimensionalities,
-					tensor_contiguity < MatrixType::contiguous() >,
 					typename MatrixType::memory_order_indices,
 					tensor_type < MatrixType::type() > > > &&
 			MatrixType::dimensionalities() == tensor_dense_fixed::dimensionalities())
@@ -1826,23 +1405,9 @@ export namespace xablau::algebra
 					}
 				};
 
-			if constexpr (tensor_dense_fixed::_contiguous)
+			for (auto &value : this->_data)
 			{
-				for (auto &value : this->_data)
-				{
-					binaryOperator(value, multiplicand);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				binaryOperator(this->_data, multiplicand);
-			}
-
-			else
-			{
-				tensor_dense_fixed::
-					template binary_operator_for_non_contiguous_tensor < 0 > (this->_data, binaryOperator, multiplicand);
+				binaryOperator(value, multiplicand);
 			}
 
 			return *this;
@@ -1876,23 +1441,9 @@ export namespace xablau::algebra
 				}
 			}
 
-			if constexpr (tensor_dense_fixed::_contiguous)
+			for (auto &value : this->_data)
 			{
-				for (auto &value : this->_data)
-				{
-					binaryOperator(value, divisor);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				binaryOperator(this->_data, divisor);
-			}
-
-			else
-			{
-				tensor_dense_fixed::
-					template binary_operator_for_non_contiguous_tensor < 0 > (this->_data, binaryOperator, divisor);
+				binaryOperator(value, divisor);
 			}
 
 			return *this;
@@ -1938,44 +1489,20 @@ export namespace xablau::algebra
 
 		constexpr void fill(const Type &value)
 		{
-			if constexpr (tensor_dense_fixed::_contiguous)
+			if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
 			{
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
+				for (auto &data : this->_data)
 				{
-					for (auto &data : this->_data)
+					if (data.has_value())
 					{
-						if (data.has_value())
-						{
-							data.value().get() = value;
-						}
+						data.value().get() = value;
 					}
-				}
-
-				else
-				{
-					this->_data.fill(value);
-				}
-			}
-
-			else if constexpr (tensor_dense_fixed::_rank == 0)
-			{
-				if constexpr (tensor_dense_fixed::_type == tensor_type_value::sub)
-				{
-					if (this->_data.has_value())
-					{
-						this->_data.value().get() = value;
-					}
-				}
-
-				else
-				{
-					this->_data = value;
 				}
 			}
 
 			else
 			{
-				tensor_dense_fixed::template fill_non_contiguous_tensor < 0 > (this->_data, value);
+				this->_data.fill(value);
 			}
 		}
 
@@ -1988,7 +1515,6 @@ export namespace xablau::algebra
 				tensor_fixed_dimensionalities <
 					tensor_dense_fixed::_dimensionalities[1],
 					tensor_dense_fixed::_dimensionalities[0] >,
-				Contiguous,
 				MemoryOrderIndices,
 				TensorType > result{};
 
@@ -2014,7 +1540,6 @@ export namespace xablau::algebra
 					tensor_fixed_dimensionalities <
 						tensor_dense_fixed::_dimensionalities[1],
 						tensor_dense_fixed::_dimensionalities[0] >,
-					Contiguous,
 					MemoryOrderIndices,
 					TensorType > result{};
 

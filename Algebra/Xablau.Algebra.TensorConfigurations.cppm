@@ -41,15 +41,6 @@ export namespace xablau::algebra
 		}
 	};
 
-	template < bool Contiguous >
-	struct tensor_contiguity
-	{
-		static consteval bool contiguous() noexcept
-		{
-			return Contiguous;
-		}
-	};
-
 	template < size_t ... Dimensionalities >
 	struct tensor_fixed_dimensionalities
 	{

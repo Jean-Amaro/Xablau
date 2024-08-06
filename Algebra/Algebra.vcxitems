@@ -24,6 +24,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalDefinitions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalFunctions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.FundamentalConcepts.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.IntNumber.cppm" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.IntNumberConcepts.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.StandardDefinitions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.StandardFunctions.cppm" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Xablau.Algebra.TensorConcepts.cppm" />

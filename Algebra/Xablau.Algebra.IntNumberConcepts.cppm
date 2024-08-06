@@ -20,23 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-export module xablau.algebra;
-
-export import :complex;
-export import :complex_concepts;
-export import :complex_configurations;
-export import :complex_definitions;
-export import :complex_functions;
-export import :fundamental_concepts;
-export import :fundamental_configurations;
-export import :fundamental_definitions;
-export import :fundamental_functions;
+export module xablau.algebra:int_number_concepts;
 export import :int_number;
-export import :int_number_concepts;
-export import :standard_definitions;
-export import :standard_functions;
-export import :tensor_concepts;
-export import :tensor_configurations;
-export import :tensor_dense_dynamic;
-export import :tensor_dense_fixed;
-export import :utils;
+export import :fundamental_concepts;
+
+export import std;
+
+export namespace xablau::algebra::concepts
+{
+	template < typename Type >
+	concept xablau_integral = std::same_as < Type, algebra::int_number >;
+
+	template < typename Type >
+	concept integral = xablau_integral < Type > || standard_integral < Type >;
+}

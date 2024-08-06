@@ -130,7 +130,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryHyperplaneTest);
 
-	TYPED_TEST_P(GeometryHyperplaneTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryHyperplaneTest, ComparisonOperatorLesser)
 	{
 		EXPECT_FALSE(this->hyperplaneDegenerateNegative < this->hyperplaneDegenerateNegative);
 		EXPECT_TRUE(this->hyperplaneDegenerateNegative < this->hyperplaneDegenerateZero);
@@ -223,7 +223,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->hyperplaneReverseZ < this->hyperplaneReverseZ);
 	}
 
-	TYPED_TEST_P(GeometryHyperplaneTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryHyperplaneTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->hyperplaneDegenerateNegative <= this->hyperplaneDegenerateNegative);
 		EXPECT_TRUE(this->hyperplaneDegenerateNegative <= this->hyperplaneDegenerateZero);
@@ -2132,8 +2132,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryHyperplaneTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

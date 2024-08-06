@@ -130,7 +130,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryLineTest);
 
-	TYPED_TEST_P(GeometryLineTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryLineTest, ComparisonOperatorLesser)
 	{
 		EXPECT_FALSE(this->lineDegenerateNegative < this->lineDegenerateNegative);
 		EXPECT_TRUE(this->lineDegenerateNegative < this->lineDegenerateZero);
@@ -223,7 +223,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->lineReverseZ < this->lineReverseZ);
 	}
 
-	TYPED_TEST_P(GeometryLineTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryLineTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->lineDegenerateNegative <= this->lineDegenerateNegative);
 		EXPECT_TRUE(this->lineDegenerateNegative <= this->lineDegenerateZero);
@@ -1548,8 +1548,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryLineTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

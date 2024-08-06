@@ -76,7 +76,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryVectorTest);
 
-	TYPED_TEST_P(GeometryVectorTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryVectorTest, ComparisonOperatorLesser)
 	{
 		EXPECT_TRUE(this->vectorNegative1 < this->vectorNull1);
 		EXPECT_TRUE(this->vectorNegative1 < this->vectorNull2);
@@ -109,7 +109,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->vectorPositive4 < this->vectorPositive4);
 	}
 
-	TYPED_TEST_P(GeometryVectorTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryVectorTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->vectorNegative1 <= this->vectorNull1);
 		EXPECT_TRUE(this->vectorNegative1 <= this->vectorNull2);
@@ -1216,8 +1216,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryVectorTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

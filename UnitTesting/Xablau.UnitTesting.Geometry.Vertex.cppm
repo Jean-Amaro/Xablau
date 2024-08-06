@@ -76,7 +76,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryVertexTest);
 
-	TYPED_TEST_P(GeometryVertexTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryVertexTest, ComparisonOperatorLesser)
 	{
 		EXPECT_TRUE(this->vertexNegative1 < this->vertexNull1);
 		EXPECT_TRUE(this->vertexNegative1 < this->vertexNull2);
@@ -109,7 +109,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->vertexPositive4 < this->vertexPositive4);
 	}
 
-	TYPED_TEST_P(GeometryVertexTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryVertexTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->vertexNegative1 <= this->vertexNull1);
 		EXPECT_TRUE(this->vertexNegative1 <= this->vertexNull2);
@@ -2013,8 +2013,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryVertexTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

@@ -69,7 +69,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryHypersphereTest);
 
-	TYPED_TEST_P(GeometryHypersphereTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryHypersphereTest, ComparisonOperatorLesser)
 	{
 		EXPECT_FALSE(this->hypersphereDegenerateNegative1 < this->hypersphereDegenerateNegative1);
 		EXPECT_TRUE(this->hypersphereDegenerateNegative1 < this->hypersphereDegenerateZero1);
@@ -182,7 +182,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->hyperspherePositiveRadius2 < this->hyperspherePositiveRadius2);
 	}
 
-	TYPED_TEST_P(GeometryHypersphereTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryHypersphereTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->hypersphereDegenerateNegative1 <= this->hypersphereDegenerateNegative1);
 		EXPECT_TRUE(this->hypersphereDegenerateNegative1 <= this->hypersphereDegenerateZero1);
@@ -880,8 +880,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryHypersphereTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

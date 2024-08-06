@@ -81,7 +81,7 @@ namespace xablau::unit_testing
 
 	TYPED_TEST_SUITE_P(GeometryEuclideanTriangleTest);
 
-	TYPED_TEST_P(GeometryEuclideanTriangleTest, ComparisonOperatorLess)
+	TYPED_TEST_P(GeometryEuclideanTriangleTest, ComparisonOperatorLesser)
 	{
 		EXPECT_FALSE(this->triangleDegenerateNegative < this->triangleDegenerateNegative);
 		EXPECT_TRUE(this->triangleDegenerateNegative < this->triangleDegenerateZero);
@@ -156,7 +156,7 @@ namespace xablau::unit_testing
 		EXPECT_FALSE(this->triangleEquilateral < this->triangleEquilateral);
 	}
 
-	TYPED_TEST_P(GeometryEuclideanTriangleTest, ComparisonOperatorLessEqualTo)
+	TYPED_TEST_P(GeometryEuclideanTriangleTest, ComparisonOperatorLesserEqualTo)
 	{
 		EXPECT_TRUE(this->triangleDegenerateNegative <= this->triangleDegenerateNegative);
 		EXPECT_TRUE(this->triangleDegenerateNegative <= this->triangleDegenerateZero);
@@ -826,8 +826,8 @@ namespace xablau::unit_testing
 
 	REGISTER_TYPED_TEST_SUITE_P(
 		GeometryEuclideanTriangleTest,
-		ComparisonOperatorLess,
-		ComparisonOperatorLessEqualTo,
+		ComparisonOperatorLesser,
+		ComparisonOperatorLesserEqualTo,
 		ComparisonOperatorEqualTo,
 		ComparisonOperatorGreaterEqualTo,
 		ComparisonOperatorGreater,

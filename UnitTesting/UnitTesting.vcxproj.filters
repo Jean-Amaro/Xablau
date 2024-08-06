@@ -108,5 +108,8 @@
     <ClCompile Include="Xablau.UnitTesting.Graph.Algorithm.cppm">
       <Filter>Graph</Filter>
     </ClCompile>
+    <ClCompile Include="Xablau.UnitTesting.Algebra.IntNumber.cppm">
+      <Filter>Algebra</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

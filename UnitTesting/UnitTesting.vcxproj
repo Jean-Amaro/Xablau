@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Xablau.UnitTesting.Algebra.Complex.cppm" />
+    <ClCompile Include="Xablau.UnitTesting.Algebra.IntNumber.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Algebra.TensorDenseDynamic.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Algebra.TensorDenseFixed.cppm" />
     <ClCompile Include="Xablau.UnitTesting.Color.CIELab.cppm" />

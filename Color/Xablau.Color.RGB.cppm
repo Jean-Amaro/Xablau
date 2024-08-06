@@ -133,9 +133,9 @@ export namespace xablau::color
 
 			else
 			{
-				const auto [minRed, maxRed] = std::minmax(color1.red, color2.red);
-				const auto [minGreen, maxGreen] = std::minmax(color1.green, color2.green);
-				const auto [minBlue, maxBlue] = std::minmax(color1.blue, color2.blue);
+				const auto &[minRed, maxRed] = std::minmax(color1.red, color2.red);
+				const auto &[minGreen, maxGreen] = std::minmax(color1.green, color2.green);
+				const auto &[minBlue, maxBlue] = std::minmax(color1.blue, color2.blue);
 
 				redDifference = static_cast < DistanceType > (maxRed - minRed);
 				greenDifference = static_cast < DistanceType > (maxGreen - minGreen);
@@ -157,8 +157,8 @@ export namespace xablau::color
 			const auto green = static_cast < HSVColor > (color.green) / static_cast < HSVColor > (maxValuesRGB.green);
 			const auto blue = static_cast < HSVColor > (color.blue) / static_cast < HSVColor > (maxValuesRGB.blue);
 
-			const auto max = std::max(std::max(red, green), blue);
-			const auto min = std::min(std::min(red, green), blue);
+			const auto &max = std::max(std::max(red, green), blue);
+			const auto &min = std::min(std::min(red, green), blue);
 
 			const auto chroma = max - min;
 
@@ -206,8 +206,8 @@ export namespace xablau::color
 			const auto green = static_cast < HSLColor > (color.green) / static_cast < HSLColor > (maxValuesRGB.green);
 			const auto blue = static_cast < HSLColor > (color.blue) / static_cast < HSLColor > (maxValuesRGB.blue);
 
-			const auto max = std::max(std::max(red, green), blue);
-			const auto min = std::min(std::min(red, green), blue);
+			const auto &max = std::max(std::max(red, green), blue);
+			const auto &min = std::min(std::min(red, green), blue);
 
 			const auto chroma = max - min;
 			const auto lightness = HSLColor{0.5} * (max + min);

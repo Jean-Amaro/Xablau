@@ -306,6 +306,39 @@ export namespace xablau::algebra
 			return std::distance(iterator, this->_number.crend());
 		}
 
+		constexpr static void format(std::string &formattedString, int i, auto &iterator)
+		{
+			unsigned char byte{};
+
+			for (; i >= 0; i--)
+			{
+				byte |= (static_cast < unsigned char > (*iterator) << i);
+
+				++iterator;
+			}
+
+			std::format_to(std::back_inserter(formattedString), "{:02X}", byte);
+		}
+
+		constexpr static void format(std::string &formattedString, int i, const bool signal, auto &iterator)
+		{
+			unsigned char byte{};
+
+			for (int j = 7; j > i; j--)
+			{
+				byte |= (static_cast < unsigned char > (signal) << j);
+			}
+
+			for (; i >= 0; i--)
+			{
+				byte |= (static_cast < unsigned char > (*iterator) << i);
+
+				++iterator;
+			}
+
+			std::format_to(std::back_inserter(formattedString), "{:02X}", byte);
+		}
+
 	public:
 		constexpr bool negative() const
 		{
@@ -411,12 +444,14 @@ export namespace xablau::algebra
 
 		constexpr int_number &add(const int_number &other)
 		{
-			const bool nonNegativeAddends = !this->_number.back() && !other._number.back();
-			const bool negativeAddends = this->_number.back() && other._number.back();
+			const bool signLHS = this->_number.back();
+			const bool signRHS = other._number.back();
+			const bool nonNegativeAddends = !signLHS && !signRHS;
+			const bool negativeAddends = signLHS && signRHS;
 
 			if (other._number.size() > this->_number.size())
 			{
-				this->_number.resize(other._number.size(), this->_number.back());
+				this->_number.resize(other._number.size(), signLHS);
 			}
 
 			std::vector < bool > ::size_type i = 0;
@@ -424,17 +459,20 @@ export namespace xablau::algebra
 
 			for (; i < other._number.size(); i++)
 			{
-				const bool result = this->_number[i] ^ other._number[i] ^ carry;
+				const bool lhs = this->_number[i];
+				const bool rhs = other._number[i];
+				const bool result = lhs ^ rhs ^ carry;
 
-				carry = (this->_number[i] && other._number[i]) || (carry && (this->_number[i] || other._number[i]));
+				carry = (lhs && rhs) || (carry && (lhs || rhs));
 				this->_number[i] = result;
 			}
 
 			for (; i < this->_number.size(); i++)
 			{
-				const bool result = this->_number[i] ^ other._number.back() ^ carry;
+				const bool lhs = this->_number[i];
+				const bool result = lhs ^ signRHS ^ carry;
 
-				carry = (this->_number[i] && other._number.back()) || (carry && (this->_number[i] || other._number.back()));
+				carry = (lhs && signRHS) || (carry && (lhs || signRHS));
 				this->_number[i] = result;
 			}
 
@@ -446,13 +484,13 @@ export namespace xablau::algebra
 					this->_number.push_back(false);
 				}
 
-				else if (this->_number.back())
+				else if (signLHS)
 				{
 					this->_number.push_back(false);
 				}
 			}
 
-			else if (negativeAddends && !this->_number.back())
+			else if (negativeAddends && !signLHS)
 			{
 				this->_number.push_back(true);
 			}
@@ -475,15 +513,12 @@ export namespace xablau::algebra
 		{
 			bool resultSign = false;
 			bool otherSign = false;
-			int_number result = *this;
 
-			int_number::convert_factors_to_positive(result, resultSign, factor, otherSign);
+			int_number::convert_factors_to_positive(*this, resultSign, factor, otherSign);
 
-			result.multiply_positive_factors(factor);
+			this->multiply_positive_factors(factor);
 
-			int_number::restore_sign(result, resultSign, otherSign);
-
-			*this = std::move(result);
+			int_number::restore_sign(*this, resultSign, otherSign);
 
 			return *this;
 		}
@@ -835,6 +870,32 @@ export namespace xablau::algebra
 			result.bitwise_not();
 
 			return result;
+		}
+
+		constexpr std::string format() const
+		{
+			auto iterator = this->_number.crbegin();
+			std::string formattedString = "0X";
+
+			if (const auto i = static_cast < int > (this->_number.size() % 8) - 1;
+				i >= 0)
+			{
+				int_number::format(formattedString, i, *iterator, iterator);
+			}
+
+			while (iterator != this->_number.crend())
+			{
+				int_number::format(formattedString, 7, iterator);
+			}
+
+			return formattedString;
+		}
+
+		friend std::ostream &operator<<(std::ostream &stream, const int_number &number)
+		{
+			stream << number.format();
+
+			return stream;
 		}
 
 		constexpr std::intmax_t convert_to_int() const

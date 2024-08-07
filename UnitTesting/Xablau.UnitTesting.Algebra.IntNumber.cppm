@@ -869,4 +869,40 @@ namespace xablau::unit_testing
 		EXPECT_EQ(mutableOne.container(), this->one_2.container());
 		EXPECT_EQ(mutableMax.container(), this->max.container());
 	}
+
+	TEST_F(AlgebraIntNumberTest, Formatting)
+	{
+		EXPECT_EQ(this->min.format(), sizeof(std::intmax_t) == 8 ? "0X8000000000000000" : "0X80000000");
+		EXPECT_EQ(this->minus_sixteen.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFF0" : "0XFFFFFFF0");
+		EXPECT_EQ(this->minus_twelve.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFF4" : "0XFFFFFFF4");
+		EXPECT_EQ(this->minus_seven.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFF9" : "0XFFFFFFF9");
+		EXPECT_EQ(this->minus_six.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFA" : "0XFFFFFFFA");
+		EXPECT_EQ(this->minus_five.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFB" : "0XFFFFFFFB");
+		EXPECT_EQ(this->minus_four.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFC" : "0XFFFFFFFC");
+		EXPECT_EQ(this->minus_three.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFD" : "0XFFFFFFFD");
+		EXPECT_EQ(this->minus_two.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFE" : "0XFFFFFFFE");
+		EXPECT_EQ(this->minus_one.format(), sizeof(int) == 8 ? "0XFFFFFFFFFFFFFFFF" : "0XFFFFFFFF");
+		EXPECT_EQ(this->zero.format(), sizeof(int) == 8 ? "0X0000000000000000" : "0X00000000");
+		EXPECT_EQ(this->one.format(), sizeof(int) == 8 ? "0X0000000000000001" : "0X00000001");
+		EXPECT_EQ(this->two.format(), sizeof(int) == 8 ? "0X0000000000000002" : "0X00000002");
+		EXPECT_EQ(this->three.format(), sizeof(int) == 8 ? "0X0000000000000003" : "0X00000003");
+		EXPECT_EQ(this->four.format(), sizeof(int) == 8 ? "0X0000000000000004" : "0X00000004");
+		EXPECT_EQ(this->five.format(), sizeof(int) == 8 ? "0X0000000000000005" : "0X00000005");
+		EXPECT_EQ(this->six.format(), sizeof(int) == 8 ? "0X0000000000000006" : "0X00000006");
+		EXPECT_EQ(this->seven.format(), sizeof(int) == 8 ? "0X0000000000000007" : "0X00000007");
+		EXPECT_EQ(this->eleven.format(), sizeof(int) == 8 ? "0X000000000000000B" : "0X0000000B");
+		EXPECT_EQ(this->twelve.format(), sizeof(int) == 8 ? "0X000000000000000C" : "0X0000000C");
+		EXPECT_EQ(this->fifteen.format(), sizeof(int) == 8 ? "0X000000000000000F" : "0X0000000F");
+		EXPECT_EQ(this->max.format(), sizeof(std::intmax_t) == 8 ? "0X7FFFFFFFFFFFFFFF" : "0X7FFFFFFF");
+		EXPECT_EQ(this->minus_two_2.format(), "0XFE");
+		EXPECT_EQ(this->minus_one_1.format(), "0XFF");
+		EXPECT_EQ(this->minus_one_2.format(), "0XFF");
+		EXPECT_EQ(this->minus_one_3.format(), "0XFF");
+		EXPECT_EQ(this->zero_0.format(), "0X00");
+		EXPECT_EQ(this->zero_1.format(), "0X00");
+		EXPECT_EQ(this->zero_2.format(), "0X00");
+		EXPECT_EQ(this->zero_3.format(), "0X00");
+		EXPECT_EQ(this->one_2.format(), "0X01");
+		EXPECT_EQ(this->one_3.format(), "0X01");
+	}
 }

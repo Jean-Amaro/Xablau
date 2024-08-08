@@ -70,6 +70,8 @@ export namespace xablau::algebra
 			{
 				this->_number[i] = (value & (IntegerType{1} << i)) != 0;
 			}
+
+			this->lean();
 		}
 
 		constexpr void shift_insert(const typename std::vector < bool > ::size_type bitCount)
@@ -83,27 +85,6 @@ export namespace xablau::algebra
 			const auto end = bitCount < limit ? this->_number.begin() + bitCount : this->_number.begin() + limit;
 
 			this->_number.erase(this->_number.begin(), end);
-		}
-
-		constexpr void multiply_positive_factors(const int_number &factor)
-		{
-			int_number result{};
-
-			for (std::vector < bool > ::size_type i = 0; i < factor._number.size(); i++)
-			{
-				if (!factor[i])
-				{
-					continue;
-				}
-
-				int_number addend = *this;
-
-				addend._number.insert(addend._number.cbegin(), i, false);
-
-				result.add(addend);
-			}
-
-			*this = std::move(result);
 		}
 
 		constexpr bool equal_to(const int_number &other) const
@@ -374,6 +355,8 @@ export namespace xablau::algebra
 			if (bitCount > 0)
 			{
 				this->shift_insert(static_cast < typename std::vector < bool > ::size_type > (bitCount));
+
+				this->lean();
 			}
 
 			else if (bitCount < 0)
@@ -416,6 +399,8 @@ export namespace xablau::algebra
 				this->_number[i] = this->_number[i] | signRHS;
 			}
 
+			this->lean();
+
 			return *this;
 		}
 
@@ -438,6 +423,8 @@ export namespace xablau::algebra
 			{
 				this->_number[i] = this->_number[i] & signRHS;
 			}
+
+			this->lean();
 
 			return *this;
 		}
@@ -484,16 +471,18 @@ export namespace xablau::algebra
 					this->_number.push_back(false);
 				}
 
-				else if (signLHS)
+				else if (this->bit_sign())
 				{
 					this->_number.push_back(false);
 				}
 			}
 
-			else if (negativeAddends && !signLHS)
+			else if (negativeAddends && !this->bit_sign())
 			{
 				this->_number.push_back(true);
 			}
+
+			this->lean();
 
 			return *this;
 		}
@@ -509,16 +498,38 @@ export namespace xablau::algebra
 			return *this;
 		}
 
-		constexpr int_number &multiply(int_number factor)
+		constexpr int_number &multiply(const int_number &factor)
 		{
-			bool resultSign = false;
-			bool otherSign = false;
+			int_number result{};
 
-			int_number::convert_factors_to_positive(*this, resultSign, factor, otherSign);
+			for (std::vector < bool > ::size_type i = 0; i < factor._number.size() - 1; i++)
+			{
+				if (!factor[i])
+				{
+					continue;
+				}
 
-			this->multiply_positive_factors(factor);
+				int_number addend = *this;
 
-			int_number::restore_sign(*this, resultSign, otherSign);
+				addend._number.insert(addend._number.cbegin(), i, false);
+
+				result.add(addend);
+			}
+
+			if (factor.bit_sign())
+			{
+				int_number addend = *this;
+
+				addend.negate();
+
+				addend._number.insert(addend._number.cbegin(), factor._number.size() - 1, false);
+
+				result.add(addend);
+			}
+
+			result.lean();
+
+			*this = std::move(result);
 
 			return *this;
 		}
@@ -603,6 +614,8 @@ export namespace xablau::algebra
 			int_number::restore_sign(quotient, dividendBitSign, divisorBitSign);
 
 			*this = std::move(quotient);
+
+			this->lean();
 
 			return *this;
 		}
@@ -875,7 +888,7 @@ export namespace xablau::algebra
 		constexpr std::string format() const
 		{
 			auto iterator = this->_number.crbegin();
-			std::string formattedString = "0X";
+			std::string formattedString;
 
 			if (const auto i = static_cast < int > (this->_number.size() % 8) - 1;
 				i >= 0)
@@ -903,7 +916,7 @@ export namespace xablau::algebra
 			std::vector < bool > ::size_type i = 0;
 			std::intmax_t result{};
 
-			for (; i < this->_number.size() && sizeof(std::intmax_t) * 8; i++)
+			for (; i < this->_number.size() && i < sizeof(std::intmax_t) * 8; i++)
 			{
 				result |= (std::intmax_t{this->_number[i]} << i);
 			}

@@ -105,7 +105,7 @@ export namespace xablau::algebra
 				TensorType >;
 
 	private:
-		static constexpr Type _null_value{};
+		static const Type _null_value;
 
 		static constexpr size_t _rank = Rank::rank();
 
@@ -651,7 +651,7 @@ export namespace xablau::algebra
 
 		explicit constexpr tensor_dense_dynamic(
 			const std::array < size_t, tensor_dense_dynamic::_rank > &size,
-			const Type &value = Type{})
+			const Type &value = tensor_dense_dynamic::_null_value)
 		requires (tensor_dense_dynamic::_type == tensor_type_value::sub)
 		{
 			this->resize(size, value);
@@ -1615,7 +1615,7 @@ export namespace xablau::algebra
 
 			if constexpr (std::integral < Type >)
 			{
-				if (divisor == Type{})
+				if (divisor == tensor_dense_dynamic::_null_value)
 				{
 					throw std::domain_error("\"divisor\" is zero.");
 				}
@@ -1743,7 +1743,7 @@ export namespace xablau::algebra
 			(std::convertible_to < DimensionalityTypes, size_t > && ...))
 		constexpr void resize(DimensionalityTypes && ... args)
 		{
-			this->resize(args..., Type{});
+			this->resize(args..., tensor_dense_dynamic::_null_value);
 		}
 
 		// Thanks, https://www.cppstories.com/2020/09/variadic-pack-first.html/!
@@ -1765,14 +1765,14 @@ export namespace xablau::algebra
 			(std::convertible_to < DimensionalityTypes, size_t > && ...))
 		constexpr void resize(
 			const std::tuple < DimensionalityTypes && ... > &args,
-			const Type &value = Type{})
+			const Type &value = tensor_dense_dynamic::_null_value)
 		{
 			this->resize_with_initialization(args, value);
 		}
 
 		constexpr void resize(
 			const std::array < size_t, tensor_dense_dynamic::_rank > &size,
-			const Type &value = Type{})
+			const Type &value = tensor_dense_dynamic::_null_value)
 		requires (tensor_dense_dynamic::_rank != 0)
 		{
 			this->resize_with_initialization(std::tuple_cat(size), value);
@@ -1915,7 +1915,7 @@ export namespace xablau::algebra
 
 		explicit constexpr tensor_dense_dynamic(
 			const std::array < size_t, tensor_dense_dynamic::_rank > &dimensionalities,
-			const Type &value = Type{})
+			const Type &value = tensor_dense_dynamic::_null_value)
 		requires (tensor_dense_dynamic::_type == tensor_type_value::main)
 		{
 			this->resize(dimensionalities, value);
@@ -1925,4 +1925,14 @@ export namespace xablau::algebra
 
 		constexpr tensor_dense_dynamic(tensor_dense_dynamic &&) noexcept = default;
 	};
+
+	template <
+		typename Type,
+		concepts::tensor_rank Rank,
+		concepts::tensor_memory_order_indices MemoryOrderIndices,
+		concepts::tensor_type TensorType >
+	requires (
+		concepts::valid_tensor_dynamic_memory_order_indices < Rank, MemoryOrderIndices > &&
+		concepts::valid_tensor_type < Type, TensorType >)
+	const Type tensor_dense_dynamic < Type, Rank, MemoryOrderIndices, TensorType > ::_null_value = Type{};
 }

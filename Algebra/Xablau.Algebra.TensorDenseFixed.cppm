@@ -96,7 +96,7 @@ export namespace xablau::algebra
 				TensorType >;
 
 	private:
-		static constexpr Type _null_value{};
+		static const Type _null_value;
 
 		static constexpr size_t _rank = FixedDimensionalities::size();
 
@@ -1435,7 +1435,7 @@ export namespace xablau::algebra
 
 			if constexpr (std::integral < Type >)
 			{
-				if (divisor == Type{})
+				if (divisor == tensor_dense_fixed::_null_value)
 				{
 					throw std::domain_error("\"divisor\" is zero.");
 				}
@@ -1683,4 +1683,14 @@ export namespace xablau::algebra
 
 		constexpr tensor_dense_fixed(tensor_dense_fixed &&) noexcept = default;
 	};
+
+	template <
+		typename Type,
+		concepts::tensor_fixed_dimensionalities FixedDimensionalities,
+		concepts::tensor_memory_order_indices MemoryOrderIndices,
+		concepts::tensor_type TensorType >
+	requires (
+		concepts::valid_tensor_fixed_memory_order_indices < FixedDimensionalities, MemoryOrderIndices > &&
+		concepts::valid_tensor_type < Type, TensorType >)
+	const Type tensor_dense_fixed < Type, FixedDimensionalities, MemoryOrderIndices, TensorType > ::_null_value = Type{};
 }

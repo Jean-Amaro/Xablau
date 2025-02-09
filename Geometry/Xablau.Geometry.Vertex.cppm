@@ -968,9 +968,9 @@ export namespace xablau::geometry
 			std::same_as < std::ranges::range_value_t < Range >, std::function < Type(const vertex &) > >)
 		[[nodiscard]] constexpr vertex transform(const Range &transformFunctions) const
 		{
-			if (std::ranges::size(transformFunctions) >= SpatialDimensionality.dimensionality())
+			if (std::ranges::size(transformFunctions) >= SpatialDimensionality::dimensionality())
 			{
-				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality.dimensionality()\"");
+				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality::dimensionality()\"");
 			}
 
 			vertex vertex;
@@ -1002,9 +1002,9 @@ export namespace xablau::geometry
 			std::same_as < std::ranges::range_value_t < Range >, std::function < Type(const vertex &) > >)
 		constexpr vertex &transform_in_place(const Range &transformFunctions)
 		{
-			if (std::ranges::size(transformFunctions) >= SpatialDimensionality.dimensionality())
+			if (std::ranges::size(transformFunctions) >= SpatialDimensionality::dimensionality())
 			{
-				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality.dimensionality()\"");
+				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality::dimensionality()\"");
 			}
 
 			const auto vertex = *this;
@@ -1012,7 +1012,7 @@ export namespace xablau::geometry
 			std::transform(std::ranges::cbegin(transformFunctions), std::ranges::cend(transformFunctions), this->coordinates.begin(),
 				[&vertex](const std::function < Type(const geometry::vertex &) > &transformFunction) -> Type
 				{
-					return transformFunction(vector);
+					return transformFunction(vertex);
 				});
 
 			return *this;

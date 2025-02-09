@@ -355,7 +355,7 @@ namespace xablau::graph::algorithm
 							currentCell);
 				}
 
-				auto kernel = searchTensor.kernel < KernelSize > (currentPosition);
+				auto kernel = searchTensor.template kernel < KernelSize > (currentPosition);
 
 				visit_neighbors_for_A_star < MoveDiagonally, DistanceType, 0, Rank > (
 					kernel,

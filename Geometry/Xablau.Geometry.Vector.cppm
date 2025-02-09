@@ -1162,9 +1162,9 @@ export namespace xablau::geometry
 			std::same_as < std::ranges::range_value_t < Range >, std::function < Type(const vector &) > >)
 		[[nodiscard]] constexpr vector transform(const Range &transformFunctions) const
 		{
-			if (std::ranges::size(transformFunctions) >= SpatialDimensionality.dimensionality())
+			if (std::ranges::size(transformFunctions) >= SpatialDimensionality::dimensionality())
 			{
-				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality.dimensionality()\"");
+				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality::dimensionality()\"");
 			}
 
 			vector vector;
@@ -1196,9 +1196,9 @@ export namespace xablau::geometry
 			std::same_as < std::ranges::range_value_t < Range >, std::function < Type(const vector &) > >)
 		constexpr vector &transform_in_place(const Range &transformFunctions)
 		{
-			if (std::ranges::size(transformFunctions) >= SpatialDimensionality.dimensionality())
+			if (std::ranges::size(transformFunctions) >= SpatialDimensionality::dimensionality())
 			{
-				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality.dimensionality()\"");
+				throw std::out_of_range("\"transformFunctions.size() >= SpatialDimensionality::dimensionality()\"");
 			}
 
 			const auto vector = *this;
